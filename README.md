@@ -9,7 +9,7 @@
 1. **심사 대상·기관 자동 판정** — 사업 유형과 총사업비를 입력하면 자체/경기도/중앙 심사 여부, 면제·비대상 여부를 2025년 행안부 운영기준 근거 조문과 함께 제시
 2. **투자심사 의뢰서 초안 자동 작성** — 행안부 서식(1~7장)에 맞춰 입력값 기반 초안 생성, Word(.docx) 다운로드 지원
 
-별도 설치 없이 브라우저에서 HTML 파일을 열어 바로 사용합니다.
+별도 설치 없이 브라우저에서 사용합니다. GitHub Pages 링크로 접속하거나, 정적 파일을 내려받아 로컬 서버로 실행합니다.
 
 ## 주요 기능
 
@@ -33,9 +33,39 @@
 - 서울시 공공건축물 건립 공사비 책정 가이드라인 (2024, 기술심사담당관)
 - 엔지니어링사업대가 기준 별표1 (국토교통부)
 
+## 프로젝트 구조
+
+v2.2부터 단일 HTML을 역할별 파일로 분리했습니다.
+
+```
+index.html          진입점 (마크업 + 모듈 로더, GitHub Pages 기본 파일)
+css/styles.css      스타일
+js/
+  data.js           법령 데이터 (면제 사유·사전절차 체크리스트)
+  util.js           DOM 헬퍼 + HTML 이스케이프(esc, XSS 방지)
+  logic.js          순수 심사 판정 로직 (단위 테스트 대상)
+  app.js            상태·렌더링·AI 연동·계산·저장 (ES module 진입)
+test/logic.test.js  심사 임계값 회귀 테스트 (node test/logic.test.js)
+.nojekyll           GitHub Pages가 파일을 그대로 서빙하도록 지정
+agent-v2.2.html     (참고용) 분리 이전 단일 파일 버전
+```
+
+> ES module을 사용하므로 `index.html`을 파일(`file://`)로 직접 열면 동작하지 않습니다.
+> 아래 GitHub Pages 링크로 접속하거나, 로컬에서는 정적 서버로 실행하세요
+> (`python3 -m http.server` 후 `http://localhost:8000`).
+
+## 실행 / 호스팅 (GitHub Pages)
+
+1. 저장소 **Settings → Pages → Build and deployment → Source: Deploy from a branch**
+2. Branch를 `main` / 폴더 `/ (root)` 로 지정 후 저장
+3. 잠시 후 발급되는 `https://<계정>.github.io/<저장소>/` 주소로 접속하면 바로 사용
+
+> 별도 서버 구축·비용 없이 푸시만으로 자동 배포됩니다. 코드 Q&A·초안 작성 등 AI 기능과
+> Word 내보내기는 사용자 브라우저에서 직접 동작하므로 인터넷 연결이 필요합니다.
+
 ## 사용 방법
 
-1. `파주시_투자심사_에이전트_v2.2.html` 파일을 브라우저에서 열기
+1. GitHub Pages 링크 접속 (또는 로컬 서버로 `index.html` 열기)
 2. **기본정보** 탭에서 사업 유형·총사업비·재원·산출방식 입력
 3. **분석 실행** 버튼 클릭 → 심사기관·면제·재심사 결과 확인
 4. **사업비·기간** 탭에서 산출 내역 및 사업일정 입력
@@ -45,20 +75,23 @@
 ## AI 설정 안내
 
 - 설정 아이콘 → 엔진 선택(GPT/Gemini/Claude) → API 키 입력 후 저장
-- API 키는 **사용자 브라우저 localStorage에만 저장**되며 서버로 전송되지 않습니다
-- 키 입력칸은 보안상 저장 여부만 표시하며 값을 다시 보여주지 않습니다
+- API 키는 해당 사업의 AI 호출 시 **각 AI사 API로만 직접 전송**되며, 본 도구 서버로는 전송되지 않습니다(서버 없음)
+- 키는 **사용자 브라우저 localStorage에 저장**됩니다. localStorage는 같은 사이트의 스크립트에서 접근 가능하므로, 공용 PC에서는 사용 후 **키 삭제**를 권장합니다
+- 키 입력칸은 저장 여부만 표시하며 값을 다시 보여주지 않습니다
 
 ## 개발 환경
 
-- 단일 HTML 파일 (서버·DB 없음, 순수 프론트엔드)
-- HTML / CSS / JavaScript (Vanilla)
-- Word 내보내기: docx.js (CDN)
+- 정적 프론트엔드 (서버·DB·빌드 도구 없음) — `index.html` + `css/` + `js/`(ES module)
+- HTML / CSS / JavaScript (Vanilla, ES module)
+- Word 내보내기: docx.js (CDN, `dist/index.iife.js` + SRI 무결성 해시)
+- 단위 테스트: Node 내장 `assert` (`node test/logic.test.js`, 별도 의존성 없음)
 - 개발: 파주시청 ACE팀 (AI 혁신동아리) — 비전공자 + AI 도구 활용 개발
 
 ## 버전 이력
 
 | 버전 | 주요 변경 |
 |------|-----------|
+| v2.2.1 | 단일 HTML → 모듈 분리(css/js), GitHub Pages 배포, XSS 이스케이프 적용, docx CDN 경로·SRI 보정(Word 내보내기 복구), 심사 로직 단위 테스트, Claude 모델 최신화 |
 | v2.2 | 2025 운영기준 전면 정합화, Claude API 연동, 2·3장 자동 작성, 약식/세부 산출 분기, 와이드 UI, API 키 보안 개선 |
 | v2.1 | 초기 배포 (심사기관 판정·사업비 계산기·의뢰서 초안 기본 기능) |
 
