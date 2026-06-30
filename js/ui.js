@@ -1,6 +1,39 @@
 /* js/ui.js — UI 제어·위저드·설정 모달
    의존: utils.js, project.js */
 
+/* ── 단계형 위저드 메타데이터 ──
+   탭 매핑은 switchRT의 탭 순서를 따른다. check()는 해당 단계 완료 여부를
+   런타임 상태(gResult·projectData·gEconResult 등)로 판정하며, 항상 안전하게
+   동작하도록 미정의 전역은 접근 전에 보호한다. */
+var gCurrentStep = 1;
+
+var STEP_META = [
+  { num:1, name:'기본정보',    tab:'basic',  desc:'사업 유형·총사업비·재원 구성 입력',
+    check:function(){ return !!(gv('f_name') && gv('f_type') && gnv('f_cost')>0); } },
+  { num:2, name:'사업비·기간', tab:'calc',   desc:'총사업비 산출내역과 사업기간 계산',
+    check:function(){ return (typeof projectData!=='undefined' && projectData && !!projectData.cost) || gPeriodTotal>0; } },
+  { num:3, name:'경제성',      tab:'econ',   desc:'B/C·NPV·IRR 등 경제성 분석',
+    check:function(){ return !!(gEconResult && gEconResult.bc>0); } },
+  { num:4, name:'심사판단',    tab:'result', desc:'심사기관·면제·재심사 사전판단 실행',
+    check:function(){ return !!gResult; } },
+  { num:5, name:'의뢰서',      tab:'draft',  desc:'투자심사 의뢰서 초안 확인·보완',
+    check:function(){ return !!gResult; } },
+  { num:6, name:'AI 보완',     tab:'ai',     desc:'서술형 항목 AI 초안·규정 Q&A (선택)',
+    check:function(){ return !!(typeof gChatHistory!=='undefined' && gChatHistory && gChatHistory.length>0); } },
+  { num:7, name:'출력·저장',   tab:'output', desc:'Word 내보내기 및 작업 저장',
+    check:function(){ return false; } },
+];
+
+var NEXT_ACTIONS = [
+  '좌측 <b>기본정보</b> 탭에서 사업명·유형·총사업비·재원 구성을 입력하세요.',
+  '<b>사업비·기간</b> 탭에서 총사업비 산출내역과 12단계 사업기간을 계산하세요.',
+  '<b>경제성</b> 탭에서 편익·비용을 입력해 B/C·NPV·IRR을 산출하세요. (해당하는 경우)',
+  '기본정보 입력 후 <b>분석 실행</b>을 눌러 심사기관·면제·재심사 판정을 확인하세요.',
+  '<b>의뢰서</b> 탭에서 자동 생성된 초안을 확인하고 서술형 항목을 보완하세요.',
+  '<b>AI 보완</b> 탭에서 API 키 설정 후 서술형 초안 작성·규정 질의를 활용하세요. (선택)',
+  '<b>출력·저장</b> 탭에서 Word(.docx)로 내보내거나 작업을 저장하세요.',
+];
+
 function switchRT(t){
   var order=['basic','calc','econ','result','draft','ai','output'];
   var cur=order.indexOf(t);
