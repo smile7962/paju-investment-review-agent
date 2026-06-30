@@ -81,3 +81,10 @@ function gc(id){ var el=v(id); return el?el.checked:false; }
 function sv(id,val){ var el=v(id); if(el) el.value=val; }
 function sc(id,val){ var el=v(id); if(el) el.checked=val; }
 function need(t){return '<span class="need">'+t+'</span>';}
+/* HTML 이스케이프 — 사용자 입력을 innerHTML에 넣기 전 반드시 통과시킬 것(XSS 방지) */
+function esc(s){
+  if(s===null||s===undefined) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
