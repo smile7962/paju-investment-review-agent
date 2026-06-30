@@ -222,3 +222,8 @@ function getLaws(type) {
   var sp = specific[type] || specific['general'];
   return sp.concat(common);
 }
+
+/* Node 단위 테스트용 export — 브라우저에선 module이 정의되지 않아 무시됨 */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { getAuthority, getReReview, getDeadline, getCentralDeadline };
+}

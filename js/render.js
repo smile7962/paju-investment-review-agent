@@ -12,7 +12,7 @@ function renderResult(r){
     var exReason=r.auth.type==='none'?'기준 금액 미만으로 투자심사 의무없음':('면제 사유: '+r.auth.reason);
     h+='<div class="vb none-type"><div class="vb-icon">&#9989;</div>';
     h+='<div style="flex:1"><div class="vb-main green">'+exLabel+'</div>';
-    h+='<div class="vb-detail">'+(r.name||'(사업명 미입력)')+' | '+(typeMap[r.type]||'')+' | 총사업비 '+r.cost+'억원</div>';
+    h+='<div class="vb-detail">'+esc(r.name||'(사업명 미입력)')+' | '+(typeMap[r.type]||'')+' | 총사업비 '+r.cost+'억원</div>';
     if(r.auth.law) h+='<div class="vb-law">'+r.auth.law+'</div>';
     h+='<div style="font-size:12px;color:var(--g600);margin-top:5px">'+exReason+'</div>';
     h+='</div></div>';
@@ -27,7 +27,7 @@ function renderResult(r){
 
   h+='<div class="vb req-type"><div class="vb-icon">&#127963;</div>';
   h+='<div style="flex:1"><div class="vb-main blue">투자심사 필요 — '+r.auth.label+'</div>';
-  h+='<div class="vb-detail">'+(r.name||'(사업명 미입력)')+' | '+(typeMap[r.type]||'')+' | 총사업비 '+r.cost+'억원</div>';
+  h+='<div class="vb-detail">'+esc(r.name||'(사업명 미입력)')+' | '+(typeMap[r.type]||'')+' | 총사업비 '+r.cost+'억원</div>';
   if(r.auth.law) h+='<div class="vb-law">'+r.auth.law+'</div>';
   h+='</div></div>';
 
@@ -221,10 +221,10 @@ function renderCheck(r){
   var items=isEv?[
     {no:'1',item:'심사대상',cont:'총사업비 및 심사주체 확인',guide:'도심사(3억 이상 30억 미만 행사성 등)',ex:''},
     {no:'2',item:'사업계획 수립',cont:'사업계획 수립여부 / 재정합의 이행여부 / 사업성격(근거법령)',guide:'경기도 예산담당관 공문번호 기재',ex:''},
-    {no:'3',item:'사전절차',cont:'중기지방재정계획 반영 / 타당성조사 / 지방재정영향평가 / 주민·전문가 의걷수렴',guide:'반영 연도 및 금액 기재',ex:'예: 반영(&#39;24.11월) / 사업명 00억원'},
-    {no:'4',item:'제출서류',cont:'관련기관·기본현황 / 의뢰서 1번~6번 항목 / 재상정 사유 보완',guide:'항목 빠짘없이 작성',ex:''},
+    {no:'3',item:'사전절차',cont:'중기지방재정계획 반영 / 타당성조사 / 지방재정영향평가 / 주민·전문가 의견수렴',guide:'반영 연도 및 금액 기재',ex:'예: 반영(&#39;24.11월) / 사업명 00억원'},
+    {no:'4',item:'제출서류',cont:'관련기관·기본현황 / 의뢰서 1번~6번 항목 / 재상정 사유 보완',guide:'항목 빠짐없이 작성',ex:''},
     {no:'5',item:'재원조달 능력',cont:'이전재원 / 자체재원 / 기타재원',guide:'공문번호 포함 구체적 기재',ex:'예: (국비) 0억원 / 00부 00과-00호'},
-    {no:'6',item:'주민수혜·참여',cont:'주민 수혜도(%) / 숫원도 / 참여인원',guide:'(수혜주민/전체주민)\xd7100으로 산출',ex:'예: 4.63%(23,719명/511,308명)'},
+    {no:'6',item:'주민수혜·참여',cont:'주민 수혜도(%) / 숙원도 / 참여인원',guide:'(수혜주민/전체주민)\xd7100으로 산출',ex:'예: 4.63%(23,719명/511,308명)'},
     {no:'7',item:'필요성·차별성',cont:'지역사회 영향 / 주제·내용 연관성 / 추진시기 / 타 사업과 차별성',guide:'도내 유사사업과의 차별성 명시',ex:''},
     {no:'8',item:'사업의 타당성',cont:'사업규모·참여인원 / 사업비 산출근거 / 재무·경제 수익성 / 운영방안',guide:'전년도 결과보고서 기준 산출',ex:'예: &#39;24년 OOO축제 정산보고서 기준'},
     {no:'9',item:'사후평가',cont:'사후평가 계획 / 전년도 개선사항 반영 여부',guide:'1회성 행사는 해당없음 명시',ex:''},
@@ -235,8 +235,8 @@ function renderCheck(r){
     {no:'3',item:'사전절차',cont:'중기지방재정계획 반영 / 타당성조사 / 주민·전문가 의견수렴',guide:'반영 연도, 사업명, 금액 / B/C, IRR, NPV 포함',ex:'예: 반영(&#39;24.11월) / 사업명(5개년) 00억원'},
     {no:'4',item:'제출서류',cont:'관련기관·기본현황 / 의뢰서 1번~6번 항목 / 재상정 사유 보완여부',guide:'의뢰서 각 항목 누락 없이 작성',ex:''},
     {no:'5',item:'재원조달 능력',cont:'이전재원(국비·도비) / 자체재원 / 기타재원',guide:'공문번호 및 공모선정 내용 포함',ex:'예: (국비) 0억원 / 00부 00과-00호, 00사업 선정'},
-    {no:'6',item:'주민수혜·요구',cont:'주민 수혜도(%) / 주민 숫원도',guide:'(수혜주민/전체주민)\xd7100으로 산출',ex:'예: 4.63%(23,719명/511,308명)'},
-    {no:'7',item:'필요성·시급성',cont:'사업의 필요성·시급성 / 파급효과',guide:'현황 및 통계자료 쳊부',ex:''},
+    {no:'6',item:'주민수혜·요구',cont:'주민 수혜도(%) / 주민 숙원도',guide:'(수혜주민/전체주민)\xd7100으로 산출',ex:'예: 4.63%(23,719명/511,308명)'},
+    {no:'7',item:'필요성·시급성',cont:'사업의 필요성·시급성 / 파급효과',guide:'현황 및 통계자료 첨부',ex:''},
     {no:'8',item:'사업의 타당성',cont:'사업규모 / 사업비 산출근거 / 재무·경제 수익성 / 운영방안',guide:'유사시설 단가 또는 조달청 기준 적용',ex:'예: 조달청 공사비 정보광장 유사시설 단가'},
     {no:'9',item:'관련법령 절차',cont:'개별법령 관련성 / 법적 제약',guide:'허가·승인 필요 여부 및 처리 현황 기재',ex:'예: 개발제한구역 허가(00법 00조) 취득'},
     {no:'10',item:'기타',cont:'사업추진 위험성 (주민반대, 환경파괴 등)',guide:'쟁송·민원 현황 기재',ex:''},
@@ -244,7 +244,7 @@ function renderCheck(r){
 
   var h='';
   h+='<button class="print-btn" onclick="window.print()">&#128424; 인쇄</button>';
-  h+='<div style="font-size:12px;color:var(--g500);margin-bottom:10px">사업명: <strong>'+(r.name||'미입력')+'</strong> | 총사업비: <strong>'+r.cost+'억원</strong></div>';
+  h+='<div style="font-size:12px;color:var(--g500);margin-bottom:10px">사업명: <strong>'+esc(r.name||'미입력')+'</strong> | 총사업비: <strong>'+r.cost+'억원</strong></div>';
   h+='<div class="gk"><div class="gk-hdr">&#9633; 형식적 요건</div>';
   h+='<table><tr><th style="width:26px">No</th><th style="width:95px">항목</th><th>확인내용 및 작성 가이드</th></tr>';
   for(var ii=0;ii<5;ii++){
