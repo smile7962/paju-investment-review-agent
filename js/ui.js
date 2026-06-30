@@ -219,17 +219,23 @@ function placeChatDock(){
       }
     }
   }
-function updateProgress(completedSteps) {
-  /* FIX② 통합: 체크리스트 업데이트 + 위저드 렌더링 */
-  // 체크리스트 기반 업데이트 (v2.2)
-  if (typeof getActiveKeys === 'function') {
-    var keys = (typeof gCheckState !== 'undefined') ? gCheckState : {};
+function updateProgress(keys) {
+  /* 사전절차 이행률(체크리스트) 갱신 + 위저드 렌더링
+     keys: 체크키 배열(gResult.checkKeys). 진행률 요소 #progress-pct는
+     위저드 요약과 ID가 겹치므로 #check-box 내부로 스코프해 충돌을 피한다. */
+  var box = document.getElementById('result-box');
+  if (box && Array.isArray(keys) && typeof getActiveKeys === 'function') {
     var active = getActiveKeys(keys);
-    if (active && typeof active.done !== 'undefined') {
-      var pbar = document.getElementById('check-progress-bar');
-      var ptxt = document.getElementById('check-progress-text');
-      if (pbar) pbar.style.width = (active.pct || 0) + '%';
-      if (ptxt) ptxt.textContent = (active.done || 0) + '/' + (active.total || 0);
+    if (active.length) {
+      var done  = active.filter(function(k){ return gCheckState[k] === 'done';  }).length;
+      var doing = active.filter(function(k){ return gCheckState[k] === 'doing'; }).length;
+      var pct = Math.round(done / active.length * 100);
+      var pf = box.querySelector('.progress-bar-fill'); if (pf) pf.style.width = pct + '%';
+      var pp = box.querySelector('.progress-pct');      if (pp) pp.textContent = pct + '%';
+      var ps = box.querySelector('.progress-status');
+      if (ps) ps.textContent = '완료 ' + done + '건 / 진행중 ' + doing + '건 / 전체 ' + active.length + '건';
+      var db = box.querySelector('.done-banner'); if (db) db.style.display = (pct === 100) ? 'flex' : 'none';
+      var nb = box.querySelector('.next-box');    if (nb && pct === 100) nb.style.display = 'none';
     }
   }
   // 위저드 진행 단계 렌더링 (v3)
@@ -239,6 +245,8 @@ function updateProgress(completedSteps) {
 function renderNextCard() {
   var card = document.getElementById('next-action-card');
   if (!card) return;
+  /* 위저드 메타데이터(STEP_META·NEXT_ACTIONS)가 정의되지 않은 경우 안전하게 종료 */
+  if (typeof STEP_META === 'undefined' || typeof NEXT_ACTIONS === 'undefined') return;
   var s = STEP_META[gCurrentStep-1];
   var action = NEXT_ACTIONS[gCurrentStep-1];
   // 비대상 판정 시 안내 변경
@@ -258,6 +266,7 @@ function renderNextCard() {
     + '</div>';
 }
 function goToStep(n) {
+  if (typeof STEP_META === 'undefined') return;
   n = Math.max(1, Math.min(7, n));
   gCurrentStep = n;
   renderWizard();
@@ -269,6 +278,7 @@ function goToStep(n) {
 function renderWizard() {
   var wrap = document.getElementById('wizard-steps');
   if (!wrap) return;
+  if (typeof STEP_META === 'undefined') return;
   var completed = STEP_META.filter(function(s){ return s.check(); }).map(function(s){return s.num;});
   var html = '';
   STEP_META.forEach(function(s, i) {
