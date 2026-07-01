@@ -87,6 +87,17 @@ function initAll(){
     if(typeof initProject==='function') initProject();
     if(typeof renderWizard==='function') renderWizard();
     if(typeof renderNextCard==='function') renderNextCard();
+    /* 접근성: 정적 컨트롤 라벨링 + 동적 렌더 대응(디바운스 관찰) */
+    if(typeof applyA11yLabels==='function'){
+      applyA11yLabels();
+      if(window.MutationObserver){
+        var _a11yTimer;
+        new MutationObserver(function(){
+          clearTimeout(_a11yTimer);
+          _a11yTimer=setTimeout(function(){ applyA11yLabels(); }, 150);
+        }).observe(document.body, {childList:true, subtree:true});
+      }
+    }
     // 모든 입력에 자동저장 연결
     document.querySelectorAll('input,select,textarea').forEach(function(el){
       el.addEventListener('change', function(){

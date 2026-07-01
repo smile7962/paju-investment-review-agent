@@ -1002,3 +1002,17 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
   .sum-bar{padding:8px 12px;}
 }
 
+/* ④ 접근성 — 키보드 포커스 가시화 (입력에 걸린 outline:none 보완)
+   마우스 클릭 시엔 표시되지 않고 키보드 탐색 시에만 나타남(:focus-visible) */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
+textarea:focus-visible,[tabindex]:focus-visible,[contenteditable]:focus-visible,
+.step:focus-visible,.ri:focus-visible,.ck-row:focus-visible{
+  outline:2px solid var(--pb);outline-offset:2px;border-radius:3px;
+}
+/* 저시력 사용자 대비: 필수 표시·경고색은 이미 굵게 처리됨 */
+
+/* 의뢰서 담당자 입력 필요 카운터 배지 */
+.need-count{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;white-space:nowrap;}
+.need-count.has-need{background:#fdecec;color:#cc0000;}
+.need-count.done{background:#e6f7ee;color:var(--ok);}
+

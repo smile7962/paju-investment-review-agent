@@ -1029,6 +1029,7 @@ function renderDraft(r) {
   var layoutArea='<div class="draft-layout">'+nav+scrollArea+'</div>';
 
   v('draft-box').innerHTML=layoutArea;
+  highlightNeeds();  /* 미처리 [담당자…] 표시 래핑 + 담당자 입력 필요 개수 카운터 갱신 */
   
     /* ── 이벤트 위임: 편집·AI 버튼 ── */
     (function(){
@@ -1305,11 +1306,25 @@ function highlightNeeds() {
   var contents = document.querySelectorAll('.draft-content');
   contents.forEach(function(el) {
     var txt = el.innerHTML;
+    /* 이미 need()로 감싼 것은 재래핑하지 않음(중복 카운트 방지) */
     el.innerHTML = txt.replace(
-      /(\[담당자[^\]]*\])/g,
+      /(?<!class="need">)(\[담당자[^\]]*\])/g,
       '<span class="need">$1</span>'
     );
   });
+  /* 담당자 입력 필요 개수 카운터 갱신 */
+  var box = document.getElementById('draft-box');
+  var badge = document.getElementById('need-count');
+  if (badge && box) {
+    var n = box.querySelectorAll('.need').length;
+    if (n > 0) {
+      badge.textContent = '담당자 입력 필요: ' + n + '곳';
+      badge.className = 'need-count has-need';
+    } else {
+      badge.textContent = '✓ 담당자 입력 완료';
+      badge.className = 'need-count done';
+    }
+  }
 }
 function copyDraft() {
   var el = document.getElementById('draft-box');

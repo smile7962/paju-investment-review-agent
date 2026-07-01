@@ -98,3 +98,42 @@ function esc(s){
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+
+/* ── 접근성: 시각 라벨(.fl)·행 텍스트·placeholder를 컨트롤의 접근가능한 이름으로 연결 ──
+   정적/동적 컨트롤 모두에 aria-label을 부여해 스크린리더가 필드명을 읽도록 한다. */
+function _a11yClean(s){ return (s||'').replace(/\s+/g,' ').trim().slice(0,80); }
+function _a11yFindLabel(c){
+  /* 1) 라디오·체크박스: 같은 행(.ri/.ck-row/label)의 텍스트 */
+  if(c.type==='radio' || c.type==='checkbox'){
+    var row = c.closest('.ri,.ck-row,label') || c.parentElement;
+    if(row){ var t=_a11yClean(row.textContent); if(t) return t; }
+  }
+  /* 2) 컨트롤 또는 그 래퍼의 직전 형제에서 .fl/<label> 탐색 */
+  var nodes=[c, c.parentElement];
+  for(var n=0;n<nodes.length;n++){
+    var el=nodes[n]; if(!el) continue;
+    var p=el.previousElementSibling;
+    while(p){
+      if(p.classList && (p.classList.contains('fl') || p.tagName==='LABEL')) return _a11yClean(p.textContent);
+      p=p.previousElementSibling;
+    }
+  }
+  /* 3) 최후: placeholder */
+  return _a11yClean(c.getAttribute('placeholder')||'');
+}
+function applyA11yLabels(root){
+  var scope=(root && root.querySelectorAll) ? root : document;
+  var ctrls=scope.querySelectorAll('input,select,textarea');
+  for(var i=0;i<ctrls.length;i++){
+    var c=ctrls[i];
+    if(c.type==='hidden') continue;
+    if(c.getAttribute('aria-label') || c.getAttribute('aria-labelledby')) continue;
+    if(c.closest('label')) continue;
+    if(c.id){
+      var esc2=(window.CSS && CSS.escape) ? CSS.escape(c.id) : c.id;
+      if(document.querySelector('label[for="'+esc2+'"]')) continue;
+    }
+    var lbl=_a11yFindLabel(c);
+    if(lbl) c.setAttribute('aria-label', lbl);
+  }
+}
