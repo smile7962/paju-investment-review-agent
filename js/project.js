@@ -265,7 +265,12 @@ function loadSample(){
   var reRi=v('ri-re');
   if(reRi){ setRI('re',reRi); reRi.querySelector('input').checked=true; }
   switchIT('basic');
+  /* 유형 선택 효과 재현 — 서울시 가이드라인 단위공사비(gLastUnit) 자동 세팅 */
+  if(typeof onTypeChange==='function') onTypeChange();
   doAnalyze();
+  /* 계산기 시연을 위한 연면적 예시값 — renderCalc가 입력을 새로 그리므로 doAnalyze 이후에 주입 */
+  sv('ci_area','8000');
+  if(typeof recalcCost==='function') recalcCost();
 }
 function doReset(){
   ['f_name','f_type','f_cost','f_stage','f_nat','f_prov','f_city',

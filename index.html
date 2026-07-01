@@ -139,7 +139,7 @@
   </aside>
   <div class="inp-panel">
   <!-- ══ 진행률 요약 (좌측 패널 상단) ══ -->
-  <div id="progress-summary" class="progress-summary" style="margin-bottom:14px">
+  <div id="progress-summary" class="progress-summary" style="margin-bottom:14px" role="status" aria-live="polite" aria-label="진행률 요약">
     <div id="progress-pct" class="progress-pct">0%</div>
     <div id="progress-desc" class="progress-desc">기본정보를 입력하고 분석 실행을 눌러주세요.</div>
   </div>
@@ -346,7 +346,7 @@
   <div id="next-action-card" class="next-card" style="margin-bottom:16px"></div>
 
     <!-- 단계 네비게이션은 상단 위저드 바(#wizard-steps)로 통합 (중복 탭 행 제거) -->
-    <div class="sum-bar" id="sum-bar">
+    <div class="sum-bar" id="sum-bar" role="status" aria-live="polite" aria-label="사업 요약">
       <div class="sum-item"><span class="sum-label">총사업비</span><span class="sum-val" id="sum-cost">-</span></div>
       <div class="sum-item"><span class="sum-label">재원합계</span><span class="sum-val" id="sum-finance">-</span></div>
       <div class="sum-item"><span class="sum-label">심사구분</span><span class="sum-val" id="sum-judge">-</span></div>
@@ -422,7 +422,8 @@
         <button class="draft-btn" style="background:#003C96;color:#fff;border:none"
           onclick="aiDraftBySection()">&#129302; AI로 초안 채우기</button>
         <span style="flex:1"></span>
-        <span style="font-size:10px;color:#888">&#128308; 빨간색 = 담당자 입력 필요</span>
+        <span id="need-count" class="need-count" aria-live="polite"></span>
+        <span style="font-size:10px;color:#888;margin-left:8px">&#128308; 빨간색 = 담당자 입력 필요</span>
       </div>
       <!-- 스크롤 영역 -->
       <div style="flex:1;overflow-y:auto;min-height:0">
