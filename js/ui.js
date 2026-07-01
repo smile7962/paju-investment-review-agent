@@ -11,7 +11,7 @@ var STEP_META = [
   { num:1, name:'기본정보',    tab:'basic',  desc:'사업 유형·총사업비·재원 구성 입력',
     check:function(){ return !!(gv('f_name') && gv('f_type') && gnv('f_cost')>0); } },
   { num:2, name:'사업비·기간', tab:'calc',   desc:'총사업비 산출내역과 사업기간 계산',
-    check:function(){ return (typeof projectData!=='undefined' && projectData && !!projectData.cost) || gPeriodTotal>0; } },
+    check:function(){ return (typeof projectData!=='undefined' && projectData && projectData.cost && projectData.cost.calculatedTotal>0) || gPeriodTotal>0; } },
   { num:3, name:'경제성',      tab:'econ',   desc:'B/C·NPV·IRR 등 경제성 분석',
     check:function(){ return !!(gEconResult && gEconResult.bc>0); } },
   { num:4, name:'심사판단',    tab:'result', desc:'심사기관·면제·재심사 사전판단 실행',
@@ -280,8 +280,12 @@ function renderNextCard() {
   if (!card) return;
   /* 위저드 메타데이터(STEP_META·NEXT_ACTIONS)가 정의되지 않은 경우 안전하게 종료 */
   if (typeof STEP_META === 'undefined' || typeof NEXT_ACTIONS === 'undefined') return;
-  var s = STEP_META[gCurrentStep-1];
-  var action = NEXT_ACTIONS[gCurrentStep-1];
+  /* '지금 할 일'은 현재 탭이 아니라 실제 진행상 첫 미완료 단계를 가리킨다 */
+  var focus = 7;
+  for (var _i=0; _i<STEP_META.length; _i++){ if(!STEP_META[_i].check()){ focus = STEP_META[_i].num; break; } }
+  var allDone = STEP_META.every(function(st){ return st.check(); });
+  var s = STEP_META[focus-1];
+  var action = NEXT_ACTIONS[focus-1];
   // 비대상 판정 시 안내 변경
   var skipNote = '';
   if (gResult && gResult.auth && gResult.auth.type === 'none') {
@@ -291,11 +295,10 @@ function renderNextCard() {
     skipNote = '<div style="margin-top:8px;padding:6px 10px;background:var(--ok-l);border-radius:6px;font-size:11px;color:var(--ok)">'
       + '✅ 면제 사유 해당 — 의뢰서 작성이 필요 없습니다. <a href="#" onclick="goToStep(7);return false" style="color:var(--ok);font-weight:700">7단계로 이동 →</a></div>';
   }
-  card.innerHTML = '<div class="next-card-title">🔵 ' + gCurrentStep + '단계: ' + s.name + '</div>'
+  card.innerHTML = '<div class="next-card-title">📍 지금 할 일 — ' + focus + '단계: ' + s.name + (allDone ? ' (모든 단계 완료 ✓)' : '') + '</div>'
     + '<div class="next-card-body">' + action + skipNote + '</div>'
     + '<div class="next-card-action">'
-    + (gCurrentStep < 7 ? '<button class="btn-next" onclick="goToStep('+(gCurrentStep+1)+')">다음 단계로 → ' + (gCurrentStep+1) + '단계: ' + STEP_META[gCurrentStep].name + '</button>' : '')
-    + (gCurrentStep > 1 ? '<button class="btn-skip" onclick="goToStep('+(gCurrentStep-1)+')">← 이전 단계</button>' : '')
+    + '<button class="btn-next" onclick="goToStep('+focus+')">' + focus + '단계로 이동 →</button>'
     + '</div>';
 }
 function goToStep(n) {
@@ -336,10 +339,14 @@ function renderProgressSummary(completed) {
   if (el) el.textContent = pct + '%';
   var desc = document.getElementById('progress-desc');
   if (desc) {
-    var cur = STEP_META[gCurrentStep-1];
-    desc.innerHTML = '<strong style="color:var(--pb)">' + gCurrentStep + '단계 — ' + cur.name + '</strong>'
+    /* 첫 미완료 단계 기준으로 '다음 할 일'을 표시(카드와 일관) */
+    var focus = 7;
+    for (var i=0; i<STEP_META.length; i++){ if(!STEP_META[i].check()){ focus = STEP_META[i].num; break; } }
+    var allDone = completed.length >= STEP_META.length;
+    var cur = STEP_META[focus-1];
+    desc.innerHTML = '<strong style="color:var(--pb)">' + (allDone ? '모든 단계 완료 ✓' : focus + '단계 — ' + cur.name) + '</strong>'
       + '<br>' + completed.length + '단계 완료 · ' + (7-completed.length) + '단계 남음'
-      + '<br><strong style="color:var(--pb)">다음 할 일:</strong> ' + cur.desc;
+      + (allDone ? '' : '<br><strong style="color:var(--pb)">다음 할 일:</strong> ' + cur.desc);
   }
 }
 
