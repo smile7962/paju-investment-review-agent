@@ -369,14 +369,19 @@ function switchProject(id) {
       projects[gCurrentProjectId] = Object.assign(projects[gCurrentProjectId], data);
       localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
     }
-    // ★ FIX① 이전 사업 화면 상태 초기화
+    // ★ 이전 사업 화면 상태 초기화 (탭 컨테이너가 아닌 내부 결과 박스 내용만 비운다.
+    //   rt-result·rt-econ의 innerHTML을 지우면 그 안의 result-box·econ-box 요소 자체가
+    //   삭제되어 이후 렌더가 null 참조로 실패하므로, 박스 내용만 비우고 숨긴다.)
     gResult = null;
-    gEconResult = null;
+    gEconResult = {bc:0, npv:0, irr:0};
     gChatHistory = [];
     gPeriodTotal = 0;
-    var _db=document.getElementById('draft-box'); if(_db) _db.innerHTML='';
-    var _rb=document.getElementById('rt-result'); if(_rb) _rb.innerHTML='';
-    var _eb=document.getElementById('rt-econ');   if(_eb) _eb.innerHTML='';
+    ['result-box','check-box','econ-box','draft-box','calc-box'].forEach(function(id){
+      var el=document.getElementById(id); if(el){ el.innerHTML=''; el.style.display='none'; }
+    });
+    ['empty-result','empty-check','empty-calc','empty-draft','econ-empty'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.style.display='';
+    });
     var _ah=document.getElementById('ai-chat-history'); if(_ah) _ah.innerHTML='';
   }
   gCurrentProjectId = id;
