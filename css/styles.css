@@ -971,3 +971,34 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
 .btn-skip{padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;
   background:#fff;color:var(--g500);border:1px solid var(--g300);cursor:pointer;}
 
+/* ═══════════════ UI 개선 ═══════════════ */
+/* ② 시각 폴리시 — 상호작용 요소 전환·호버·정렬 일관화 */
+.btn-set,.btn-sm,.btn-next,.btn-skip,.sample-btn,.step,.step-btn,
+.fi,.fs,.calc-input,.period-input,.econ-input,.ri,.ck-row{
+  transition:background-color .15s ease,border-color .15s ease,
+    box-shadow .15s ease,color .15s ease,transform .05s ease;
+}
+.btn-sm:hover,.sample-btn:hover,.btn-next:hover{filter:brightness(.97);}
+.btn-sm:active,.btn-set:active,.sample-btn:active,.btn-next:active,.btn-skip:active{transform:translateY(1px);}
+.sum-bar{flex-wrap:wrap;}                 /* 요약 칩 좁을 때 줄바꿈 */
+.wizard .step{cursor:pointer;}
+.wizard .step:hover .step-name{color:var(--pb);}
+.ri:hover,.ck-row:hover{border-color:var(--pb);}
+
+/* ③ 모바일 반응형 (≤640px) — 헤더 겹침 해소 및 밀도 완화 */
+@media(max-width:640px){
+  .hdr{height:auto;min-height:52px;padding:8px 12px;}
+  .hdr-logo{height:26px;margin-right:8px;}
+  .hdr-div{display:none;}
+  .hdr>div{min-width:0;}
+  .hdr-title{font-size:13px;line-height:1.2;}
+  .hdr-sub{display:none;}                 /* 공간 확보 */
+  .ai-badge{display:none;}                /* 버튼과 중복 → 숨김 */
+  .btn-set{padding:6px 10px;font-size:11px;white-space:nowrap;}
+  .project-bar{flex-wrap:wrap;gap:6px;padding:8px 12px;}
+  .project-select{flex:1 1 100%;}
+  .inp-row{grid-template-columns:1fr;}    /* 2열 입력 → 1열 */
+  .info-grid{grid-template-columns:1fr;}  /* 결과 3카드 → 1열 */
+  .sum-bar{padding:8px 12px;}
+}
+
