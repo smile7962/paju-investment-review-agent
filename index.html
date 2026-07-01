@@ -345,36 +345,7 @@
   <!-- ══ 다음 할 일 카드 ══ -->
   <div id="next-action-card" class="next-card" style="margin-bottom:16px"></div>
 
-    <div class="step-nav" id="step-nav">
-      <button class="step-btn active" id="rtab-basic" onclick="switchRT('basic')">
-        <span class="step-circle" id="sc-basic">1</span>
-        <span class="step-label">&#128203; 기본정보</span>
-      </button>
-      <button class="step-btn" id="rtab-calc" onclick="switchRT('calc')">
-        <span class="step-circle" id="sc-calc">2</span>
-        <span class="step-label">&#128181; 사업비&#183;기간</span>
-      </button>
-      <button class="step-btn" id="rtab-econ" onclick="switchRT('econ')">
-        <span class="step-circle" id="sc-econ">3</span>
-        <span class="step-label">&#128200; 경제성</span>
-      </button>
-      <button class="step-btn" id="rtab-result" onclick="switchRT('result')">
-        <span class="step-circle" id="sc-result">4</span>
-        <span class="step-label">&#128202; 심사판단</span>
-      </button>
-      <button class="step-btn" id="rtab-draft" onclick="switchRT('draft')">
-        <span class="step-circle" id="sc-draft">5</span>
-        <span class="step-label">&#128196; 의뢰서</span>
-      </button>
-      <button class="step-btn" id="rtab-ai" onclick="switchRT('ai')">
-        <span class="step-circle" id="sc-ai">6</span>
-        <span class="step-label">&#129302; AI 보완</span>
-      </button>
-      <button class="step-btn" id="rtab-output" onclick="switchRT('output')">
-        <span class="step-circle" id="sc-output">7</span>
-        <span class="step-label">&#128229; 출력&#183;저장</span>
-      </button>
-    </div>
+    <!-- 단계 네비게이션은 상단 위저드 바(#wizard-steps)로 통합 (중복 탭 행 제거) -->
     <div class="sum-bar" id="sum-bar">
       <div class="sum-item"><span class="sum-label">총사업비</span><span class="sum-val" id="sum-cost">-</span></div>
       <div class="sum-item"><span class="sum-label">재원합계</span><span class="sum-val" id="sum-finance">-</span></div>
@@ -387,18 +358,23 @@
     <div id="rt-basic" class="tab-content active res-body">
       <div class="empty-st">
         <div class="empty-icon">&#128203;</div>
-        <div class="empty-title">기본정보부터 입력하세요</div>
-        <div class="empty-desc">좌측 입력 패널에서 사업명, 유형, 총사업비, 재원구성, 심사이력을 차례로 입력하면 상단 요약바에 즉시 반영됩니다.</div>
-        <button class="sample-btn" onclick="switchIT('basic');loadSample()">&#128204; 운정4동 사례로 테스트</button>
+        <div class="empty-title">3단계면 끝나요</div>
+        <div class="empty-desc" style="text-align:left;max-width:440px">
+          <div style="margin:6px 0"><b>①</b> 좌측에서 <b>사업 유형·총사업비·재원</b>을 입력</div>
+          <div style="margin:6px 0"><b>②</b> <b>분석 실행</b> 클릭 → 심사기관·면제·재심사 자동 판정</div>
+          <div style="margin:6px 0"><b>③</b> 사업비·기간·의뢰서 초안까지 자동 생성 후 <b>Word로 내보내기</b></div>
+          <div style="margin-top:10px;color:var(--g500)">처음이시면 아래 사례로 전체 흐름을 먼저 체험해 보세요.</div>
+        </div>
+        <button class="sample-btn" onclick="switchIT('basic');loadSample()">&#128204; 운정4동 사례로 체험하기</button>
       </div>
     </div>
 
     <div id="rt-result" class="tab-content res-body">
       <div id="empty-result" class="empty-st">
         <div class="empty-icon">&#127963;</div>
-        <div class="empty-title">사업 정보를 입력하고<br>판단 버튼을 클릭하세요</div>
-        <div class="empty-desc">심사기관, 사전절차 체크리스트, 이행 추적 기능을 자동 생성합니다</div>
-        <button class="sample-btn" onclick="loadSample()">&#128204; 운정4동 사례로 테스트</button>
+        <div class="empty-title">사업 정보를 입력하고 분석을 실행하세요</div>
+        <div class="empty-desc">심사기관·면제·재심사 판정과 사전절차 체크리스트가 자동 생성됩니다.</div>
+        <button class="sample-btn" onclick="switchIT('basic');loadSample()">&#128204; 운정4동 사례로 체험하기</button>
       </div>
       <div id="result-box" style="display:none"></div>
     </div>
