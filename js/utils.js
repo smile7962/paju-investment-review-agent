@@ -72,6 +72,16 @@ var gChatHistory = [];  /* AI 대화 이력 */
 var gPeriodTotal = 0;   /* calcPeriod 결과 — 전역 저장 */
 var gEconResult  = {bc:0, npv:0, irr:0};  /* calcEcon 결과 — 전역 저장 */
 
+/* ── 프로젝트/자동저장 상태 및 localStorage 키 ──
+   project.js·ui.js가 참조하지만 정의가 누락돼 있던 전역들. 정의하지 않으면
+   앱 초기화(initProject)와 분석(collectProjectData)이 ReferenceError로 실패한다. */
+var PROJECTS_KEY   = 'paju_pj_projects_v3';   /* 다중 사업 목록 저장 키 */
+var CURRENT_PJ_KEY = 'paju_pj_current_v3';    /* 현재 사업 ID 저장 키 */
+var SAVE_KEY       = 'paju_pj_saves_v3';      /* 저장된 작업(불러오기) 키 */
+var gCurrentProjectId = null;
+var gAutoSaveTimer = null;
+var projectData = {basic:{},finance:{},cost:{},period:{},review:{},economy:{},draft:{},ai:{},output:{}};
+
 // ── 헬퍼 함수 ──
 function v(id){ return document.getElementById(id); }
 function gv(id){ var el=v(id); return el?el.value:''; }

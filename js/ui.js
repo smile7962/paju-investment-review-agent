@@ -224,7 +224,7 @@ function updateSummary(){
 
   var sb=v('sum-bc');
   if(sb){
-    if(gEconResult.bc>0){
+    if(gEconResult && gEconResult.bc>0){
       sb.textContent=gEconResult.bc.toFixed(2);
       sb.className='sum-val'+(gEconResult.bc>=1?' ok':' err');
     }else{
@@ -341,4 +341,13 @@ function renderProgressSummary(completed) {
       + '<br>' + completed.length + '단계 완료 · ' + (7-completed.length) + '단계 남음'
       + '<br><strong style="color:var(--pb)">다음 할 일:</strong> ' + cur.desc;
   }
+}
+
+/* ── 앱 초기화 실행 ──
+   스크립트가 <body> 끝에서 로드되므로 DOM은 준비돼 있으나, 안전하게 상태를 확인해 실행.
+   (단일 HTML을 파일로 분리하면서 initAll() 호출이 누락돼 있던 것을 복원) */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAll);
+} else {
+  initAll();
 }
