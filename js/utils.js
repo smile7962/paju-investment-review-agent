@@ -64,7 +64,7 @@ CHECKS_META = {
     desc:'종전 투자심사 결과 재검토·조건부 통보 사항에 대한 이행내용을 의뢰서에 구체적으로 기재해야 합니다.',
     law:'심사규칙 제5조 제2항 제2호', dept:'담당부서: 사업부서'},
 };
-var gAI = 'gpt';
+var gAI = 'gemini';
 var gKey = '';
 var gResult = null;
 var gCheckState = {};
