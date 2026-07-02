@@ -281,7 +281,7 @@ function doReset(){
   gCheckState={};
   gResult=null;
   gChatHistory=[];
-  gPeriodTotal=0;
+  gPeriodTotal=0; window.gPeriodCalculated=false;
   gEconResult={bc:0,npv:0,irr:0};
   window.gLastUnit=0;
   window.gCalcTotal=0;
@@ -380,7 +380,7 @@ function switchProject(id) {
     gResult = null;
     gEconResult = {bc:0, npv:0, irr:0};
     gChatHistory = [];
-    gPeriodTotal = 0;
+    gPeriodTotal = 0; window.gPeriodCalculated = false;
     ['result-box','check-box','econ-box','draft-box','calc-box'].forEach(function(id){
       var el=document.getElementById(id); if(el){ el.innerHTML=''; el.style.display='none'; }
     });

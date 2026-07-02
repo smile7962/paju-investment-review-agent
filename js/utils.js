@@ -108,17 +108,31 @@ function _a11yFindLabel(c){
     var row = c.closest('.ri,.ck-row,label') || c.parentElement;
     if(row){ var t=_a11yClean(row.textContent); if(t) return t; }
   }
-  /* 2) 컨트롤 또는 그 래퍼의 직전 형제에서 .fl/<label> 탐색 */
+  /* 2) 12단계 기간표: 행 첫 셀(단계명) + 열 위치별 접미 */
+  var prow = c.closest('.period12-row');
+  if(prow){
+    var stage = prow.firstElementChild ? _a11yClean(prow.firstElementChild.textContent) : '';
+    var cols = ['기간(월)','법적근거·성격','승인·협의기관'];
+    var inputs = prow.querySelectorAll('input');
+    for(var k=0;k<inputs.length;k++){
+      if(inputs[k]===c) return _a11yClean(stage+' '+(cols[k]||''));
+    }
+  }
+  /* 3) 컨트롤 또는 그 래퍼의 직전 형제에서 라벨 요소(.fl/.calc-label/.project-label/<label>) 탐색 */
   var nodes=[c, c.parentElement];
   for(var n=0;n<nodes.length;n++){
     var el=nodes[n]; if(!el) continue;
     var p=el.previousElementSibling;
     while(p){
-      if(p.classList && (p.classList.contains('fl') || p.tagName==='LABEL')) return _a11yClean(p.textContent);
+      if(p.tagName==='LABEL' || (p.classList && (p.classList.contains('fl')
+        || p.classList.contains('calc-label') || p.classList.contains('project-label')
+        || p.classList.contains('econ-label')))){
+        return _a11yClean(p.textContent);
+      }
       p=p.previousElementSibling;
     }
   }
-  /* 3) 최후: placeholder */
+  /* 4) 최후: placeholder */
   return _a11yClean(c.getAttribute('placeholder')||'');
 }
 function applyA11yLabels(root){
@@ -127,6 +141,8 @@ function applyA11yLabels(root){
   for(var i=0;i<ctrls.length;i++){
     var c=ctrls[i];
     if(c.type==='hidden') continue;
+    /* 보이지 않는 컨트롤(예: display:none 파일 입력)은 라벨 불필요 */
+    if(window.getComputedStyle && getComputedStyle(c).display==='none') continue;
     if(c.getAttribute('aria-label') || c.getAttribute('aria-labelledby')) continue;
     if(c.closest('label')) continue;
     if(c.id){

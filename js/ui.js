@@ -230,7 +230,8 @@ function updateSummary(){
 
   var sp=v('sum-period');
   if(sp){
-    sp.textContent=gPeriodTotal>0?gPeriodTotal+'개월':'-';
+    /* 기본값 자동계산은 노출하지 않고, 사용자가 기간을 계산·입력한 경우에만 표시 */
+    sp.textContent=(window.gPeriodCalculated && gPeriodTotal>0)?gPeriodTotal+'개월':'-';
   }
 
   var sb=v('sum-bc');

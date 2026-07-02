@@ -482,12 +482,13 @@ function callAI(userMsg, callback) {
     callback(null, 'API Key가 설정되지 않았습니다. 우측 상단 AI 설정 버튼을 클릭하세요.');
     return;
   }
-  /* gChatHistory 제외한 메시지만 전송 (AI 초안 요청에는 기록 븘지 않음) */
+  /* gChatHistory 제외한 메시지만 전송 (AI 초안 요청에는 대화 기록을 남기지 않음) */
   var url, opts;
+  var sysFull = buildSystemPrompt(gResult) + buildContextPrompt(gResult);
   if (gAI === 'claude') {
     var claudeModel = (document.getElementById('claude-model-select') ?
-      document.getElementById('claude-model-select').value : 'claude-sonnet-4-5');
-    var sysPromptC = buildSystemPrompt(gResult) + buildContextPrompt(gResult);
+      document.getElementById('claude-model-select').value : 'claude-sonnet-5');
+    var sysPromptC = sysFull;
     url = 'https://api.anthropic.com/v1/messages';
     opts = {
       method: 'POST',
@@ -507,7 +508,7 @@ function callAI(userMsg, callback) {
   } else if (gAI === 'gpt') {
     var gptModel = (document.getElementById('gpt-model-select') ?
       document.getElementById('gpt-model-select').value : 'gpt-4o');
-    var sysPrompt = buildSystemPrompt(gResult) + buildContextPrompt(gResult);
+    var sysPrompt = sysFull;
     url = 'https://api.openai.com/v1/chat/completions';
     opts = {
       method: 'POST',
@@ -527,7 +528,7 @@ function callAI(userMsg, callback) {
   } else {
     var geminiModel = (document.getElementById('gemini-model-select') ?
       document.getElementById('gemini-model-select').value : 'gemini-2.0-flash');
-    var sysPromptG = buildSystemPrompt(gResult) + buildContextPrompt(gResult);
+    var sysPromptG = sysFull;
     url = 'https://generativelanguage.googleapis.com/v1beta/models/'
         + geminiModel + ':generateContent?key=' + gKey;
     opts = {
