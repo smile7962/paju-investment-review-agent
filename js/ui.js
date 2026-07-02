@@ -125,7 +125,7 @@ function openSettings(){
 function closeSettings(){ v('settingsModal').className='modal-ov'; }
 function saveSettings(){
   var typed = v('apiKeyInput').value.trim();
-  var opts={'opt-gpt':'gpt','opt-gemini':'gemini','opt-claude':'claude'};
+  var opts={'opt-gemini':'gemini','opt-claude':'claude'};
   Object.keys(opts).forEach(function(id){
     var el=document.getElementById(id);
     if(el&&el.classList.contains('selected')) gAI=opts[id];
@@ -147,9 +147,9 @@ function saveSettings(){
 }
 function selectAI(ai){
   gAI=ai; selAIUI(ai);
-  var hints={gpt:'sk-proj-...',gemini:'AIza...',claude:'sk-ant-api03-...'};
+  var hints={gemini:'AIza...',claude:'sk-ant-api03-...'};
   v('keyHintLabel').textContent='('+(hints[ai]||'API Key')+')';
-  var rows={gpt:'gpt-model-row',gemini:'gemini-model-row',claude:'claude-model-row'};
+  var rows={gemini:'gemini-model-row',claude:'claude-model-row'};
   Object.keys(rows).forEach(function(k){
     var el=v(rows[k]); if(el) el.style.display=(ai===k)?'block':'none';
   });
@@ -171,21 +171,20 @@ function selectAI(ai){
   if(db) db.style.display=saved?'inline-block':'none';
 }
 function selAIUI(ai){
-  ['gpt','gemini','claude'].forEach(function(a){
+  ['gemini','claude'].forEach(function(a){
     var el=v('opt-'+a);
     if(el) el.className='ai-opt'+(a===ai?' selected':'');
   });
 }
 function updBadge(){
-  var names={gpt:'ChatGPT',gemini:'Gemini',claude:'Claude'};
+  var names={gemini:'Gemini',claude:'Claude'};
   var b=v('aiBadge');
   if(!b) return;
   if(gKey){ b.textContent=(names[gAI]||'AI')+' 연결됨'; b.style.background='#10b981'; }
   else { b.textContent='AI 미설정'; b.style.background='var(--po)'; }
 }
 function updateModelLabel(){
-  [['gpt-model-select','gpt-model-label'],
-   ['gemini-model-select','gemini-model-label'],
+  [['gemini-model-select','gemini-model-label'],
    ['claude-model-select','claude-model-label']].forEach(function(pair){
     var sel=v(pair[0]), lbl=v(pair[1]);
     if(sel&&lbl) lbl.textContent=sel.value;

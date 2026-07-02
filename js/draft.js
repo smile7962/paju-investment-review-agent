@@ -505,29 +505,9 @@ function callAI(userMsg, callback) {
         messages: [{role: 'user', content: userMsg}]
       })
     };
-  } else if (gAI === 'gpt') {
-    var gptModel = (document.getElementById('gpt-model-select') ?
-      document.getElementById('gpt-model-select').value : 'gpt-4o');
-    var sysPrompt = sysFull;
-    url = 'https://api.openai.com/v1/chat/completions';
-    opts = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + gKey
-      },
-      body: JSON.stringify({
-        model: gptModel,
-        max_tokens: 4000,
-        messages: [
-          {role: 'system', content: sysPrompt},
-          {role: 'user',   content: userMsg}
-        ]
-      })
-    };
   } else {
     var geminiModel = (document.getElementById('gemini-model-select') ?
-      document.getElementById('gemini-model-select').value : 'gemini-2.0-flash');
+      document.getElementById('gemini-model-select').value : 'gemini-3.5-flash');
     var sysPromptG = sysFull;
     url = 'https://generativelanguage.googleapis.com/v1beta/models/'
         + geminiModel + ':generateContent?key=' + gKey;
@@ -557,10 +537,6 @@ function callAI(userMsg, callback) {
           txt = data.content.filter(function(c){return c.type==='text';})
                             .map(function(c){return c.text;}).join('');
         }
-      } else if (gAI === 'gpt') {
-        txt = (data.choices && data.choices[0] &&
-               data.choices[0].message &&
-               data.choices[0].message.content) || '';
       } else {
         txt = (data.candidates && data.candidates[0] &&
                data.candidates[0].content &&
@@ -632,7 +608,7 @@ function aiDraftBySection() {
       + 'AI가 의뢰서 초안을 작성 중입니다</div>'
       + '<div style="font-size:12px;color:#666;margin-bottom:16px">'
       + '25개 항목을 순서대로 작성합니다.<br>'
-      + 'GPT: 30치~1분 / Gemini: 20~40초 소요</div>'
+      + 'Gemini: 20~40초 / Claude: 30초~1분 소요</div>'
       + '<div class="ai-typing-dots" style="justify-content:center">'
       + '<span></span><span></span><span></span></div>'
       + '<div style="margin-top:16px">'
