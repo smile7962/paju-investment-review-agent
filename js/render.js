@@ -1190,7 +1190,7 @@ function renderCalc(r) {
   boxEl.innerHTML = h;
   restoreUnitFromType();
   recalcCost();
-  calcPeriod();
+  calcPeriod(true);  /* 초기 렌더 — 사용자 미조작이므로 요약칩에 노출하지 않음 */
 }
 function chapterTitle(txt,anchor){
     return '<div class="draft-chapter-anchor" id="'+anchor+'"></div>'

@@ -314,7 +314,9 @@ function applyPeriodToForm(total, construct) {
   alert('사업기간 '+total+'개월이 의뢰서 1-5항에 반영됩니다.\n의뢰서 초안 탭에서 확인하세요.');
   renderDraft(gResult);
 }
-function calcPeriod() {
+function calcPeriod(auto) {
+  /* auto=true: 렌더 시 기본값 계산(요약칩 미노출) / 미지정: 사용자 조작 */
+  if(!auto) window.gPeriodCalculated=true;
   var total=0, rows=[];
   PERIOD12_ITEMS.forEach(function(p){
     var months=gnv(p[0])||0;
