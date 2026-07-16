@@ -966,7 +966,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
 .btn-sm.danger{color:var(--err,#ef4444);border-color:#fca5a5;}
 .autosave-badge{font-size:10px;color:var(--ok);}
 .wizard-wrap{background:#fff;border-bottom:1px solid var(--g200);padding:0 20px;}
-.wizard{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.wizard{display:flex;align-items:stretch;justify-content:center;overflow-x:auto;scrollbar-width:none;}
 .wizard::-webkit-scrollbar{display:none;}
 .step{display:flex;flex-direction:column;align-items:center;padding:10px 12px;
   cursor:pointer;min-width:84px;border-bottom:3px solid transparent;transition:all .18s;}
