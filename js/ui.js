@@ -94,6 +94,50 @@ function openSettings(){
   selectAI(gAI);
 }
 function closeSettings(){ v('settingsModal').className='modal-ov'; }
+
+/* ── 피드백 5번: 투자심사 비대상 직원도 쓸 수 있는 간이 진단 모드 ──
+   getAuthority()(rules.js)를 그대로 재사용해 몇 개 항목만으로 즉시 판정
+   결과를 보여준다. 전체 위저드를 다 채우지 않아도 되는 저부담 진입점. */
+function openQuickCheck(){
+  var m = v('quickCheckModal');
+  if (m) m.className = 'modal-ov open';
+  var r = v('qc-result');
+  if (r) r.style.display = 'none';
+}
+function closeQuickCheck(){
+  var m = v('quickCheckModal');
+  if (m) m.className = 'modal-ov';
+}
+function runQuickCheck(){
+  if (typeof getAuthority !== 'function') return;
+  var type = gv('qc_type') || 'general';
+  var cost = gnv('qc_cost');
+  var nat = gnv('qc_nat');
+  var isSelf = gc('qc_self');
+  var isJoint = gc('qc_joint');
+  var auth = getAuthority(type, cost, isSelf, isJoint, nat);
+  var box = v('qc-result');
+  if (!box) return;
+  var isLight = (auth.type === 'none' || auth.type === 'exempt');
+  box.innerHTML = '<div class="vb ' + (isLight ? 'ex-type' : 'req-type') + '" style="margin-bottom:0">'
+    + '<div class="vb-icon">' + (isLight ? '&#9989;' : '&#127963;') + '</div>'
+    + '<div><div class="vb-main ' + (isLight ? 'green' : 'blue') + '">' + esc(auth.label) + '</div>'
+    + '<div class="vb-detail">' + esc(auth.range || '') + '</div>'
+    + '<div class="vb-law">' + esc(auth.law || '') + '</div></div></div>'
+    + '<button class="sample-btn" style="margin-top:12px;width:100%" onclick="applyQuickCheckToWizard()">이 사업으로 전체 기능 사용해보기 &#8594;</button>';
+  box.style.display = 'block';
+}
+function applyQuickCheckToWizard(){
+  sv('f_type', gv('qc_type') || 'general');
+  sv('f_cost', gnv('qc_cost'));
+  sv('f_nat', gnv('qc_nat'));
+  sc('f_self', gc('qc_self'));
+  sc('f_joint', gc('qc_joint'));
+  if (typeof onTypeChange === 'function') onTypeChange();
+  closeQuickCheck();
+  goToStep(1);
+  if (typeof updateSummary === 'function') updateSummary();
+}
 function saveSettings(){
   var typed = v('apiKeyInput').value.trim();
   var opts={'opt-gemini':'gemini','opt-claude':'claude','opt-gpt':'gpt'};

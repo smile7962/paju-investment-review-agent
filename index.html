@@ -31,6 +31,7 @@
     <div class="hdr-sub">파주시 AI 혁신동아리 ACE팀 &nbsp;|&nbsp; v3.0</div>
   </div>
   <div class="hdr-right">
+    <button class="btn-set" onclick="openQuickCheck()">&#128269; 간이 진단</button>
     <div class="ai-badge" id="aiBadge">AI 미설정</div>
     <button class="btn-set" onclick="openSettings()">&#9881; AI 설정</button>
   </div>
@@ -70,6 +71,45 @@
     <div class="save-list" id="save-list"></div>
     <div style="margin-top:14px;display:flex;justify-content:flex-end">
       <button class="ai-chat-btn ai-chat-btn-sec" onclick="closeSaveModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="quickCheckModal" onclick="if(event.target===this)closeQuickCheck()">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title">&#128269; 우리 사업, 투자심사 대상일까?</div>
+    <div style="font-size:11px;color:var(--g500);margin-bottom:14px;line-height:1.6">
+      몇 가지만 입력하면 바로 확인할 수 있어요. 지금 당장 투자심사 대상 사업이 없는 분도
+      가볍게 확인해보세요 — 실제 판단은 <b>기본정보 탭</b>에서 전체 정보를 입력해 진행하세요.
+    </div>
+    <div class="fg">
+      <div class="fl">사업 유형</div>
+      <select class="fs" id="qc_type">
+        <option value="general">일반투자사업</option>
+        <option value="office">청사 신축사업</option>
+        <option value="culture">문화·체육시설 신축사업</option>
+        <option value="complex">복합시설 (청사+문화체육)</option>
+        <option value="promo">홍보관 사업</option>
+        <option value="event">공연·축제 등 행사성 사업</option>
+        <option value="debt">채무부담행위 등</option>
+        <option value="joint">공동협력사업</option>
+        <option value="foreign">외국 자본 도입 사업 (외국차관 등)</option>
+      </select>
+    </div>
+    <div class="fg">
+      <div class="fl">총사업비 (억원)</div>
+      <input type="number" class="fi" id="qc_cost" placeholder="예: 15" min="0" step="0.1">
+    </div>
+    <div class="fg">
+      <div class="fl">국비 비율 (%, 모르면 비워두세요)</div>
+      <input type="number" class="fi" id="qc_nat" placeholder="예: 0" min="0" max="100">
+    </div>
+    <div class="ck-row"><input type="checkbox" id="qc_self"><label for="qc_self" style="cursor:pointer">전액 자체재원 사업</label></div>
+    <div class="ck-row"><input type="checkbox" id="qc_joint"><label for="qc_joint" style="cursor:pointer">2개 이상 지자체 공동추진 사업</label></div>
+    <button class="btn-analyze" onclick="runQuickCheck()">진단하기</button>
+    <div id="qc-result" style="display:none;margin-top:14px"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeQuickCheck()">닫기</button>
     </div>
   </div>
 </div>
@@ -163,6 +203,11 @@
             <button class="ai-chat-btn ai-chat-btn-sec" onclick="exportChat()">&#128229; 대화 저장</button>
             <button class="ai-chat-btn ai-chat-btn-sec" onclick="openSaveModal()">&#128193; 작업 저장/불러오기</button>
             <button class="ai-chat-btn ai-chat-btn-warn" onclick="clearChat()">&#128465; 초기화</button>
+          </div>
+          <!-- 항목별 채팅 수정 타겟 표시 -->
+          <div id="chat-target-chip" class="chat-target-chip" style="display:none">
+            <span id="chat-target-label"></span>
+            <button type="button" onclick="clearChatTarget()">&#10005; 해제</button>
           </div>
           <!-- 빠른 질문 버튼 -->
           <div class="ai-quick-btns">
