@@ -80,6 +80,23 @@
         <div class="ai-name">Claude</div>
         <div class="ai-model" id="claude-model-label">claude-sonnet-5</div>
       </div>
+      <div class="ai-opt" onclick="selectAI('gpt')" id="opt-gpt">
+        <div style="font-size:22px">&#128994;</div>
+        <div class="ai-name">ChatGPT</div>
+        <div class="ai-model" id="gpt-model-label">gpt-4o ★권장</div>
+      </div>
+    </div>
+    <!-- ChatGPT 모델 선택 (ChatGPT 선택 시 표시) -->
+    <div id="gpt-model-row" style="margin-bottom:10px;display:none">
+      <label style="font-size:11px;font-weight:700;color:var(--g600);display:block;margin-bottom:4px">ChatGPT 모델 선택</label>
+      <select id="gpt-model-select" class="calc-select" style="font-size:12px" onchange="updateModelLabel()">
+        <option value="gpt-4o">gpt-4o (최신, 균형 ★권장)</option>
+        <option value="gpt-4o-mini">gpt-4o-mini (빠름, 경제적)</option>
+        <option value="gpt-4.1">gpt-4.1 (고성능)</option>
+        <option value="gpt-4.1-mini">gpt-4.1-mini (빠름)</option>
+        <option value="o4-mini">o4-mini (추론 특화)</option>
+      </select>
+      <div style="font-size:10px;color:var(--g500);margin-top:3px">&#9432; API Key: <a href="https://platform.openai.com" target="_blank" style="color:var(--pb)">platform.openai.com</a> 에서 발급</div>
     </div>
     <!-- Gemini 모델 선택 (Gemini 선택 시 표시) -->
     <div id="gemini-model-row" style="margin-bottom:10px">

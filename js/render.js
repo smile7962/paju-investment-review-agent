@@ -1031,10 +1031,15 @@ function renderDraft(r) {
   v('draft-box').innerHTML=layoutArea;
   highlightNeeds();  /* 미처리 [담당자…] 표시 래핑 + 담당자 입력 필요 개수 카운터 갱신 */
   
-    /* ── 이벤트 위임: 편집·AI 버튼 ── */
+    /* ── 이벤트 위임: 편집·AI 버튼 ──
+       draft-box는 renderDraft가 재호출될 때마다 innerHTML만 교체되고 엘리먼트 자체는
+       유지되므로, 매번 리스너를 추가하면 재분석·기간반영 등으로 여러 번 렌더링될 때
+       클릭 1회에 핸들러가 N번 실행되어(편집 토글이 켜졌다 즉시 꺼짐) 버튼이 먹통이 된다.
+       data 속성으로 1회만 바인딩되도록 가드한다. */
     (function(){
       var box=v('draft-box');
-      if(!box) return;
+      if(!box || box.dataset.editDelegated) return;
+      box.dataset.editDelegated='1';
       box.addEventListener('click',function(e){
         /* 편집 버튼 */
         var editBtn=e.target.closest('[data-edit-id]');
@@ -1369,4 +1374,29 @@ function getSecEl(num){ return document.getElementById(secId(num)); }
 function getSecText(num){
   var el=getSecEl(num);
   return el?(el.innerText||el.textContent||'').trim():'';
+}
+/* ── 항목별 직접 편집 토글 (draft-edit-btn 클릭 시 render.js의 이벤트 위임에서 호출) ── */
+function toggleEdit(contentId){
+  var el=v(contentId);
+  if(!el) return;
+  var isEditing=el.contentEditable==='true';
+  if(isEditing){
+    el.contentEditable='false';
+    el.classList.remove('draft-edit-active');
+    /* 편집 완료 후 need 강조 재적용(이미 감싼 곳은 재래핑하지 않음) */
+    el.innerHTML=el.innerHTML.replace(
+      /(?<!class="need">)(\[담당자[^\]]*\]|\[읍면동[^\]]*\]|\[착공[^\]]*\]|\[준공[^\]]*\])/g,
+      '<span class="need">$1</span>');
+    highlightNeeds();
+  } else {
+    el.contentEditable='true';
+    el.classList.add('draft-edit-active');
+    el.focus();
+    var range=document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    var sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
 }
