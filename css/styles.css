@@ -974,6 +974,23 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
   background:var(--pb);color:#fff;border:none;border-radius:99px;
   cursor:pointer;margin-left:6px;opacity:.85}
 .draft-ai-section-btn:hover{opacity:1}
+.draft-chat-edit-btn{font-size:10px;padding:3px 10px;
+  background:#fff;color:var(--pb);border:1px solid var(--pb);border-radius:99px;
+  cursor:pointer;margin-left:6px;opacity:.85}
+.draft-chat-edit-btn:hover{opacity:1;background:var(--pbp)}
+
+/* ── 채팅 항목 타겟 칩 + 수정안 미리보기(피드백 3번) ── */
+.chat-target-chip{display:flex;align-items:center;gap:8px;background:var(--pbp);
+  border:1px solid rgba(0,60,150,.25);border-radius:20px;padding:5px 10px 5px 12px;
+  font-size:11px;color:var(--pb);font-weight:700;}
+.chat-target-chip button{background:none;border:none;color:var(--pb);cursor:pointer;
+  font-size:11px;font-weight:600;padding:2px 4px;}
+.chat-target-chip button:hover{text-decoration:underline;}
+.chat-revision-label{font-size:10px;font-weight:700;color:var(--pb);margin-bottom:6px;}
+.chat-revision-text{font-family:'HY신명조','Malgun Gothic',serif;font-size:12px;
+  line-height:1.8;white-space:pre-wrap;background:var(--g50);border-radius:var(--rs);
+  padding:8px 10px;margin-bottom:8px;}
+.chat-revision-actions{display:flex;gap:6px;}
 
 
 

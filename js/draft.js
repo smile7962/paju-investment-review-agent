@@ -862,6 +862,33 @@ function clearChat() {
   gChatHistory = [];
   var hist = v('ai-chat-history');
   if (hist) hist.innerHTML = '<div class="ai-msg ai-msg-ai"><div class="ai-msg-bubble">대화가 초기화되었습니다. 질문을 입력하세요.</div></div>';
+  if (typeof clearChatTarget === 'function') clearChatTarget();
+}
+/* ── 항목별 채팅 수정(피드백 3번) ──
+   gChatTargetSection이 설정된 동안은 채팅이 자유 대화 대신 "이 항목만
+   지시대로 다시 써줘" 모드로 동작하고, 결과는 즉시 반영하지 않고
+   미리보기+적용 버튼으로 보여준다(AI 실수 시 되돌리기 쉽게). */
+var gChatTargetSection = null; /* {num, title} */
+var _chatRevisionStore = {};
+
+function setChatTargetSection(secNum, secTitle){
+  if(!gResult){ alert('먼저 투자심사 판단을 실행하세요.'); return; }
+  if(!gKey){ alert('AI 설정에서 API Key를 입력하세요.'); openSettings(); return; }
+  gChatTargetSection = { num: secNum, title: secTitle };
+  var chip = v('chat-target-chip');
+  var label = v('chat-target-label');
+  if (label) label.textContent = '현재 편집 중: ' + secNum + ' ' + secTitle;
+  if (chip) chip.style.display = 'flex';
+  var input = v('ai-chat-input');
+  if (input) input.placeholder = secNum + ' 항목을 어떻게 고칠지 지시해주세요. (예: 더 formal하게, 최신 통계로 반영, 3문장으로 줄여줘)';
+  if (typeof toggleFloatingChat === 'function') toggleFloatingChat(true);
+}
+function clearChatTarget(){
+  gChatTargetSection = null;
+  var chip = v('chat-target-chip');
+  if (chip) chip.style.display = 'none';
+  var input = v('ai-chat-input');
+  if (input) input.placeholder = '질문을 입력하세요. (Enter: 전송 / Shift+Enter: 줄바꿈)';
 }
 function sendChat() {
   var input = v('ai-chat-input');
@@ -874,12 +901,77 @@ function sendChat() {
   if (btn) btn.disabled = true;
   addChatMsg('user', msg);
   showTyping();
+  if (gChatTargetSection) {
+    sendSectionRevision(msg, btn);
+    return;
+  }
   callAI(msg, function(resp, err) {
     hideTyping();
     if (btn) btn.disabled = false;
     if (err) { addChatMsg('assistant', '오류: ' + err); return; }
     addChatMsg('assistant', resp);
   });
+}
+function sendSectionRevision(instruction, btn){
+  var target = gChatTargetSection;
+  var curText = (typeof getSecText === 'function') ? getSecText(target.num) : '';
+  var sysFull = buildSystemPrompt(gResult) + buildContextPrompt(gResult);
+  var taskPrompt = sysFull
+    + '\n\n【항목 수정 요청】\n'
+    + '의뢰서 ' + target.num + ' ' + target.title + ' 항목의 현재 내용:\n'
+    + '"""\n' + (curText || '(아직 작성되지 않음)') + '\n"""\n\n'
+    + '사용자 지시: ' + instruction + '\n\n'
+    + '위 지시에 따라 이 항목만 다시 작성해주세요.\n'
+    + '- 마크다운 없이 텍스트만 작성\n'
+    + '- 정보가 없는 부분은 [담당자 입력 필요: 내용] 형태로 표시\n'
+    + '- 항목 제목은 포함하지 말고 본문 내용만 작성하세요.';
+  callAI(taskPrompt, function(resp, err) {
+    hideTyping();
+    if (btn) btn.disabled = false;
+    if (err) { addChatMsg('assistant', '오류: ' + err); return; }
+    addChatRevisionPreview(target, resp.trim());
+  });
+}
+function addChatRevisionPreview(target, text){
+  var now = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  var hist = v('ai-chat-history');
+  if (!hist) return;
+  var id = 'rev-' + Date.now();
+  _chatRevisionStore[id] = { secNum: target.num, text: text };
+  var safeHtml = esc(text).replace(/\n/g,'<br>');
+  var div = document.createElement('div');
+  div.className = 'ai-msg ai-msg-ai';
+  div.innerHTML = '<div class="ai-msg-bubble">'
+    + '<div class="chat-revision-label">' + esc(target.num) + ' ' + esc(target.title) + ' 수정안 (미리보기)</div>'
+    + '<div class="chat-revision-text">' + safeHtml + '</div>'
+    + '<div class="chat-revision-actions">'
+    + '<button type="button" class="ai-chat-btn ai-chat-btn-primary" onclick="applyChatRevision(\'' + id + '\')">&#10003; 이 항목에 적용</button>'
+    + '<button type="button" class="ai-chat-btn ai-chat-btn-sec" onclick="dismissChatRevision(this)">취소</button>'
+    + '</div></div>'
+    + '<div class="ai-msg-meta">AI 어시스턴트 · ' + now + '</div>';
+  hist.appendChild(div);
+  hist.scrollTop = hist.scrollHeight;
+  gChatHistory.push({ role:'assistant', content:'[' + target.num + ' ' + target.title + ' 수정안]\n' + text, time: now });
+}
+function applyChatRevision(id){
+  var data = _chatRevisionStore[id];
+  if (!data) return;
+  var el = (typeof getSecEl === 'function') ? getSecEl(data.secNum) : null;
+  if (!el) { alert('항목을 찾을 수 없습니다: ' + data.secNum); return; }
+  var html = esc(data.text).replace(/\n/g,'<br>')
+    .replace(/(\[담당자[^\]]*\]|\[읍면동[^\]]*\]|\[착공[^\]]*\]|\[준공[^\]]*\])/g, '<span class="need">$1</span>');
+  el.innerHTML = html;
+  el.style.borderLeft = '3px solid var(--ok)';
+  setTimeout(function(){ el.style.borderLeft=''; }, 2000);
+  if (typeof highlightNeeds === 'function') highlightNeeds();
+  delete _chatRevisionStore[id];
+}
+function dismissChatRevision(btn){
+  var msg = btn.closest('.ai-msg');
+  if (msg) msg.remove();
+}
+function chatEditSection(secNum, secTitle){
+  setChatTargetSection(secNum, secTitle);
 }
 function chatKeyDown(e) {
   if (e.key==='Enter' && !e.shiftKey) {

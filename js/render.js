@@ -426,7 +426,8 @@ function renderDraft(r) {
     h+='<span class="draft-section-num">'+num+'</span>';
     h+='<span class="draft-section-title">'+title+'</span>';
     h+='<button class="draft-edit-btn" data-edit-id="'+id+'_content" title="직접 편집">✏ 편집</button>';
-    h+=noAI?'':'<button class="draft-ai-section-btn" data-ai-num="'+safeNum+'" data-ai-title="'+title+'" title="AI로 이 항목만 작성">&#129302; AI</button>';
+    h+=noAI?'':'<button class="draft-ai-section-btn" data-ai-num="'+safeNum+'" data-ai-title="'+title+'" title="AI로 이 항목만 새로 작성">&#129302; AI</button>';
+    h+=noAI?'':'<button class="draft-chat-edit-btn" data-chat-num="'+safeNum+'" data-chat-title="'+title+'" title="AI 채팅으로 이 항목 대화하며 수정">&#128172; 채팅수정</button>';
     h+='</div>';
     h+='<div class="draft-content" id="'+id+'_content">'+content+'</div>';
     h+='</div>';
@@ -1047,12 +1048,21 @@ function renderDraft(r) {
           toggleEdit(editBtn.getAttribute('data-edit-id'));
           return;
         }
-        /* AI 버튼 */
+        /* AI 버튼(원샷 재작성) */
         var aiBtn=e.target.closest('[data-ai-num]');
         if(aiBtn){
           aiSection(
             aiBtn.getAttribute('data-ai-num').replace(/_/g,'-'),
             aiBtn.getAttribute('data-ai-title')
+          );
+          return;
+        }
+        /* 채팅수정 버튼(대화로 항목 다듬기) */
+        var chatBtn=e.target.closest('[data-chat-num]');
+        if(chatBtn){
+          chatEditSection(
+            chatBtn.getAttribute('data-chat-num').replace(/_/g,'-'),
+            chatBtn.getAttribute('data-chat-title')
           );
           return;
         }
@@ -1209,7 +1219,8 @@ function sec(num, title, content, noAI){
     h+='<span class="draft-section-num">'+num+'</span>';
     h+='<span class="draft-section-title">'+title+'</span>';
     h+='<button class="draft-edit-btn" data-edit-id="'+id+'_content" title="직접 편집">✏ 편집</button>';
-    h+=noAI?'':'<button class="draft-ai-section-btn" data-ai-num="'+safeNum+'" data-ai-title="'+title+'" title="AI로 이 항목만 작성">&#129302; AI</button>';
+    h+=noAI?'':'<button class="draft-ai-section-btn" data-ai-num="'+safeNum+'" data-ai-title="'+title+'" title="AI로 이 항목만 새로 작성">&#129302; AI</button>';
+    h+=noAI?'':'<button class="draft-chat-edit-btn" data-chat-num="'+safeNum+'" data-chat-title="'+title+'" title="AI 채팅으로 이 항목 대화하며 수정">&#128172; 채팅수정</button>';
     h+='</div>';
     h+='<div class="draft-content" id="'+id+'_content">'+content+'</div>';
     h+='</div>';
