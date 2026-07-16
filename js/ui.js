@@ -7,83 +7,54 @@
    동작하도록 미정의 전역은 접근 전에 보호한다. */
 var gCurrentStep = 1;
 
+/* v4: 입력(기본정보·재원구성·심사이력)과 결과(계산기~출력)를 하나의 순차
+   단계로 통합. 화면에는 STEP_META[gCurrentStep-1]의 컨테이너 하나만 보이고
+   나머지는 숨겨진다(강사 피드백 — 좌측 패널 상시노출 제거). AI 상담은 더 이상
+   순차 단계가 아니라 우하단 플로팅 패널로 상시 접근 가능하다. */
 var STEP_META = [
-  { num:1, name:'기본정보',    tab:'basic',  desc:'사업 유형·총사업비·재원 구성 입력',
+  { num:1, key:'basic',  id:'it-basic',  icon:'&#128203;', name:'기본정보',   title:'사업 기본정보 입력',
+    desc:'사업명·유형·총사업비를 입력하세요.',
     check:function(){ return !!(gv('f_name') && gv('f_type') && gnv('f_cost')>0); } },
-  { num:2, name:'사업비·기간', tab:'calc',   desc:'총사업비 산출내역과 사업기간 계산',
+  { num:2, key:'budget', id:'it-budget', icon:'&#128176;', name:'재원구성',   title:'재원 구성 입력',
+    desc:'국비·도비·시비·지방채·민자 등 재원 구성을 입력하세요. (전액 자체재원이면 기본정보의 해당 체크박스를 선택하세요)',
+    check:function(){ return (gnv('f_nat')+gnv('f_prov')+gnv('f_city')+gnv('f_bond')+gnv('f_priv'))>0 || gc('f_self'); } },
+  { num:3, key:'review', id:'it-review', icon:'&#128260;', name:'심사이력',   title:'이전 심사 이력',
+    desc:'재심사·2단계 심사인 경우 이전 심사 이력을 입력하세요. 신규 사업이면 바로 다음 단계로 이동해도 됩니다.',
+    check:function(){ var rt=document.querySelector('input[name="rtype"]:checked'); var val=rt?rt.value:'new'; return val==='new' || !!gv('f_prev_result'); } },
+  { num:4, key:'calc',   id:'rt-calc',   icon:'&#129518;', name:'사업비·기간', title:'사업비 계산기·사업기간',
+    desc:'사업비 계산기에서 총사업비 산출내역과 12단계 사업기간을 계산하세요.',
     check:function(){ return (typeof projectData!=='undefined' && projectData && projectData.cost && projectData.cost.calculatedTotal>0) || gPeriodTotal>0; } },
-  { num:3, name:'경제성',      tab:'econ',   desc:'B/C·NPV·IRR 등 경제성 분석',
+  { num:5, key:'econ',   id:'rt-econ',   icon:'&#128200;', name:'경제성',     title:'경제성 분석',
+    desc:'경제성 탭에서 편익·비용을 입력해 B/C·NPV·IRR을 산출하세요. (해당하는 경우)',
     check:function(){ return !!(gEconResult && gEconResult.bc>0); } },
-  { num:4, name:'심사판단',    tab:'result', desc:'심사기관·면제·재심사 사전판단 실행',
+  { num:6, key:'result', id:'rt-result', icon:'&#127963;', name:'심사판단',   title:'투자심사 사전판단 결과',
+    desc:'입력을 마쳤다면 <b>분석 실행</b>을 눌러 심사기관·면제·재심사 판정을 확인하세요.',
     check:function(){ return !!gResult; } },
-  { num:5, name:'의뢰서',      tab:'draft',  desc:'투자심사 의뢰서 초안 확인·보완',
+  { num:7, key:'draft',  id:'rt-draft',  icon:'&#128196;', name:'의뢰서',     title:'투자심사 의뢰서 초안',
+    desc:'의뢰서 탭에서 자동 생성된 초안을 확인하고 서술형 항목을 보완하세요.',
     check:function(){ return !!gResult; } },
-  { num:6, name:'AI 보완',     tab:'ai',     desc:'서술형 항목 AI 초안·규정 Q&A (선택)',
-    check:function(){ return !!(typeof gChatHistory!=='undefined' && gChatHistory && gChatHistory.length>0); } },
-  { num:7, name:'출력·저장',   tab:'output', desc:'Word 내보내기 및 작업 저장',
+  { num:8, key:'output', id:'rt-output', icon:'&#128190;', name:'출력·저장', title:'출력 및 저장',
+    desc:'출력·저장 탭에서 Word(.docx)로 내보내거나 작업을 저장하세요.',
     check:function(){ return false; } },
 ];
 
-var NEXT_ACTIONS = [
-  '좌측 <b>기본정보</b> 탭에서 사업명·유형·총사업비·재원 구성을 입력하세요.',
-  '<b>사업비·기간</b> 탭에서 총사업비 산출내역과 12단계 사업기간을 계산하세요.',
-  '<b>경제성</b> 탭에서 편익·비용을 입력해 B/C·NPV·IRR을 산출하세요. (해당하는 경우)',
-  '기본정보 입력 후 <b>분석 실행</b>을 눌러 심사기관·면제·재심사 판정을 확인하세요.',
-  '<b>의뢰서</b> 탭에서 자동 생성된 초안을 확인하고 서술형 항목을 보완하세요.',
-  '<b>AI 보완</b> 탭에서 API 키 설정 후 서술형 초안 작성·규정 질의를 활용하세요. (선택)',
-  '<b>출력·저장</b> 탭에서 Word(.docx)로 내보내거나 작업을 저장하세요.',
-];
-
-function switchRT(t){
-  var order=['basic','calc','econ','result','draft','ai','output'];
-  var cur=order.indexOf(t);
-  order.forEach(function(x,i){
-    var el=v('rt-'+x);
-    if(el){
-      el.className='tab-content res-body'+(x===t?' active':'');
-      if(x==='draft'&&x===t){el.style.flexDirection='column';el.style.padding='0';}
-      else if(x==='draft'){el.style.flexDirection='';el.style.padding='';}
-    }
-    var btn=v('rtab-'+x);
-    if(btn) btn.className='step-btn'+(x===t?' active':i<cur?' done':'');
-    var sc=v('sc-'+x);
-    if(sc) sc.innerHTML=(i<cur)?'&#10003;':(i+1)+'';
-  });
-  if(t==='basic') switchIT('basic');
-  if(t==='calc'){
-    var cb=v('calc-box');
-    var emCb=v('empty-calc');
-    /* calc-box가 비어있으면 renderCalc 실행 (판단 여부 무관) */
-    if(cb && cb.innerHTML.trim()===''){
-      /* 판단 미실행이어도 계산기는 독립적으로 사용 가능 */
-      if(emCb) emCb.style.display='none';
-      cb.style.display='block';
-      var fakeR=gResult||{cost:parseFloat(document.getElementById('f_cost')?document.getElementById('f_cost').value:0)||0,type:document.getElementById('f_type')?document.getElementById('f_type').value:'general'};
-      if(typeof renderCalc==='function') renderCalc(fakeR);
-    }
-    /* 단가 복원 — DOM이 생성된 후 */
-    setTimeout(function(){
-      var el=document.getElementById('ci_unit');
-      if(el && window.gLastUnit){
-        el.value=window.gLastUnit;
-        var hint=document.getElementById('ci_unit_hint');
-        if(hint) hint.textContent='서울시 가이드라인 자동 적용: '+window.gLastUnit.toLocaleString()+'천원/㎡';
-        if(typeof recalcCost==='function') recalcCost();
-      }
-    },50);
-  }
-  updateSummary();
-}
+/* ── 구버전 탭 이름(switchIT/switchRT) 호환 shim ──
+   project.js/rules.js/render.js/draft.js가 여전히 이 이름으로 호출하므로
+   내부적으로 goToStep()/toggleFloatingChat()에 위임해 하위 호환을 유지한다. */
 function switchIT(t){
-  ['basic','budget','review'].forEach(function(x){
-    var el=v('it-'+x); if(el) el.className='tab-content'+(x===t?' active':'');
-    var btn=v('itab-'+x); if(btn) btn.className='tab-btn'+(x===t?' active':'');
-  });
+  var map={basic:1,budget:2,review:3};
+  if(map[t]) goToStep(map[t]);
+}
+function switchRT(t){
+  if(t==='ai'){ toggleFloatingChat(true); return; }
+  for(var i=0;i<STEP_META.length;i++){
+    if(STEP_META[i].key===t){ goToStep(STEP_META[i].num); return; }
+  }
 }
 function initAll(){
     updateSummary();
     if (gKey) updBadge();
-    placeChatDock();
+    goToStep(1, true);
     if(typeof initProject==='function') initProject();
     if(typeof renderWizard==='function') renderWizard();
     if(typeof renderNextCard==='function') renderNextCard();
@@ -244,26 +215,21 @@ function updateSummary(){
     }
   }
 }
-function placeChatDock(){
-    var c=document.getElementById('ai-chat-container');
-    var slot=document.getElementById('dock-chat-slot');
-    var home=document.getElementById('rt-ai');
-    var tabBtn=document.getElementById('rtab-ai');
-    if(!c||!slot||!home) return;
-    var wide=window.innerWidth>=1680;
-    if(wide){
-      if(c.parentElement!==slot){
-        slot.appendChild(c);
-        if(tabBtn) tabBtn.style.display='none';
-        if(home.className.indexOf('active')>=0) switchRT('result');
-      }
-    } else {
-      if(c.parentElement!==home){
-        home.appendChild(c);
-        if(tabBtn) tabBtn.style.display='';
-      }
-    }
+/* AI 상담 채팅은 더 이상 순차 단계가 아니라 우하단 플로팅 패널에 상시 거주한다.
+   show 생략 시 토글, true/false로 명시적 열기/닫기 가능. */
+function toggleFloatingChat(show){
+  var panel=v('floating-chat-panel');
+  var btn=v('floating-chat-btn');
+  if(!panel) return;
+  var open=(typeof show==='boolean')?show:!panel.classList.contains('open');
+  panel.classList.toggle('open', open);
+  panel.setAttribute('aria-hidden', open?'false':'true');
+  if(btn) btn.classList.toggle('active', open);
+  if(open){
+    var input=v('ai-chat-input');
+    if(input) setTimeout(function(){ input.focus(); }, 200);
   }
+}
 function updateProgress(keys) {
   /* 사전절차 이행률(체크리스트) 갱신 + 위저드 렌더링
      keys: 체크키 배열(gResult.checkKeys). 진행률 요소 #progress-pct는
@@ -290,38 +256,71 @@ function updateProgress(keys) {
 function renderNextCard() {
   var card = document.getElementById('next-action-card');
   if (!card) return;
-  /* 위저드 메타데이터(STEP_META·NEXT_ACTIONS)가 정의되지 않은 경우 안전하게 종료 */
-  if (typeof STEP_META === 'undefined' || typeof NEXT_ACTIONS === 'undefined') return;
-  /* '지금 할 일'은 현재 탭이 아니라 실제 진행상 첫 미완료 단계를 가리킨다 */
-  var focus = 7;
+  if (typeof STEP_META === 'undefined') return;
+  /* '지금 할 일'은 현재 단계가 아니라 실제 진행상 첫 미완료 단계를 가리킨다 */
+  var last = STEP_META.length;
+  var focus = last;
   for (var _i=0; _i<STEP_META.length; _i++){ if(!STEP_META[_i].check()){ focus = STEP_META[_i].num; break; } }
   var allDone = STEP_META.every(function(st){ return st.check(); });
   var s = STEP_META[focus-1];
-  var action = NEXT_ACTIONS[focus-1];
   // 비대상 판정 시 안내 변경
   var skipNote = '';
   if (gResult && gResult.auth && gResult.auth.type === 'none') {
     skipNote = '<div style="margin-top:8px;padding:6px 10px;background:var(--ok-l);border-radius:6px;font-size:11px;color:var(--ok)">'
-      + '✅ 심사 비대상 판정 — 의뢰서 작성이 필요 없습니다. <a href="#" onclick="goToStep(7);return false" style="color:var(--ok);font-weight:700">7단계로 이동 →</a></div>';
+      + '✅ 심사 비대상 판정 — 의뢰서 작성이 필요 없습니다. <a href="#" onclick="goToStep('+last+');return false" style="color:var(--ok);font-weight:700">'+last+'단계로 이동 →</a></div>';
   } else if (gResult && gResult.exempt) {
     skipNote = '<div style="margin-top:8px;padding:6px 10px;background:var(--ok-l);border-radius:6px;font-size:11px;color:var(--ok)">'
-      + '✅ 면제 사유 해당 — 의뢰서 작성이 필요 없습니다. <a href="#" onclick="goToStep(7);return false" style="color:var(--ok);font-weight:700">7단계로 이동 →</a></div>';
+      + '✅ 면제 사유 해당 — 의뢰서 작성이 필요 없습니다. <a href="#" onclick="goToStep('+last+');return false" style="color:var(--ok);font-weight:700">'+last+'단계로 이동 →</a></div>';
   }
   card.innerHTML = '<div class="next-card-title">📍 지금 할 일 — ' + focus + '단계: ' + s.name + (allDone ? ' (모든 단계 완료 ✓)' : '') + '</div>'
-    + '<div class="next-card-body">' + action + skipNote + '</div>'
+    + '<div class="next-card-body">' + s.desc + skipNote + '</div>'
     + '<div class="next-card-action">'
     + '<button class="btn-next" onclick="goToStep('+focus+')">' + focus + '단계로 이동 →</button>'
     + '</div>';
 }
-function goToStep(n) {
+function goToStep(n, skipScroll) {
   if (typeof STEP_META === 'undefined') return;
-  n = Math.max(1, Math.min(7, n));
+  n = Math.max(1, Math.min(STEP_META.length, n));
   gCurrentStep = n;
+  var target = STEP_META[n-1];
+  /* 현재 단계 컨테이너만 노출, 나머지는 숨김 (좌측 패널 상시노출 제거) */
+  STEP_META.forEach(function(s){
+    var el = v(s.id);
+    if (el) el.className = 'tab-content res-body' + (s.num===n ? ' active' : '');
+  });
+  var st = v('stage-title'); if (st) st.innerHTML = target.icon+' '+target.title;
+  var ss = v('stage-sub'); if (ss) ss.innerHTML = target.desc;
+  /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
+  if (target.key === 'calc') {
+    var cb=v('calc-box'), emCb=v('empty-calc');
+    if (cb && cb.innerHTML.trim()===''){
+      if (emCb) emCb.style.display='none';
+      cb.style.display='block';
+      var fakeR=gResult||{cost:gnv('f_cost'), type:gv('f_type')||'general'};
+      if (typeof renderCalc==='function') renderCalc(fakeR);
+    }
+    setTimeout(function(){
+      var el=document.getElementById('ci_unit');
+      if (el && window.gLastUnit){
+        el.value=window.gLastUnit;
+        var hint=document.getElementById('ci_unit_hint');
+        if (hint) hint.textContent='서울시 가이드라인 자동 적용: '+window.gLastUnit.toLocaleString()+'천원/㎡';
+        if (typeof recalcCost==='function') recalcCost();
+      }
+    },50);
+  }
+  /* 이전/다음 내비 갱신 */
+  var prevBtn=v('stage-prev-btn'), nextBtn=v('stage-next-btn'), pos=v('stage-nav-pos');
+  if (prevBtn) prevBtn.style.visibility = (n===1) ? 'hidden' : 'visible';
+  if (nextBtn) nextBtn.style.visibility = (n===STEP_META.length) ? 'hidden' : 'visible';
+  if (pos) pos.textContent = n+' / '+STEP_META.length+'단계';
   renderWizard();
   renderNextCard();
-  // 해당 탭으로 자동 이동
-  var tab = STEP_META[n-1].tab;
-  if (typeof switchRT === 'function') switchRT(tab);
+  updateSummary();
+  if (!skipScroll) {
+    var stage=v('wizard-stage');
+    if (stage) stage.scrollIntoView({behavior:'smooth', block:'start'});
+  }
 }
 function renderWizard() {
   var wrap = document.getElementById('wizard-steps');
@@ -334,7 +333,7 @@ function renderWizard() {
     var active = s.num === gCurrentStep;
     var cls = 'step' + (done?' done':'') + (active?' active':'');
     var icon = done ? '✓' : s.num;
-    html += '<div class="'+cls+'" onclick="goToStep('+s.num+')" title="'+s.desc+'">'
+    html += '<div class="'+cls+'" onclick="goToStep('+s.num+')" title="'+s.desc.replace(/<[^>]+>/g,'')+'">'
           + '<div class="step-circle">'+icon+'</div>'
           + '<div class="step-name">'+s.name+'</div>'
           + '<div class="step-status">'+(done?'완료':active?'진행 중':'대기')+'</div>'
@@ -346,18 +345,19 @@ function renderWizard() {
   renderProgressSummary(completed);
 }
 function renderProgressSummary(completed) {
-  var pct = Math.round((completed.length / 7) * 100);
+  var total = STEP_META.length;
+  var pct = Math.round((completed.length / total) * 100);
   var el = document.getElementById('progress-pct');
   if (el) el.textContent = pct + '%';
   var desc = document.getElementById('progress-desc');
   if (desc) {
     /* 첫 미완료 단계 기준으로 '다음 할 일'을 표시(카드와 일관) */
-    var focus = 7;
+    var focus = total;
     for (var i=0; i<STEP_META.length; i++){ if(!STEP_META[i].check()){ focus = STEP_META[i].num; break; } }
-    var allDone = completed.length >= STEP_META.length;
+    var allDone = completed.length >= total;
     var cur = STEP_META[focus-1];
     desc.innerHTML = '<strong style="color:var(--pb)">' + (allDone ? '모든 단계 완료 ✓' : focus + '단계 — ' + cur.name) + '</strong>'
-      + '<br>' + completed.length + '단계 완료 · ' + (7-completed.length) + '단계 남음'
+      + '<br>' + completed.length + '단계 완료 · ' + (total-completed.length) + '단계 남음'
       + (allDone ? '' : '<br><strong style="color:var(--pb)">다음 할 일:</strong> ' + cur.desc);
   }
 }
