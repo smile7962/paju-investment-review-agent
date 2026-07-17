@@ -31,6 +31,26 @@ function renderResult(r){
   if(r.auth.law) h+='<div class="vb-law">'+r.auth.law+'</div>';
   h+='</div></div>';
 
+  /* ── KPI 리포트 카드 (OpenGov·ClearGov 스타일) — 결론 직후 핵심 숫자 4개 ──
+     행정업무에 맞게 "신뢰도 %" 대신 검증 가능한 값(건수·항목수)만 사용 */
+  var kpiLocal = gnv('f_city') + (r.bond||0);              /* 지방비 부담 = 시비+지방채 */
+  var kpiChecks = (typeof getActiveKeys==='function') ? getActiveKeys(r.checkKeys).length : 0;
+  var kpiRe = r.reTrig.length;
+  h+='<div class="kpi-row">';
+  h+='<div class="kpi-card"><div class="kpi-label">총사업비</div>'
+    +'<div class="kpi-val">'+Number(r.cost).toLocaleString()+'<span class="kpi-unit">억원</span></div>'
+    +'<div class="kpi-sub">'+(typeMap[r.type]||'')+'</div></div>';
+  h+='<div class="kpi-card"><div class="kpi-label">지방비 부담</div>'
+    +'<div class="kpi-val">'+kpiLocal.toLocaleString()+'<span class="kpi-unit">억원</span></div>'
+    +'<div class="kpi-sub">시비+지방채</div></div>';
+  h+='<div class="kpi-card"><div class="kpi-label">사전절차 점검항목</div>'
+    +'<div class="kpi-val">'+kpiChecks+'<span class="kpi-unit">개</span></div>'
+    +'<div class="kpi-sub">아래 체크리스트에서 이행</div></div>';
+  h+='<div class="kpi-card'+(kpiRe>0?' kpi-warn':'')+'"><div class="kpi-label">재심사 사유</div>'
+    +'<div class="kpi-val">'+kpiRe+'<span class="kpi-unit">건</span></div>'
+    +'<div class="kpi-sub">'+(kpiRe>0?'확인 필요':'해당 없음')+'</div></div>';
+  h+='</div>';
+
   if(r.natRatio>=60&&r.natRatio<70){
     h+='<div class="wb"><div class="wb-title">&#9888; 국비 비율 확인 필요</div>';
     h+='<ul><li>현재 국비 비율 '+r.natRatio.toFixed(1)+'% — 70% 이상 시 면제 대상 (시행령 별표 제25호)</li></ul></div>';
