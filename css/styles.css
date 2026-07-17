@@ -80,6 +80,18 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .upload-box-note{font-size:10px;color:var(--po);margin-top:8px;}
 .upload-applied-banner{margin-top:10px;padding:8px 12px;background:#f0fdf4;
   border:1px solid var(--ok);border-radius:var(--rs);font-size:11px;color:#166534;line-height:1.6;}
+
+/* ── AI 사업 기획서 작성 (위저드 1단계) ── */
+.plan-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:0 20px;}
+@media(max-width:640px){.plan-grid{grid-template-columns:1fr;}}
+.plan-status{font-size:12px;margin-top:10px;min-height:16px;}
+.plan-status.busy{color:var(--pb);font-weight:600;}
+.plan-status.done{color:var(--ok);font-weight:600;}
+.plan-status.err{color:var(--pr);font-weight:600;}
+.plan-result-actions{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 8px;}
+.plan-tip{background:var(--pbp);border-radius:var(--rs);padding:9px 13px;
+  font-size:11px;color:var(--pb);margin-bottom:12px;line-height:1.6;}
+#plan-doc .draft-section{margin-bottom:14px;}
 .stage-nav{max-width:min(1180px,94vw);margin:8px auto 32px;padding:0 24px;
   display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .stage-nav-btn{padding:10px 20px;border-radius:24px;font-size:13px;font-weight:700;
@@ -677,7 +689,7 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
   button { display: none !important; }
 
   /* ── 2. 비활성 단계 숨김 (의뢰서 외 전 단계 + 플로팅 챗) ── */
-  #it-basic, #it-budget, #it-review, #rt-result, #rt-calc,
+  #rt-plan, #it-basic, #it-budget, #it-review, #rt-result, #rt-calc,
   #rt-econ, #rt-output, .floating-chat-btn, .floating-chat-panel,
   .stage-nav, .stage-hdr, .stage-intro { display: none !important; }
 
