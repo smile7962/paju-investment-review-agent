@@ -12,10 +12,10 @@ var gCurrentStep = 1;
    나머지는 숨겨진다(강사 피드백 — 좌측 패널 상시노출 제거). AI 상담은 더 이상
    순차 단계가 아니라 우하단 플로팅 패널로 상시 접근 가능하다. */
 var STEP_META = [
-  { num:1, key:'basic',  id:'it-basic',  icon:'&#128203;', name:'기본정보',   title:'사업 기본정보 입력',
+  { num:1, key:'basic',  id:'it-basic',  icon:'&#128203;', name:'기본정보',   title:'사업 기본정보 입력', required:true,
     desc:'사업명·유형·총사업비를 입력하세요.',
     check:function(){ return !!(gv('f_name') && gv('f_type') && gnv('f_cost')>0); } },
-  { num:2, key:'budget', id:'it-budget', icon:'&#128176;', name:'재원구성',   title:'재원 구성 입력',
+  { num:2, key:'budget', id:'it-budget', icon:'&#128176;', name:'재원구성',   title:'재원 구성 입력', required:true,
     desc:'국비·도비·시비·지방채·민자 등 재원 구성을 입력하세요. (전액 자체재원이면 기본정보의 해당 체크박스를 선택하세요)',
     check:function(){ return (gnv('f_nat')+gnv('f_prov')+gnv('f_city')+gnv('f_bond')+gnv('f_priv'))>0 || gc('f_self'); } },
   { num:3, key:'review', id:'it-review', icon:'&#128260;', name:'심사이력',   title:'이전 심사 이력',
@@ -375,12 +375,16 @@ function renderWizard() {
   STEP_META.forEach(function(s, i) {
     var done = completed.indexOf(s.num) >= 0;
     var active = s.num === gCurrentStep;
-    var cls = 'step' + (done?' done':'') + (active?' active':'');
-    var icon = done ? '✓' : s.num;
-    html += '<div class="'+cls+'" onclick="goToStep('+s.num+')" title="'+s.desc.replace(/<[^>]+>/g,'')+'">'
+    /* 오류 상태: 필수 단계인데 미완료이면서 사용자가 이미 지나친 경우
+       (현재 단계보다 앞서 있는데 필수값을 비워둔 채 넘어감) — Carbon Progress
+       Indicator의 error 패턴. 아직 도달 전인 단계는 오류로 표시하지 않는다. */
+    var error = !!s.required && !done && s.num < gCurrentStep;
+    var cls = 'step' + (done?' done':'') + (active?' active':'') + (error?' error':'');
+    var icon = error ? '!' : (done ? '✓' : s.num);
+    html += '<div class="'+cls+'" onclick="goToStep('+s.num+')" title="'+s.desc.replace(/<[^>]+>/g,'')+(error?' — 필수 항목이 비어 있습니다':'')+'">'
           + '<div class="step-circle">'+icon+'</div>'
           + '<div class="step-name">'+s.name+'</div>'
-          + '<div class="step-status">'+(done?'완료':active?'진행 중':'대기')+'</div>'
+          + '<div class="step-status">'+(error?'필수 누락':done?'완료':active?'진행 중':'대기')+'</div>'
           + '</div>';
     if (i < STEP_META.length-1) html += '<div class="step-arrow">›</div>';
   });
