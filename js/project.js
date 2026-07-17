@@ -397,9 +397,10 @@ function switchProject(id) {
   renderProjectBar();
   // 미완료 단계로 자동 이동
   var steps = (pj && pj.completedSteps) || [];
+  var lastStep = (typeof STEP_META!=='undefined') ? STEP_META.length : 8;
   var nextStep = 1;
-  for (var i=1; i<=7; i++) { if (steps.indexOf(i)>=0) nextStep = i+1; else break; }
-  goToStep(Math.min(nextStep, 7));
+  for (var i=1; i<=lastStep; i++) { if (steps.indexOf(i)>=0) nextStep = i+1; else break; }
+  goToStep(Math.min(nextStep, lastStep));
 }
 function deleteProject(id) {
   if (!confirm('이 사업을 삭제할까요? 복구할 수 없습니다.')) return;

@@ -12,38 +12,46 @@ var gCurrentStep = 1;
    나머지는 숨겨진다(강사 피드백 — 좌측 패널 상시노출 제거). AI 상담은 더 이상
    순차 단계가 아니라 우하단 플로팅 패널로 상시 접근 가능하다. */
 var STEP_META = [
-  { num:1, key:'basic',  id:'it-basic',  icon:'&#128203;', name:'기본정보',   title:'사업 기본정보 입력', required:true,
+  { num:1, key:'plan',   id:'rt-plan',   icon:'&#128161;', name:'사업 기획',  title:'AI 사업 기획서 작성',
+    desc:'새 사업 아이디어를 입력하면 AI가 기획서 초안을 작성합니다. 투자심사만 필요하면 건너뛰고 다음 단계로 진행해도 됩니다. (선택)',
+    check:function(){ return !!(typeof window!=='undefined' && window.gPlanGenerated); } },
+  { num:2, key:'basic',  id:'it-basic',  icon:'&#128203;', name:'기본정보',   title:'사업 기본정보 입력', required:true,
     desc:'사업명·유형·총사업비를 입력하세요.',
     check:function(){ return !!(gv('f_name') && gv('f_type') && gnv('f_cost')>0); } },
-  { num:2, key:'budget', id:'it-budget', icon:'&#128176;', name:'재원구성',   title:'재원 구성 입력', required:true,
+  { num:3, key:'budget', id:'it-budget', icon:'&#128176;', name:'재원구성',   title:'재원 구성 입력', required:true,
     desc:'국비·도비·시비·지방채·민자 등 재원 구성을 입력하세요. (전액 자체재원이면 기본정보의 해당 체크박스를 선택하세요)',
     check:function(){ return (gnv('f_nat')+gnv('f_prov')+gnv('f_city')+gnv('f_bond')+gnv('f_priv'))>0 || gc('f_self'); } },
-  { num:3, key:'review', id:'it-review', icon:'&#128260;', name:'심사이력',   title:'이전 심사 이력',
+  { num:4, key:'review', id:'it-review', icon:'&#128260;', name:'심사이력',   title:'이전 심사 이력',
     desc:'재심사·2단계 심사인 경우 이전 심사 이력을 입력하세요. 신규 사업이면 바로 다음 단계로 이동해도 됩니다.',
     check:function(){ var rt=document.querySelector('input[name="rtype"]:checked'); var val=rt?rt.value:'new'; return val==='new' || !!gv('f_prev_result'); } },
-  { num:4, key:'calc',   id:'rt-calc',   icon:'&#129518;', name:'사업비·기간', title:'사업비 계산기·사업기간',
+  { num:5, key:'calc',   id:'rt-calc',   icon:'&#129518;', name:'사업비·기간', title:'사업비 계산기·사업기간',
     desc:'사업비 계산기에서 총사업비 산출내역과 12단계 사업기간을 계산하세요.',
     check:function(){ return (typeof projectData!=='undefined' && projectData && projectData.cost && projectData.cost.calculatedTotal>0) || gPeriodTotal>0; } },
-  { num:5, key:'econ',   id:'rt-econ',   icon:'&#128200;', name:'경제성',     title:'경제성 분석',
+  { num:6, key:'econ',   id:'rt-econ',   icon:'&#128200;', name:'경제성',     title:'경제성 분석',
     desc:'경제성 탭에서 편익·비용을 입력해 B/C·NPV·IRR을 산출하세요. (해당하는 경우)',
     check:function(){ return !!(gEconResult && gEconResult.bc>0); } },
-  { num:6, key:'result', id:'rt-result', icon:'&#127963;', name:'심사판단',   title:'투자심사 사전판단 결과',
+  { num:7, key:'result', id:'rt-result', icon:'&#127963;', name:'심사판단',   title:'투자심사 사전판단 결과',
     desc:'입력을 마쳤다면 <b>분석 실행</b>을 눌러 심사기관·면제·재심사 판정을 확인하세요.',
     check:function(){ return !!gResult; } },
-  { num:7, key:'draft',  id:'rt-draft',  icon:'&#128196;', name:'의뢰서',     title:'투자심사 의뢰서 초안',
+  { num:8, key:'draft',  id:'rt-draft',  icon:'&#128196;', name:'의뢰서',     title:'투자심사 의뢰서 초안',
     desc:'의뢰서 탭에서 자동 생성된 초안을 확인하고 서술형 항목을 보완하세요.',
     check:function(){ return !!gResult; } },
-  { num:8, key:'output', id:'rt-output', icon:'&#128190;', name:'출력·저장', title:'출력 및 저장',
+  { num:9, key:'output', id:'rt-output', icon:'&#128190;', name:'출력·저장', title:'출력 및 저장',
     desc:'출력·저장 탭에서 Word(.docx)로 내보내거나 작업을 저장하세요.',
     check:function(){ return false; } },
 ];
+/* 단계 번호가 아니라 key로 이동 — 단계 순서가 바뀌어도 안전하게 동작 */
+function goToStepKey(key, skipScroll){
+  for(var i=0;i<STEP_META.length;i++){
+    if(STEP_META[i].key===key){ goToStep(STEP_META[i].num, skipScroll); return; }
+  }
+}
 
 /* ── 구버전 탭 이름(switchIT/switchRT) 호환 shim ──
    project.js/rules.js/render.js/draft.js가 여전히 이 이름으로 호출하므로
    내부적으로 goToStep()/toggleFloatingChat()에 위임해 하위 호환을 유지한다. */
 function switchIT(t){
-  var map={basic:1,budget:2,review:3};
-  if(map[t]) goToStep(map[t]);
+  if(t==='basic'||t==='budget'||t==='review') goToStepKey(t);
 }
 function switchRT(t){
   if(t==='ai'){ toggleFloatingChat(true); return; }
@@ -135,7 +143,7 @@ function applyQuickCheckToWizard(){
   sc('f_joint', gc('qc_joint'));
   if (typeof onTypeChange === 'function') onTypeChange();
   closeQuickCheck();
-  goToStep(1);
+  goToStepKey('basic');
   if (typeof updateSummary === 'function') updateSummary();
 }
 function saveSettings(){
