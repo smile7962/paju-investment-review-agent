@@ -122,6 +122,8 @@ function renderPlan(parsed, name, field){
     });
   }
   v('plan-result').style.display = 'block';
+  var ph = v('plan-placeholder');
+  if(ph) ph.style.display = 'none';
 }
 
 function applyPlanToBasic(){

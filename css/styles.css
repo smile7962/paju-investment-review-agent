@@ -56,7 +56,7 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .btn-cancel{padding:10px 16px;background:#fff;color:var(--g600);
   border:1px solid var(--g200);border-radius:var(--rs);font-size:13px;cursor:pointer;}
 /* ── v4: 풀스크린 단계형 위저드 — 좌우 분할 대신 단일 스테이지 ── */
-.main{min-height:calc(100vh - 60px);background:var(--g50);}
+.main{min-height:calc(100vh - 60px);background:var(--g50);transition:margin-right .25s ease;}
 .wizard-stage{max-width:min(1180px,94vw);margin:0 auto;padding:24px 24px 8px;}
 .stage-hdr{padding:4px 0 14px;}
 .stage-hdr .panel-title{font-size:18px;font-weight:800;color:var(--g800);}
@@ -82,16 +82,31 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
   border:1px solid var(--ok);border-radius:var(--rs);font-size:11px;color:#166534;line-height:1.6;}
 
 /* ── AI 사업 기획서 작성 (위저드 1단계) ── */
-.plan-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:0 20px;}
-@media(max-width:640px){.plan-grid{grid-template-columns:1fr;}}
+/* 기획 단계에서만 스테이지를 넓혀 좌(입력)·우(기획서) 분할을 확보 */
+.wizard-stage.stage-wide{max-width:min(1500px,97vw);}
+.plan-split{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);
+  gap:20px;align-items:start;}
+.plan-input-col{position:sticky;top:76px;}
+.plan-report-col{min-width:0;}
+.plan-grid{display:grid;grid-template-columns:1fr;gap:0;}
+.plan-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;min-height:420px;text-align:center;color:var(--g400);font-size:13px;line-height:1.7;
+  background:#fff;border:1.5px dashed var(--g300);border-radius:14px;padding:40px;}
+.plan-placeholder-icon{font-size:40px;opacity:.5;}
 .plan-status{font-size:12px;margin-top:10px;min-height:16px;}
 .plan-status.busy{color:var(--pb);font-weight:600;}
 .plan-status.done{color:var(--ok);font-weight:600;}
 .plan-status.err{color:var(--pr);font-weight:600;}
-.plan-result-actions{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 8px;}
+.plan-result-actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px;}
 .plan-tip{background:var(--pbp);border-radius:var(--rs);padding:9px 13px;
   font-size:11px;color:var(--pb);margin-bottom:12px;line-height:1.6;}
+#plan-doc .draft-page{max-width:100%;box-shadow:0 2px 12px rgba(0,0,0,.06);}
 #plan-doc .draft-section{margin-bottom:14px;}
+@media(max-width:900px){
+  .plan-split{grid-template-columns:1fr;}
+  .plan-input-col{position:static;}
+  .plan-placeholder{min-height:200px;}
+}
 .stage-nav{max-width:min(1180px,94vw);margin:8px auto 32px;padding:0 24px;
   display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .stage-nav-btn{padding:10px 20px;border-radius:24px;font-size:13px;font-weight:700;
@@ -108,11 +123,17 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
   transition:transform .15s,box-shadow .15s;}
 .floating-chat-btn:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 26px rgba(0,60,150,.45);}
 .floating-chat-btn.active{background:var(--pb2);}
-.floating-chat-panel{position:fixed;right:24px;bottom:92px;width:min(420px,calc(100vw - 48px));
-  height:min(640px,calc(100vh - 140px));background:#fff;border-radius:var(--rl);
-  box-shadow:0 12px 40px rgba(0,0,0,.2);z-index:149;display:flex;flex-direction:column;overflow:hidden;
-  opacity:0;transform:translateY(16px) scale(.98);pointer-events:none;transition:opacity .2s,transform .2s;}
-.floating-chat-panel.open{opacity:1;transform:none;pointer-events:auto;}
+/* 우측 고정 도킹 패널 — 오버레이로 본문을 가리지 않고, 열리면 본문이 옆으로 밀린다 */
+.floating-chat-panel{position:fixed;top:60px;right:0;bottom:0;width:min(400px,100vw);
+  background:#fff;border-left:1px solid var(--g200);box-shadow:-6px 0 24px rgba(0,0,0,.10);
+  z-index:149;display:flex;flex-direction:column;overflow:hidden;
+  transform:translateX(100%);transition:transform .25s ease;}
+.floating-chat-panel.open{transform:none;}
+/* 넓은 화면: 도킹 시 본문 영역을 패널 폭만큼 확보(가리지 않음) */
+@media(min-width:1100px){
+  body.chat-docked .main{margin-right:min(400px,34vw);}
+  body.chat-docked .floating-chat-btn{right:calc(min(400px,34vw) + 20px);}
+}
 .floating-chat-panel .dock-hdr{padding:12px 16px;border-bottom:1px solid var(--g200);
   font-size:13px;font-weight:700;color:var(--g700);display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .floating-chat-close{margin-left:auto;background:none;border:none;font-size:14px;color:var(--g400);
@@ -123,7 +144,7 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 #dock-chat-slot .ai-chat-wrap{flex:1;min-height:0;}
 #dock-chat-slot .ai-chat-history{max-height:none;min-height:0;}
 @media(max-width:640px){
-  .floating-chat-panel{right:12px;left:12px;width:auto;bottom:84px;}
+  .floating-chat-panel{width:100vw;left:0;right:0;}
   .floating-chat-btn{right:16px;bottom:16px;}
   .wizard-stage{padding:16px 16px 8px;}
   .stage-nav{padding:0 16px;}

@@ -278,48 +278,59 @@
           투자심사 의뢰서가 필요 없는 일반 사업도 기획서 작성 도구로 활용하세요.
           이미 사업 정보가 정리돼 있다면 <a href="#" onclick="goToStepKey('basic');return false">다음 단계(기본정보)로 건너뛰기 &#8594;</a>
         </div>
-        <div class="sec-grp" style="display:block">
-          <div class="sec-title">사업 아이디어 입력</div>
-          <div class="plan-grid">
-            <div class="fg">
-              <div class="fl">사업 분야 <span class="req">필수</span></div>
-              <select class="fs" id="plan_field">
-                <option value="welfare">복지·보건</option>
-                <option value="culture">문화·체육</option>
-                <option value="office">청사·행정시설</option>
-                <option value="road">도로·교통</option>
-                <option value="env">환경·안전</option>
-                <option value="park">공원·녹지</option>
-                <option value="econ">지역경제·일자리</option>
-                <option value="etc">기타</option>
-              </select>
+        <div class="plan-split">
+          <!-- 좌: 입력 패널 -->
+          <div class="plan-input-col">
+            <div class="sec-grp" style="display:block">
+              <div class="sec-title">사업 아이디어 입력</div>
+              <div class="plan-grid">
+                <div class="fg">
+                  <div class="fl">사업 분야 <span class="req">필수</span></div>
+                  <select class="fs" id="plan_field">
+                    <option value="welfare">복지·보건</option>
+                    <option value="culture">문화·체육</option>
+                    <option value="office">청사·행정시설</option>
+                    <option value="road">도로·교통</option>
+                    <option value="env">환경·안전</option>
+                    <option value="park">공원·녹지</option>
+                    <option value="econ">지역경제·일자리</option>
+                    <option value="etc">기타</option>
+                  </select>
+                </div>
+                <div class="fg">
+                  <div class="fl">사업명 <span style="font-size:10px;color:var(--g400)">(선택 — 미정이면 비워두세요)</span></div>
+                  <input type="text" class="fi" id="plan_name" placeholder="예: 운정3동 주민건강 생활체육센터 건립">
+                </div>
+              </div>
+              <div class="fg">
+                <div class="fl">사업 배경·목적 <span class="req">필수</span></div>
+                <textarea class="fi" id="plan_idea" rows="5" placeholder="어떤 문제를 해결하려는 사업인지, 왜 필요한지 자유롭게 적어주세요. 예: 운정3동은 인구가 급증했지만 주민 체육시설이 부족해 인근 시설이 과밀 상태다. 생활체육 수요를 충족하고 주민 건강을 증진하기 위한 체육센터가 필요하다." style="resize:vertical;line-height:1.6"></textarea>
+              </div>
+              <div class="fg">
+                <div class="fl">대상·규모 <span style="font-size:10px;color:var(--g400)">(선택)</span></div>
+                <input type="text" class="fi" id="plan_scale" placeholder="예: 운정3동 주민 약 4만명 대상 / 연면적 3,000㎡ 규모">
+              </div>
+              <button class="btn-analyze" onclick="generatePlan()">&#129302; AI 기획서 초안 생성</button>
+              <div id="plan-status" class="plan-status"></div>
             </div>
-            <div class="fg">
-              <div class="fl">사업명 <span style="font-size:10px;color:var(--g400)">(선택 — 미정이면 비워두세요)</span></div>
-              <input type="text" class="fi" id="plan_name" placeholder="예: 운정3동 주민건강 생활체육센터 건립">
+          </div>
+          <!-- 우: 기획서 보고서 -->
+          <div class="plan-report-col">
+            <div id="plan-placeholder" class="plan-placeholder">
+              <div class="plan-placeholder-icon">&#128196;</div>
+              <div>좌측에 사업 아이디어를 입력하고 <b>AI 기획서 초안 생성</b>을 누르면<br>여기에 사업 기획서가 작성됩니다.</div>
+            </div>
+            <div id="plan-result" style="display:none">
+              <div class="plan-result-actions">
+                <button class="draft-btn draft-btn-primary" onclick="applyPlanToBasic()">&#8594; 이 기획으로 투자심사 검토하기</button>
+                <button class="draft-btn" style="background:#003C96;color:#fff;border:none" onclick="downloadPlanDocx()">&#128196; 기획서 Word 내보내기</button>
+                <button class="draft-btn draft-btn-secondary" onclick="copyPlan()">&#128203; 전체 복사</button>
+                <button class="draft-btn draft-btn-secondary" onclick="generatePlan()">&#128260; 다시 생성</button>
+              </div>
+              <div class="plan-tip">&#9888; AI가 작성한 초안입니다. 각 항목의 <b>✏ 편집</b> 버튼으로 직접 수정할 수 있으며, 수치·근거는 반드시 담당자가 확인하세요.</div>
+              <div id="plan-doc" class="draft-scroll" style="height:auto;max-height:none;padding:0"></div>
             </div>
           </div>
-          <div class="fg">
-            <div class="fl">사업 배경·목적 <span class="req">필수</span></div>
-            <textarea class="fi" id="plan_idea" rows="4" placeholder="어떤 문제를 해결하려는 사업인지, 왜 필요한지 자유롭게 적어주세요. 예: 운정3동은 인구가 급증했지만 주민 체육시설이 부족해 인근 시설이 과밀 상태다. 생활체육 수요를 충족하고 주민 건강을 증진하기 위한 체육센터가 필요하다." style="resize:vertical;line-height:1.6"></textarea>
-          </div>
-          <div class="fg">
-            <div class="fl">대상·규모 <span style="font-size:10px;color:var(--g400)">(선택)</span></div>
-            <input type="text" class="fi" id="plan_scale" placeholder="예: 운정3동 주민 약 4만명 대상 / 연면적 3,000㎡ 규모">
-          </div>
-          <button class="btn-analyze" onclick="generatePlan()">&#129302; AI 기획서 초안 생성</button>
-          <div id="plan-status" class="plan-status"></div>
-        </div>
-
-        <div id="plan-result" style="display:none">
-          <div class="plan-result-actions">
-            <button class="draft-btn draft-btn-primary" onclick="applyPlanToBasic()">&#8594; 이 기획으로 투자심사 검토하기</button>
-            <button class="draft-btn" style="background:#003C96;color:#fff;border:none" onclick="downloadPlanDocx()">&#128196; 기획서 Word 내보내기</button>
-            <button class="draft-btn draft-btn-secondary" onclick="copyPlan()">&#128203; 전체 복사</button>
-            <button class="draft-btn draft-btn-secondary" onclick="generatePlan()">&#128260; 다시 생성</button>
-          </div>
-          <div class="plan-tip">&#9888; AI가 작성한 초안입니다. 각 항목의 <b>✏ 편집</b> 버튼으로 직접 수정할 수 있으며, 수치·근거는 반드시 담당자가 확인하세요.</div>
-          <div id="plan-doc" class="draft-scroll" style="height:auto;max-height:none;padding:0"></div>
         </div>
       </div>
 

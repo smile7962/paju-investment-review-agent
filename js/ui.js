@@ -277,6 +277,8 @@ function toggleFloatingChat(show){
   panel.classList.toggle('open', open);
   panel.setAttribute('aria-hidden', open?'false':'true');
   if(btn) btn.classList.toggle('active', open);
+  /* 도킹 시 본문을 옆으로 밀어 가리지 않도록 body 클래스 토글 */
+  document.body.classList.toggle('chat-docked', open);
   if(open){
     var input=v('ai-chat-input');
     if(input) setTimeout(function(){ input.focus(); }, 200);
@@ -342,6 +344,9 @@ function goToStep(n, skipScroll) {
   });
   var st = v('stage-title'); if (st) st.innerHTML = target.icon+' '+target.title;
   var ss = v('stage-sub'); if (ss) ss.innerHTML = target.desc;
+  /* 기획 단계는 좌·우 분할이라 스테이지를 넓게 확장 */
+  var stage = v('wizard-stage');
+  if (stage) stage.classList.toggle('stage-wide', target.key === 'plan');
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
   if (target.key === 'calc') {
     var cb=v('calc-box'), emCb=v('empty-calc');
