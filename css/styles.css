@@ -304,6 +304,24 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .rvc-flag.off{color:var(--g400);}
 .rvc-foot{font-size:11px;color:var(--g500);line-height:1.6;margin-top:9px;padding:9px 12px;
   background:var(--g50);border-radius:8px;}
+
+/* ── 사업비 구성 비율 막대(목업) ── */
+.cost-composition{margin-top:14px;background:#fff;border:1px solid var(--brd);border-radius:12px;padding:16px 18px;}
+.cost-composition:empty{display:none;}
+.cc-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.cc-title{font-size:13px;font-weight:800;color:var(--ink);}
+.cc-total{font-size:18px;font-weight:800;color:var(--pb);}
+.cc-total span{font-size:12px;font-weight:700;color:var(--g500);margin-left:2px;}
+.cc-bar{display:flex;height:22px;border-radius:6px;overflow:hidden;background:var(--g100);}
+.cc-bar i{height:100%;transition:width .4s ease;}
+.cc-legend{display:flex;flex-wrap:wrap;gap:7px 16px;margin-top:12px;font-size:12px;color:var(--g600);}
+.cc-leg{display:flex;align-items:center;gap:6px;}
+.cc-dot{width:11px;height:11px;border-radius:3px;display:inline-block;flex-shrink:0;}
+.cc-leg b{color:var(--ink);font-weight:800;}
+.cc-amt{color:var(--g400);font-weight:600;}
+.cc-foot{font-size:11px;color:var(--g500);line-height:1.6;margin-top:11px;padding:9px 12px;
+  background:var(--g50);border-radius:8px;}
+.cc-foot b{color:var(--ink);}
 /* AI 패널 상단 완성도 KPI */
 .ai-kpi-row{display:flex;align-items:stretch;gap:0;padding:12px 16px;border-bottom:1px solid var(--brd);flex-shrink:0;}
 .ai-kpi{flex:1;display:flex;flex-direction:column;justify-content:center;}

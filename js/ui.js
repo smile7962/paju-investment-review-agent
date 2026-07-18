@@ -467,6 +467,8 @@ function goToStep(n, skipScroll) {
         if (hint) hint.textContent='서울시 가이드라인 자동 적용: '+window.gLastUnit.toLocaleString()+'천원/㎡';
         if (typeof recalcCost==='function') recalcCost();
       }
+      /* 이미 산출값이 있으면 구성 비율 막대 갱신(막대는 산출값 없을 때 자동 숨김) */
+      if (typeof renderCostComposition==='function') renderCostComposition();
     },50);
   }
   /* 이전/다음 내비 갱신 — 다음 버튼엔 다음 단계 이름을 표기 */
