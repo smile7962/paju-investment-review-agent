@@ -216,6 +216,26 @@ function renderResult(r){
   }
   h+='</div></div>';
 
+  /* 단계별 진행 인디케이터(목업 image7) — 투자심사 절차 흐름 */
+  var reReq = r.reTrig && r.reTrig.length>0;
+  var flow=[
+    {n:'사전절차 이행', s:'doing'},
+    {n:'사전판단 작성', s:'done'},
+    {n:'재심사', s:(reReq?'active':'skip')},
+    {n:'의뢰서 작성', s:'todo'},
+    {n:'의뢰', s:'todo'}
+  ];
+  h+='<div class="sec"><div class="sec-hd">단계별 진행</div><div class="rflow">';
+  flow.forEach(function(f,i){
+    var mark = f.s==='done'?'&#10003;':(f.s==='skip'?'&#8211;':(i+1));
+    h+='<div class="rflow-step '+f.s+'"><div class="rflow-circle">'+mark+'</div><div class="rflow-name">'+f.n+'</div></div>';
+    if(i<flow.length-1) h+='<div class="rflow-line"></div>';
+  });
+  h+='</div>';
+  h+='<div class="rflow-note">'+(reReq
+      ? '&#9888; 재심사 사유가 있어 <b>재심사</b> 단계를 거쳐야 합니다. 재심사 준비자료를 확인하세요.'
+      : '&#9989; 재심사 사유가 없어 바로 <b>의뢰서 작성</b> 단계로 진행할 수 있습니다.')+'</div></div>';
+
   v('result-box').innerHTML=h;
   setTimeout(function(){ if(gResult) updateProgress(gResult.checkKeys); },50);
 }
