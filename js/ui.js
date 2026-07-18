@@ -268,6 +268,43 @@ function updateSummary(){
       sb.textContent='-'; sb.className='sum-val';
     }
   }
+  renderBudgetSummary(cost, {nat:nat,prov:prov,city:city,bond:bond,priv:priv,total:finTotal});
+}
+/* 재원구성 단계 요약 대시보드(목업) — 총사업비·재원합계·차이 + 비율 막대 */
+function renderBudgetSummary(cost, f){
+  var box=document.getElementById('budget-summary');
+  if(!box) return;
+  if(!f.total || f.total<=0){ box.innerHTML=''; return; }
+  var diff=(cost||0)-f.total;
+  var match=cost>0 && Math.abs(diff)<0.5;
+  function pct(x){ return f.total>0 ? (x/f.total*100) : 0; }
+  var segs=[
+    {n:'국비', v:f.nat,  c:'#2f6bff'},
+    {n:'도비', v:f.prov, c:'#14b8a6'},
+    {n:'시비', v:f.city, c:'#10b981'},
+    {n:'지방채',v:f.bond, c:'#f7941d'},
+    {n:'민자', v:f.priv, c:'#8b5cf6'}
+  ];
+  var h='<div class="rc-cards">'
+    + '<div class="rc-card"><div class="rc-card-label">총사업비</div><div class="rc-card-val">'+(cost||0).toLocaleString()+'<span>억원</span></div></div>'
+    + '<div class="rc-op">−</div>'
+    + '<div class="rc-card"><div class="rc-card-label">재원합계</div><div class="rc-card-val">'+f.total.toLocaleString()+'<span>억원</span></div></div>'
+    + '<div class="rc-op">=</div>'
+    + '<div class="rc-card '+(match?'ok':'warn')+'"><div class="rc-card-label">차이</div>'
+    + '<div class="rc-card-val">'+(match?'0':(diff>0?'+':'')+diff.toLocaleString())+'<span>억원</span></div>'
+    + '<div class="rc-card-sub">'+(match?'✓ 금액 일치':'금액 불일치')+'</div></div>'
+    + '</div>';
+  /* 비율 막대 */
+  h+='<div class="rc-bar">';
+  segs.forEach(function(s){ var p=pct(s.v); if(p>0) h+='<i style="width:'+p+'%;background:'+s.c+'"></i>'; });
+  h+='</div>';
+  h+='<div class="rc-legend">';
+  segs.forEach(function(s){
+    h+='<div class="rc-leg"><span class="rc-dot" style="background:'+s.c+'"></span>'
+      + s.n+' <b>'+pct(s.v).toFixed(1)+'%</b> <span class="rc-leg-amt">('+(s.v||0).toLocaleString()+'억)</span></div>';
+  });
+  h+='</div>';
+  box.innerHTML=h;
 }
 /* AI 상담 채팅은 더 이상 순차 단계가 아니라 우하단 플로팅 패널에 상시 거주한다.
    show 생략 시 토글, true/false로 명시적 열기/닫기 가능. */
