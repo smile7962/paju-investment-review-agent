@@ -381,11 +381,61 @@ function goToStep(n, skipScroll) {
   if (pos) pos.textContent = n+' / '+STEP_META.length+'단계';
   renderWizard();
   renderNextCard();
+  renderStepHelp();
   updateSummary();
   if (!skipScroll) {
     var stage=v('wizard-stage');
     if (stage) stage.scrollIntoView({behavior:'smooth', block:'start'});
   }
+}
+/* ── AI 검토 도우미: 단계별 맞춤 빠른 실행 3버튼(목업) ── */
+var STEP_QUICK = {
+  plan:   [['🏗️','사업 배경 다듬기','입력한 사업 배경을 공문서체로 더 구체적으로 다듬어줘'],
+           ['📈','기대효과 작성','이 사업의 정량·정성 기대효과를 정리해줘'],
+           ['✏️','사업명 제안','이 사업에 어울리는 공식 사업명 3가지를 제안해줘']],
+  basic:  [['🏛️','사업유형 설명','현재 선택한 사업유형의 투자심사 분류 기준을 설명해줘'],
+           ['📋','면제 사유 검토','이 사업이 투자심사 면제 대상인지 검토해줘'],
+           ['🧮','총사업비 확인','입력한 총사업비가 유사사업 기준으로 적정한지 검토해줘']],
+  budget: [['💠','재원합계 확인','재원 합계가 총사업비와 일치하는지 확인해줘'],
+           ['📑','국비 근거 점검','국비 확보 근거로 어떤 자료가 필요한지 알려줘'],
+           ['📝','재원조달 문장','재원조달 가능 여부 항목을 의뢰서용 문장으로 작성해줘']],
+  review: [['🔁','재심사 사유 설명','현재 사업의 재심사 사유를 자세히 설명해줘'],
+           ['✅','조건부 이행 점검','이전 심사 조건부 이행 여부를 어떻게 증빙하는지 알려줘'],
+           ['🔀','이전·현재 비교','이전 심사 대비 주요 변경사항을 정리해줘']],
+  calc:   [['🧾','산출근거 검토','총사업비 산출내역의 근거가 적정한지 검토해줘'],
+           ['💡','예비비 설명','예비비 10% 적용 기준을 설명해줘'],
+           ['📅','기간 적정성 확인','사업기간이 유사사업 대비 적정한지 검토해줘']],
+  econ:   [['📊','B/C 결과 해석','현재 B/C 결과가 승인에 어떤 의미인지 해석해줘'],
+           ['🎚️','민감도 설명','비용·편익 변동에 따른 민감도를 설명해줘'],
+           ['📋','운영비 근거 점검','운영비 산정 근거로 무엇을 첨부해야 하는지 알려줘']],
+  result: [['📌','판정 근거 설명','현재 심사기관 판정의 법적 근거를 설명해줘'],
+           ['🗂️','재심사 자료 점검','재심사 의뢰 전 준비해야 할 자료를 알려줘'],
+           ['📄','의뢰서 초안 작성','__FN__goDraftFromResult']],
+  draft:  [['✳️','의뢰서 전체 채우기','__FN__aiDraftBySection'],
+           ['🔎','누락 근거 찾기','의뢰서에서 담당자 입력이 필요한 항목을 정리해줘'],
+           ['🪄','문장 다듬기','현재 의뢰서 문장을 공문서체로 다듬어줘']],
+  output: [['📋','누락 항목 점검','출력 전 확인이 필요한 필수 항목을 점검해줘'],
+           ['🏷️','파일명 확인','저장 파일명이 적절한지 확인해줘'],
+           ['🧾','출력 전 요약','최종 출력 전 사업 전체를 한 문단으로 요약해줘']]
+};
+function goDraftFromResult(){ if(typeof goToStepKey==='function') goToStepKey('draft'); }
+function renderStepHelp(){
+  var meta = STEP_META[gCurrentStep-1];
+  var box = document.getElementById('ai-quick-actions');
+  var desc = document.getElementById('ai-help-desc');
+  if (desc && meta) desc.textContent = meta.name + ' 단계 작성을 도와드립니다. 아래 버튼을 누르거나 질문을 입력하세요.';
+  if (!box) return;
+  var acts = (meta && STEP_QUICK[meta.key]) || [];
+  var html = '';
+  acts.forEach(function(a){
+    var q = a[2];
+    var onclick;
+    if (q.indexOf('__FN__')===0){ onclick = q.slice(6)+'()'; }
+    else { onclick = "quickAsk('"+q.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"')"; }
+    html += '<button type="button" class="ai-qa-btn" onclick="'+onclick+'">'
+      + '<span class="ai-qa-ico">'+a[0]+'</span><span class="ai-qa-t">'+a[1]+'</span></button>';
+  });
+  box.innerHTML = html;
 }
 function renderWizard() {
   var wrap = document.getElementById('wizard-steps');
