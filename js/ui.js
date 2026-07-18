@@ -84,6 +84,9 @@ function initAll(){
       el.addEventListener('change', function(){
         if(typeof scheduleAutoSave==='function') scheduleAutoSave();
         if(typeof renderWizard==='function') renderWizard();
+        /* 심사이력 단계가 열려 있으면 직전 대비 비교표를 즉시 갱신 */
+        var rv=v('it-review');
+        if(rv && rv.classList.contains('active') && typeof renderReviewCompare==='function') renderReviewCompare();
       });
     });
   }
@@ -446,6 +449,7 @@ function goToStep(n, skipScroll) {
   var stage = v('wizard-stage');
   if (stage) stage.classList.toggle('stage-wide', target.key === 'plan');
   if (target.key === 'output' && typeof renderOutputStatus === 'function') renderOutputStatus();
+  if (target.key === 'review' && typeof renderReviewCompare === 'function') renderReviewCompare();
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
   if (target.key === 'calc') {
     var cb=v('calc-box'), emCb=v('empty-calc');
