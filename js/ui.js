@@ -306,6 +306,65 @@ function renderBudgetSummary(cost, f){
   h+='</div>';
   box.innerHTML=h;
 }
+/* 출력 단계 준비도 원형 진행률 + 상태 카드(목업)
+   기본정보·금액정합성·심사판단·의뢰서 완성도 4요소를 균등 가중해 종합 준비도를 산출한다. */
+function renderOutputStatus(){
+  var box=document.getElementById('output-status');
+  if(!box) return;
+  if(typeof collectProjectData==='function') collectProjectData();
+  /* 1) 기본정보 */
+  var basicOk=!!(gv('f_name') && gv('f_type') && gnv('f_cost')>0);
+  /* 2) 금액정합성 */
+  var cost=gnv('f_cost');
+  var finTotal=gnv('f_nat')+gnv('f_prov')+gnv('f_city')+gnv('f_bond')+gnv('f_priv');
+  var amtSet=cost>0 && (finTotal>0 || gc('f_self'));
+  var amtOk=cost>0 && Math.abs(cost-finTotal)<0.5;
+  /* 3) 심사판단 */
+  var judgeOk=(typeof gResult!=='undefined') && !!gResult;
+  /* 4) 의뢰서 담당자 입력 필요 */
+  var draftBox=document.getElementById('draft-box');
+  var needCnt=0, draftReady=false, draftPct=0;
+  if(draftBox){
+    var secs=draftBox.querySelectorAll('.draft-section');
+    if(secs.length){
+      needCnt=draftBox.querySelectorAll('.draft-content .need').length;
+      var withNeed=0;
+      secs.forEach(function(s){ if(s.querySelector('.need')) withNeed++; });
+      draftPct=Math.round((secs.length-withNeed)/secs.length*100);
+      draftReady=true;
+    }
+  }
+  /* 종합 준비도(4요소 균등 가중) */
+  var parts=[ basicOk?1:0, amtOk?1:0, judgeOk?1:0, draftReady?(draftPct/100):0 ];
+  var pct=Math.round(parts.reduce(function(a,b){return a+b;},0)/parts.length*100);
+  var deg=Math.round(pct*3.6);
+  var ready=pct>=100;
+  var ringColor=pct>=100?'#10b981':(pct>=60?'#2f6bff':'#f7941d');
+
+  function card(label,val,state){ /* state: ok | warn | err | idle */
+    var icon={ok:'&#10003;',warn:'!',err:'&#10007;',idle:'&#8226;'}[state]||'&#8226;';
+    return '<div class="os-card '+state+'">'
+      + '<span class="os-card-icon">'+icon+'</span>'
+      + '<div class="os-card-body"><div class="os-card-label">'+label+'</div>'
+      + '<div class="os-card-val">'+val+'</div></div></div>';
+  }
+  var h='<div class="os-ring-wrap">'
+    + '<div class="os-ring" style="background:conic-gradient('+ringColor+' '+deg+'deg,var(--g200) '+deg+'deg)">'
+    + '<div class="os-ring-hole"><div class="os-ring-pct">'+pct+'<span>%</span></div>'
+    + '<div class="os-ring-cap">'+(ready?'출력 준비 완료':'출력 준비 중')+'</div></div></div>'
+    + '<div class="os-ring-note">'+(ready
+        ? '모든 필수 항목이 준비되었습니다. 아래에서 형식을 선택해 내보내세요.'
+        : '아래 상태 카드에서 미완료 항목을 먼저 확인·보완하세요.')+'</div>'
+    + '</div>';
+  h+='<div class="os-cards">'
+    + card('기본정보', basicOk?'완료':'미완료', basicOk?'ok':'warn')
+    + card('금액 정합성', amtSet?(amtOk?'일치':'불일치'):'미입력', amtSet?(amtOk?'ok':'err'):'idle')
+    + card('심사판단', judgeOk?'완료':'미완료', judgeOk?'ok':'warn')
+    + card('의뢰서', draftReady?(needCnt>0?needCnt+'건 확인 필요':'필수항목 완료'):'미작성',
+           draftReady?(needCnt>0?'warn':'ok'):'idle')
+    + '</div>';
+  box.innerHTML=h;
+}
 /* AI 상담 채팅은 더 이상 순차 단계가 아니라 우하단 플로팅 패널에 상시 거주한다.
    show 생략 시 토글, true/false로 명시적 열기/닫기 가능. */
 function toggleFloatingChat(show){
@@ -386,6 +445,7 @@ function goToStep(n, skipScroll) {
   /* 기획 단계는 좌·우 분할이라 스테이지를 넓게 확장 */
   var stage = v('wizard-stage');
   if (stage) stage.classList.toggle('stage-wide', target.key === 'plan');
+  if (target.key === 'output' && typeof renderOutputStatus === 'function') renderOutputStatus();
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
   if (target.key === 'calc') {
     var cb=v('calc-box'), emCb=v('empty-calc');
