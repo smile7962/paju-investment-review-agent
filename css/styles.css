@@ -1101,6 +1101,27 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
   background:#fff;color:var(--pb);border:1px solid var(--pb);border-radius:99px;
   cursor:pointer;margin-left:6px;opacity:.85}
 .draft-chat-edit-btn:hover{opacity:1;background:var(--pbp)}
+.draft-review-btn{font-size:10px;padding:3px 10px;background:#fff;color:var(--ok);
+  border:1px solid #b6e6cd;border-radius:99px;cursor:pointer;margin-left:6px;opacity:.85}
+.draft-review-btn:hover{opacity:1;background:#f2fbf6}
+.draft-review-btn.on{background:var(--ok);color:#fff;border-color:var(--ok);opacity:1}
+.draft-section.sec-reviewed{background:#f6fdf9;border-radius:8px;}
+.draft-section.sec-reviewed .draft-section-header{border-bottom-color:#cdeede;}
+
+/* ── 의뢰서 상단 KPI 바(목업) ── */
+.draft-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 16px 4px;}
+.draft-kpi:empty{display:none;}
+.dk-tile{background:#fff;border:1px solid var(--brd);border-radius:12px;padding:12px 14px;
+  box-shadow:0 1px 3px rgba(22,50,92,.05);}
+.dk-label{font-size:11px;font-weight:700;color:var(--g500);margin-bottom:6px;}
+.dk-val{font-size:22px;font-weight:900;color:var(--ink);line-height:1;}
+.dk-val span{font-size:12px;font-weight:700;color:var(--g500);margin-left:3px;}
+.dk-tile.blue .dk-val{color:var(--pb);}
+.dk-tile.ok .dk-val{color:var(--ok);}
+.dk-tile.warn .dk-val{color:var(--po);}
+.dk-bar{height:5px;background:var(--g100);border-radius:3px;overflow:hidden;margin-top:8px;}
+.dk-bar i{display:block;height:100%;background:var(--pb);border-radius:3px;transition:width .4s ease;}
+@media(max-width:760px){.draft-kpi{grid-template-columns:1fr 1fr;}}
 
 /* ── 채팅 항목 타겟 칩 + 수정안 미리보기(피드백 3번) ── */
 .chat-target-chip{display:flex;align-items:center;gap:8px;background:var(--pbp);

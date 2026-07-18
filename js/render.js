@@ -448,6 +448,7 @@ function renderDraft(r) {
     h+='<button class="draft-edit-btn" data-edit-id="'+id+'_content" title="직접 편집">✏ 편집</button>';
     h+=noAI?'':'<button class="draft-ai-section-btn" data-ai-num="'+safeNum+'" data-ai-title="'+title+'" title="AI로 이 항목만 새로 작성">&#129302; AI</button>';
     h+=noAI?'':'<button class="draft-chat-edit-btn" data-chat-num="'+safeNum+'" data-chat-title="'+title+'" title="AI 채팅으로 이 항목 대화하며 수정">&#128172; 채팅수정</button>';
+    h+=noAI?'':'<button class="draft-review-btn" data-review-id="'+id+'" title="검토 완료 표시">&#10003; 검토완료</button>';
     h+='</div>';
     h+='<div class="draft-content" id="'+id+'_content">'+content+'</div>';
     h+='</div>';
@@ -1086,8 +1087,51 @@ function renderDraft(r) {
           );
           return;
         }
+        /* 검토완료 토글 */
+        var revBtn=e.target.closest('[data-review-id]');
+        if(revBtn){
+          toggleReview(revBtn.getAttribute('data-review-id'));
+          return;
+        }
       });
     })();
+}
+/* 항목 검토완료 토글 + 의뢰서 상단 KPI 갱신(목업) */
+function toggleReview(secId){
+  var sec=document.getElementById(secId);
+  if(!sec) return;
+  sec.classList.toggle('sec-reviewed');
+  var btn=sec.querySelector('[data-review-id="'+secId+'"]');
+  if(btn) btn.classList.toggle('on', sec.classList.contains('sec-reviewed'));
+  renderDraftKPI();
+}
+function renderDraftKPI(){
+  var box=document.getElementById('draft-box');
+  var kpi=document.getElementById('draft-kpi');
+  if(!box || !kpi) return;
+  var secs=box.querySelectorAll('.draft-section');
+  var total=secs.length;
+  if(!total){ kpi.innerHTML=''; return; }
+  var needCnt=box.querySelectorAll('.draft-content .need').length;
+  var secsWithNeed=0, reviewed=0;
+  secs.forEach(function(s){
+    if(s.querySelector('.need')) secsWithNeed++;
+    if(s.classList.contains('sec-reviewed')) reviewed++;
+  });
+  var written=total-secsWithNeed;               /* 담당자 입력 필요가 없는 항목 = 작성 완료로 간주 */
+  var pct=Math.round(written/total*100);
+  function tile(label,val,unit,cls,pctBar){
+    return '<div class="dk-tile '+(cls||'')+'">'
+      + '<div class="dk-label">'+label+'</div>'
+      + '<div class="dk-val">'+val+'<span>'+(unit||'')+'</span></div>'
+      + (pctBar!=null?'<div class="dk-bar"><i style="width:'+pctBar+'%"></i></div>':'')
+      + '</div>';
+  }
+  kpi.innerHTML =
+      tile('작성 완성도', pct, '%', 'blue', pct)
+    + tile('전체 항목', total, '개', '')
+    + tile('담당자 입력 필요', needCnt, '곳', needCnt>0?'warn':'ok')
+    + tile('검토 완료', reviewed+' / '+total, '', reviewed>=total&&total>0?'ok':'');
 }
 function renderCalc(r) {
   var emptyEl=v('empty-calc'), boxEl=v('calc-box');
@@ -1241,6 +1285,7 @@ function sec(num, title, content, noAI){
     h+='<button class="draft-edit-btn" data-edit-id="'+id+'_content" title="직접 편집">✏ 편집</button>';
     h+=noAI?'':'<button class="draft-ai-section-btn" data-ai-num="'+safeNum+'" data-ai-title="'+title+'" title="AI로 이 항목만 새로 작성">&#129302; AI</button>';
     h+=noAI?'':'<button class="draft-chat-edit-btn" data-chat-num="'+safeNum+'" data-chat-title="'+title+'" title="AI 채팅으로 이 항목 대화하며 수정">&#128172; 채팅수정</button>';
+    h+=noAI?'':'<button class="draft-review-btn" data-review-id="'+id+'" title="검토 완료 표시">&#10003; 검토완료</button>';
     h+='</div>';
     h+='<div class="draft-content" id="'+id+'_content">'+content+'</div>';
     h+='</div>';
@@ -1361,6 +1406,7 @@ function highlightNeeds() {
       badge.className = 'need-count done';
     }
   }
+  if (typeof renderDraftKPI === 'function') renderDraftKPI();
 }
 function copyDraft() {
   var el = document.getElementById('draft-box');
