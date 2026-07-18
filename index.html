@@ -280,7 +280,7 @@
               <div class="plan-grid">
                 <div class="fg">
                   <div class="fl">사업 분야 <span class="req">필수</span></div>
-                  <select class="fs" id="plan_field">
+                  <select class="fs" id="plan_field" onchange="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness()">
                     <option value="welfare">복지·보건</option>
                     <option value="culture">문화·체육</option>
                     <option value="office">청사·행정시설</option>
@@ -293,18 +293,20 @@
                 </div>
                 <div class="fg">
                   <div class="fl">사업명 <span style="font-size:10px;color:var(--g400)">(선택 — 미정이면 비워두세요)</span></div>
-                  <input type="text" class="fi" id="plan_name" placeholder="예: 운정3동 주민건강 생활체육센터 건립">
+                  <input type="text" class="fi" id="plan_name" placeholder="예: 운정3동 주민건강 생활체육센터 건립" oninput="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness()">
                 </div>
               </div>
               <div class="fg">
                 <div class="fl">사업 배경·목적 <span class="req">필수</span></div>
-                <textarea class="fi" id="plan_idea" rows="5" placeholder="어떤 문제를 해결하려는 사업인지, 왜 필요한지 자유롭게 적어주세요. 예: 운정3동은 인구가 급증했지만 주민 체육시설이 부족해 인근 시설이 과밀 상태다. 생활체육 수요를 충족하고 주민 건강을 증진하기 위한 체육센터가 필요하다." style="resize:vertical;line-height:1.6"></textarea>
+                <textarea class="fi" id="plan_idea" rows="5" oninput="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness()" placeholder="어떤 문제를 해결하려는 사업인지, 왜 필요한지 자유롭게 적어주세요. 예: 운정3동은 인구가 급증했지만 주민 체육시설이 부족해 인근 시설이 과밀 상태다. 생활체육 수요를 충족하고 주민 건강을 증진하기 위한 체육센터가 필요하다." style="resize:vertical;line-height:1.6"></textarea>
               </div>
               <div class="fg">
                 <div class="fl">대상·규모 <span style="font-size:10px;color:var(--g400)">(선택)</span></div>
-                <input type="text" class="fi" id="plan_scale" placeholder="예: 운정3동 주민 약 4만명 대상 / 연면적 3,000㎡ 규모">
+                <input type="text" class="fi" id="plan_scale" placeholder="예: 운정3동 주민 약 4만명 대상 / 연면적 3,000㎡ 규모" oninput="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness()">
               </div>
               <button class="btn-analyze" onclick="generatePlan()">&#129302; AI 기획서 초안 생성</button>
+              <!-- 기획 완성도(시안) — 입력 충실도를 참고용으로 표시 -->
+              <div id="plan-completeness" class="plan-completeness"></div>
               <div id="plan-status" class="plan-status"></div>
             </div>
           </div>

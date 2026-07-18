@@ -30,6 +30,25 @@ function _planStatus(text, cls){
   el.textContent = text || '';
   el.className = 'plan-status' + (cls ? ' ' + cls : '');
 }
+/* 기획 완성도(시안) — 입력 충실도를 참고용 진행바로 표시.
+   분야(기본 선택) 20 + 사업명 20 + 배경 40(20자↑) + 대상 20 */
+function renderPlanCompleteness(){
+  var box = v('plan-completeness');
+  if(!box) return;
+  var pct = 0;
+  if(gv('plan_field')) pct += 20;
+  if(gv('plan_name').trim()) pct += 20;
+  var idea = gv('plan_idea').trim();
+  if(idea.length >= 20) pct += 40; else if(idea.length > 0) pct += 20;
+  if(gv('plan_scale').trim()) pct += 20;
+  if(pct > 100) pct = 100;
+  var hint = pct >= 80 ? '충분합니다 — 지금 초안을 생성해 보세요.'
+    : (pct >= 40 ? '배경·목적을 더 구체적으로 적으면 초안 품질이 올라갑니다.'
+    : '사업 배경·목적을 채우면 완성도가 올라갑니다.');
+  box.innerHTML = '<div class="plan-comp-top"><span>기획 완성도</span><b>' + pct + '%</b></div>'
+    + '<div class="plan-comp-bar"><i style="width:' + pct + '%"></i></div>'
+    + '<div class="plan-comp-hint">' + hint + '</div>';
+}
 
 function generatePlan(){
   var idea = gv('plan_idea').trim();
