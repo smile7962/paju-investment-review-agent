@@ -66,6 +66,8 @@ function initAll(){
     if(typeof initProject==='function') initProject();
     if(typeof renderWizard==='function') renderWizard();
     if(typeof renderNextCard==='function') renderNextCard();
+    /* AI 검토 도우미: 넓은 화면은 기본 도킹(상시 노출), 좁은 화면은 버튼으로 열기 */
+    if(window.innerWidth>=1100 && typeof toggleFloatingChat==='function') toggleFloatingChat(true);
     /* 접근성: 정적 컨트롤 라벨링 + 동적 렌더 대응(디바운스 관찰) */
     if(typeof applyA11yLabels==='function'){
       applyA11yLabels();
@@ -366,10 +368,16 @@ function goToStep(n, skipScroll) {
       }
     },50);
   }
-  /* 이전/다음 내비 갱신 */
+  /* 이전/다음 내비 갱신 — 다음 버튼엔 다음 단계 이름을 표기 */
   var prevBtn=v('stage-prev-btn'), nextBtn=v('stage-next-btn'), pos=v('stage-nav-pos');
   if (prevBtn) prevBtn.style.visibility = (n===1) ? 'hidden' : 'visible';
-  if (nextBtn) nextBtn.style.visibility = (n===STEP_META.length) ? 'hidden' : 'visible';
+  if (nextBtn){
+    if (n===STEP_META.length){ nextBtn.style.visibility='hidden'; }
+    else {
+      nextBtn.style.visibility='visible';
+      nextBtn.innerHTML = '다음 단계('+STEP_META[n].name+') &#8594;';
+    }
+  }
   if (pos) pos.textContent = n+' / '+STEP_META.length+'단계';
   renderWizard();
   renderNextCard();
@@ -392,14 +400,15 @@ function renderWizard() {
        (현재 단계보다 앞서 있는데 필수값을 비워둔 채 넘어감) — Carbon Progress
        Indicator의 error 패턴. 아직 도달 전인 단계는 오류로 표시하지 않는다. */
     var error = !!s.required && !done && s.num < gCurrentStep;
-    var cls = 'step' + (done?' done':'') + (active?' active':'') + (error?' error':'');
-    var icon = error ? '!' : (done ? '✓' : s.num);
-    html += '<div class="'+cls+'" onclick="goToStep('+s.num+')" title="'+s.desc.replace(/<[^>]+>/g,'')+(error?' — 필수 항목이 비어 있습니다':'')+'">'
-          + '<div class="step-circle">'+icon+'</div>'
-          + '<div class="step-name">'+s.name+'</div>'
-          + '<div class="step-status">'+(error?'필수 누락':done?'완료':active?'진행 중':'대기')+'</div>'
-          + '</div>';
-    if (i < STEP_META.length-1) html += '<div class="step-arrow">›</div>';
+    var cls = 'wstep' + (done?' done':'') + (active?' active':'') + (error?' error':'');
+    var circle = error ? '!' : s.num;
+    var title = s.desc.replace(/<[^>]+>/g,'') + (error?' — 필수 항목이 비어 있습니다':'');
+    html += '<button type="button" class="'+cls+'" onclick="goToStep('+s.num+')" title="'+title+'">'
+          + '<span class="wstep-circle">'+circle+'</span>'
+          + '<span class="wstep-name">'+s.name+'</span>'
+          + (done && !error ? '<span class="wstep-check">&#10003;</span>' : '')
+          + '</button>';
+    if (i < STEP_META.length-1) html += '<span class="wstep-line"></span>';
   });
   wrap.innerHTML = html;
   // 진행률 업데이트
@@ -410,6 +419,15 @@ function renderProgressSummary(completed) {
   var pct = Math.round((completed.length / total) * 100);
   var el = document.getElementById('progress-pct');
   if (el) el.textContent = pct + '%';
+  /* AI 검토 도우미 상단 KPI(입력 완성도·확인 필요) 연동 */
+  var need = STEP_META.filter(function(s){ return s.required && !s.check(); }).length;
+  if (typeof gResult !== 'undefined' && gResult && gResult.reTrig) need += gResult.reTrig.length;
+  var akp = document.getElementById('ai-kpi-progress');
+  if (akp) akp.innerHTML = pct + '<span>%</span>';
+  var akf = document.getElementById('ai-kpi-fill');
+  if (akf) akf.style.width = pct + '%';
+  var akn = document.getElementById('ai-kpi-need');
+  if (akn) akn.innerHTML = need + '<span>건</span>';
   var desc = document.getElementById('progress-desc');
   if (desc) {
     /* 첫 미완료 단계 기준으로 '다음 할 일'을 표시(카드와 일관) */
