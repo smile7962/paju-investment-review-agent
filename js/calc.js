@@ -76,8 +76,57 @@ function recalcCost() {
   h+='</div>';
   var ra=v('calc-result-area'); if(ra) ra.innerHTML=h;
   gCalcTotal=totalCalc;
+  /* 구성 비율 막대용 전역 보존 — collectProjectData()가 projectData.cost를
+     슬림 객체로 덮어써 groupTotals가 사라지므로 별도 전역에 저장한다. */
+  window.gGroupTotals=groupTotals;
+  window.gReserveFee=reserveFee;
   projectData.cost={area:area,unitCost:unit,items:rows,groupTotals:groupTotals,reserveFee:reserveFee,calculatedTotal:totalCalc};
   updateSummary();
+  if(typeof renderCostComposition==='function') renderCostComposition();
+}
+/* 사업비 구성 비율 막대(목업) — projectData.cost의 그룹별 집계를 스택 막대로 시각화.
+   계산기(연면적 자동산출 또는 세부입력)로 산출값이 있을 때만 노출하고, 없으면 숨긴다. */
+function renderCostComposition(){
+  var box=document.getElementById('cost-composition');
+  if(!box) return;
+  /* groupTotals는 recalcCost가 window.gGroupTotals에 보존한 값을 우선 사용
+     (projectData.cost는 collectProjectData가 덮어써 groupTotals가 없을 수 있음) */
+  var cd=(typeof projectData!=='undefined'&&projectData)?projectData.cost:null;
+  var gt=window.gGroupTotals||(cd&&cd.groupTotals)||null;
+  var total=(typeof window.gCalcTotal==='number'&&window.gCalcTotal>0)?window.gCalcTotal:(cd?cd.calculatedTotal:0);
+  var reserve=(typeof window.gReserveFee==='number')?window.gReserveFee:((cd&&cd.reserveFee)||0);
+  if(!gt || !(total>0)){ box.innerHTML=''; return; }
+  var segs=[
+    {k:'land',        n:'용지·보상', c:'#f7941d'},
+    {k:'construction',n:'공사',     c:'#2f6bff'},
+    {k:'design',      n:'설계·용역', c:'#14b8a6'},
+    {k:'supervision', n:'감리·CM',  c:'#8b5cf6'},
+    {k:'facility',    n:'시설부대', c:'#10b981'},
+    {k:'equipment',   n:'운영설비', c:'#ec4899'}
+  ];
+  segs.forEach(function(s){ s.v=gt[s.k]||0; });
+  if(reserve>0) segs.push({k:'reserve', n:'예비비', c:'#94a3b8', v:reserve});
+  var shown=segs.filter(function(s){ return s.v>0; });
+  if(!shown.length){ box.innerHTML=''; return; }
+  function pct(v){ return total>0?(v/total*100):0; }
+  /* 최대 구성비 항목 */
+  var top=shown.slice().sort(function(a,b){return b.v-a.v;})[0];
+
+  var h='<div class="cc-head">'
+    + '<div class="cc-title">사업비 구성 비율</div>'
+    + '<div class="cc-total">총 '+total.toFixed(1)+'<span>억원</span></div></div>';
+  h+='<div class="cc-bar">';
+  shown.forEach(function(s){ h+='<i style="width:'+pct(s.v)+'%;background:'+s.c+'" title="'+s.n+' '+pct(s.v).toFixed(1)+'%"></i>'; });
+  h+='</div>';
+  h+='<div class="cc-legend">';
+  shown.forEach(function(s){
+    h+='<div class="cc-leg"><span class="cc-dot" style="background:'+s.c+'"></span>'
+      + s.n+' <b>'+pct(s.v).toFixed(1)+'%</b> <span class="cc-amt">('+s.v.toFixed(1)+'억)</span></div>';
+  });
+  h+='</div>';
+  h+='<div class="cc-foot">&#9432; 최대 구성 항목은 <b>'+top.n+'</b> ('+pct(top.v).toFixed(1)+'%)입니다. '
+    + '분야별 공사비는 실시설계 완료 후 세부 산출로 정밀화할 수 있습니다.</div>';
+  box.innerHTML=h;
 }
 function setC37Auto(id,val,basis){
   var qty=v(id+'_qty'), unit=v(id+'_unit'), bas=v(id+'_basis');
