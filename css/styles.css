@@ -203,6 +203,25 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .rc-leg-amt{color:var(--g400);font-size:11px;}
 .rc-dot{width:10px;height:10px;border-radius:3px;display:inline-block;}
 @media(max-width:640px){.rc-op{display:none;}.rc-card{min-width:44%;}}
+
+/* ── 심사판단 단계별 진행 인디케이터(목업) ── */
+.rflow{display:flex;align-items:center;justify-content:space-between;gap:0;
+  background:#fff;border:1px solid var(--brd);border-radius:12px;padding:16px 18px;}
+.rflow-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;}
+.rflow-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;background:var(--g100);color:var(--g500);}
+.rflow-name{font-size:11px;font-weight:600;color:var(--g500);white-space:nowrap;}
+.rflow-step.done .rflow-circle{background:var(--ok);color:#fff;}
+.rflow-step.done .rflow-name{color:var(--ok);}
+.rflow-step.doing .rflow-circle{background:var(--pb);color:#fff;}
+.rflow-step.doing .rflow-name,.rflow-step.active .rflow-name{color:var(--pb);font-weight:700;}
+.rflow-step.active .rflow-circle{background:var(--pb);color:#fff;box-shadow:0 0 0 4px rgba(47,107,255,.15);}
+.rflow-step.skip .rflow-circle{background:var(--g100);color:var(--g400);}
+.rflow-step.skip .rflow-name{color:var(--g400);}
+.rflow-line{flex:1;height:2px;background:var(--g200);margin:0 4px;margin-bottom:22px;}
+.rflow-note{font-size:11.5px;color:var(--g600);margin-top:10px;padding:9px 12px;
+  background:var(--g50);border-radius:8px;line-height:1.6;}
+@media(max-width:640px){.rflow{overflow-x:auto;}.rflow-name{font-size:10px;}}
 /* AI 패널 상단 완성도 KPI */
 .ai-kpi-row{display:flex;align-items:stretch;gap:0;padding:12px 16px;border-bottom:1px solid var(--brd);flex-shrink:0;}
 .ai-kpi{flex:1;display:flex;flex-direction:column;justify-content:center;}
