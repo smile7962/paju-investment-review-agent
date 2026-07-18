@@ -1497,3 +1497,88 @@ function toggleEdit(contentId){
     sel.addRange(range);
   }
 }
+/* 심사이력 단계 — 직전 심사 vs 현재 비교표(목업)
+   재심사 유형이거나 직전 심사 데이터가 입력된 경우에만 표시한다. */
+function renderReviewCompare(){
+  var box=document.getElementById('review-compare');
+  if(!box) return;
+  var rt=document.querySelector('input[name="rtype"]:checked');
+  var reviewType=rt?rt.value:'new';
+  var prevCost=gnv('f_prev_cost');
+  /* 신규 사업이고 직전 심사 데이터가 없으면 비교표를 숨긴다 */
+  if(reviewType!=='re' && prevCost<=0){ box.innerHTML=''; return; }
+
+  var cost=gnv('f_cost');
+  var deduct=gnv('f_deduct');
+  var prevBond=gnv('f_prev_bond');
+  var curBond=gnv('f_bond');
+  var years=parseInt(gv('f_years'))||0;
+  var prevAuth=gv('f_prev_auth');
+  /* 현재 심사기관: 판단 실행 결과가 있으면 재사용, 없으면 즉석 산출 */
+  var curAuthType='', curAuthLabel='-';
+  if(typeof gResult!=='undefined' && gResult && gResult.auth){
+    curAuthType=gResult.auth.type; curAuthLabel=gResult.auth.label||curAuthType;
+  } else if(typeof getAuthority==='function' && cost>0 && gv('f_type')){
+    var natRatio=cost>0?(gnv('f_nat')/cost*100):0;
+    var a=getAuthority(gv('f_type'),cost,gc('f_self'),gc('f_joint'),natRatio);
+    curAuthType=a.type; curAuthLabel=a.label||a.type;
+  }
+  var authNm={self:'자체심사',gyeonggi:'경기도 의뢰',central:'중앙 의뢰',exempt:'면제',none:'대상아님'};
+  var authOrd={self:1,gyeonggi:2,central:3};
+
+  /* 권위 있는 재심사 판정은 getReReview로 산출 */
+  var selfFund=Math.max(0,cost-gnv('f_nat')-gnv('f_prov')-curBond-gnv('f_priv'));
+  var rr={triggers:[]};
+  if(typeof getReReview==='function'){
+    rr=getReReview({cost:cost,prevCost:prevCost,years:years,bondChg:gc('f_bond_chg'),siteChg:gc('f_site'),
+      prevAuth:prevAuth,curAuth:curAuthType,prevBond:prevBond,curBond:curBond,selfFund:selfFund,
+      deduct:deduct,spent:gv('f_spent')||'none',auditReq:gc('f_audit_req')});
+  }
+  var trigCount=rr.triggers.length;
+  var excluded=rr.excluded;
+
+  function fmt(v,unit){ return (v||v===0)?(v.toLocaleString()+(unit||'')):'-'; }
+  function pctStr(from,to){
+    if(!(from>0)) return '-';
+    var p=(to-from)/from*100;
+    return (p>=0?'+':'')+p.toFixed(1)+'%';
+  }
+  function delta(from,to){ if(!(from>0)&&!(to>0)) return 'flat'; return to>from?'up':(to<from?'down':'flat'); }
+  function cell(state,txt){ return '<td class="rvc-flag '+state+'">'+txt+'</td>'; }
+
+  /* 행별 트리거 힌트(표시용) — 최종 대상 여부는 하단 요약(getReReview)이 기준 */
+  var adjCost=Math.max(0,cost-deduct);
+  var costRate=prevCost>0?((adjCost-prevCost)/prevCost*100):0;
+  var costTrig = prevCost>0 && cost>0 && (prevCost>=500 ? (adjCost-prevCost)>((prevCost-500)*0.2+150) : costRate>=30);
+  var bondTrig = (prevBond>0 && curBond>=prevBond*1.3) || (prevBond===0 && curBond>0 && selfFund>0 && curBond>selfFund*0.5);
+  var authUp = curAuthType && prevAuth && authOrd[curAuthType]>authOrd[prevAuth];
+  var yearsTrig = years>=4;
+
+  var rows='';
+  rows+='<tr><th>총사업비</th><td>'+fmt(prevCost,'억')+'</td><td>'+fmt(cost,'억')+'</td>'
+      +'<td class="rvc-d '+delta(prevCost,cost)+'">'+pctStr(prevCost,cost)+(deduct>0?' <span class="rvc-note">(공제 '+deduct+'억)</span>':'')+'</td>'
+      +cell(costTrig?'on':'off', costTrig?'재심사 요건':'해당없음')+'</tr>';
+  rows+='<tr><th>지방채 발행액</th><td>'+fmt(prevBond,'억')+'</td><td>'+fmt(curBond,'억')+'</td>'
+      +'<td class="rvc-d '+delta(prevBond,curBond)+'">'+(prevBond>0?pctStr(prevBond,curBond):(curBond>0?'신설':'-'))+'</td>'
+      +cell(bondTrig?'on':'off', bondTrig?'재심사 요건':'해당없음')+'</tr>';
+  rows+='<tr><th>심사기관</th><td>'+(authNm[prevAuth]||'-')+'</td><td>'+(authNm[curAuthType]||curAuthLabel||'-')+'</td>'
+      +'<td class="rvc-d '+(authUp?'up':'flat')+'">'+(authUp?'상위기관 이관':(prevAuth?'동일':'-'))+'</td>'
+      +cell(authUp?'on':'off', authUp?'재심사 요건':'해당없음')+'</tr>';
+  rows+='<tr><th>심사 후 경과</th><td>-</td><td>'+(years>0?years+'년':'-')+'</td>'
+      +'<td class="rvc-d '+(yearsTrig?'up':'flat')+'">'+(yearsTrig?'4년 이상 지연':(years>0?'정상':'-'))+'</td>'
+      +cell(yearsTrig?'on':'off', yearsTrig?'재심사 요건':'해당없음')+'</tr>';
+
+  var badgeCls = trigCount>0 ? (excluded?'warn':'on') : 'off';
+  var badgeTxt = trigCount>0
+      ? (excluded?('재심사 요건 '+trigCount+'건 — 기지출 제외요건 검토'):('재심사 대상 '+trigCount+'건'))
+      : '재심사 비대상';
+  var h='<div class="rvc-head">'
+      + '<div class="rvc-title">직전 심사 대비 변동 비교</div>'
+      + '<span class="rvc-badge '+badgeCls+'">'+badgeTxt+'</span></div>'
+      + '<div class="rvc-scroll"><table class="rvc-table"><thead><tr>'
+      + '<th>항목</th><th>직전 심사</th><th>현재</th><th>변동</th><th>재심사 판정</th>'
+      + '</tr></thead><tbody>'+rows+'</tbody></table></div>'
+      + '<div class="rvc-foot">&#9432; 최종 재심사 대상 여부는 「지방재정투자사업 심사규칙」 제6조 7개 사유를 종합해 판정됩니다. '
+      + '판단 실행 후 심사판단 화면에서 상세 근거를 확인하세요.</div>';
+  box.innerHTML=h;
+}
