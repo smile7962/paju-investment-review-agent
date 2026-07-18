@@ -275,6 +275,28 @@ function calcEcon() {
     h += '<div class="econ-warn" style="margin-top:10px">&#9888; B/C가 1.0 미만입니다. 중앙투자심사 시 경제적 타당성 미확보로 부결될 수 있습니다.<br>편익 원단위·이용인원을 재검토하거나 <strong>5-5항에 정책적 타당성</strong> (형평성·지역균형발전 등)으로 보완하세요.</div>';
   }
 
+  /* 민감도 분석 매트릭스(목업 image6) — 편익·비용 변동률별 B/C = 기준B/C × (1+편익Δ)/(1+비용Δ) */
+  var benRows=[10,0,-10], costCols=[-10,0,10];
+  function cellCls(x){ return x>=1.0?'sn-ok':(x>=0.7?'sn-mid':'sn-ng'); }
+  h += '<div class="econ-sens"><div class="econ-sens-title">민감도 분석 (B/C 기준)</div>';
+  h += '<table class="sens-table"><tr><th class="sens-corner">편익▼ / 비용▶</th>';
+  costCols.forEach(function(c){ h+='<th>'+(c>0?'+':'')+c+'%'+(c===0?' (기준)':'')+'</th>'; });
+  h += '</tr>';
+  benRows.forEach(function(bR){
+    h += '<tr><th>'+(bR>0?'+':'')+bR+'%'+(bR===0?' (기준)':'')+'</th>';
+    costCols.forEach(function(c){
+      var val=bc*(1+bR/100)/(1+c/100);
+      var center=(bR===0&&c===0);
+      h += '<td class="'+cellCls(val)+(center?' sens-center':'')+'">'+val.toFixed(2)+'</td>';
+    });
+    h += '</tr>';
+  });
+  h += '</table>';
+  h += '<div class="sens-legend">'
+    + '<span><i class="sn-ok"></i> B/C ≥ 1.0 경제성 있음</span>'
+    + '<span><i class="sn-mid"></i> 0.7 ≤ B/C < 1.0 불확실</span>'
+    + '<span><i class="sn-ng"></i> B/C < 0.7 경제성 없음</span></div></div>';
+
   /* 5-5항 반영 버튼 */
   h += '<button class="econ-apply-btn" onclick="applyEconToDraft(' + bc.toFixed(2) + ',' + Math.round(npv) + ',' + (irr!==null?irr.toFixed(1):0) + ')">&#8593; 분석 결과를 의뢰서 5-5항에 반영</button>';
   h += '</div>';
