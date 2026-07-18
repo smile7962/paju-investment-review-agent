@@ -98,7 +98,7 @@ function renderCostComposition(){
   if(!gt || !(total>0)){ box.innerHTML=''; return; }
   var segs=[
     {k:'land',        n:'용지·보상', c:'#f7941d'},
-    {k:'construction',n:'공사',     c:'#2f6bff'},
+    {k:'construction',n:'공사',     c:'#2563eb'},
     {k:'design',      n:'설계·용역', c:'#14b8a6'},
     {k:'supervision', n:'감리·CM',  c:'#8b5cf6'},
     {k:'facility',    n:'시설부대', c:'#10b981'},

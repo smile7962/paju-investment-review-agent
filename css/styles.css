@@ -10,15 +10,15 @@
 
 
 :root {
-  /* 목업 리디자인 — 밝은 SaaS 블루 시스템 */
-  --pb:#2f6bff;--pb2:#1d54e0;--pbp:#eaf1ff;--ink:#16244a;
-  --pr:#F03A2E;--po:#F7941D;
-  --g50:#f4f7fb;--g100:#eef2f8;--g200:#e5eaf3;--g300:#cbd5e1;
+  /* 첨부 시안(v3.0) 이식 — Tailwind slate + #2563eb 블루 시스템 */
+  --pb:#2563eb;--pb2:#1d4ed8;--pbp:#eff4ff;--ink:#0f172a;
+  --pr:#dc2626;--po:#ea580c;
+  --g50:#f8fafc;--g100:#eef2f8;--g200:#e5eaf2;--g300:#cbd5e1;
   --g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;--g800:#1e293b;
-  --ok:#10b981;--warn:#f59e0b;--err:#ef4444;
-  --brd:#e4e9f2;
+  --ok:#16a34a;--warn:#ea580c;--err:#dc2626;
+  --brd:#e5eaf2;
   --r:12px;--rs:8px;--rl:16px;
-  --sh:0 1px 3px rgba(22,50,92,.06);--shm:0 6px 18px rgba(22,50,92,.10);
+  --sh:0 1px 3px rgba(15,23,42,.06);--shm:0 6px 18px rgba(15,23,42,.10);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
@@ -114,6 +114,16 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .plan-status.busy{color:var(--pb);font-weight:600;}
 .plan-status.done{color:var(--ok);font-weight:600;}
 .plan-status.err{color:var(--pr);font-weight:600;}
+/* 기획 완성도 바(시안 이식) */
+.plan-completeness{margin-top:14px;}
+.plan-completeness:empty{display:none;}
+.plan-comp-top{display:flex;align-items:baseline;justify-content:space-between;font-size:12px;
+  font-weight:600;color:var(--g600);margin-bottom:6px;}
+.plan-comp-top b{font-size:15px;font-weight:800;color:var(--pb);}
+.plan-comp-bar{height:8px;border-radius:999px;background:var(--g100);overflow:hidden;}
+.plan-comp-bar i{display:block;height:100%;border-radius:999px;
+  background:linear-gradient(90deg,var(--pb),var(--pb2));transition:width .35s ease;}
+.plan-comp-hint{font-size:11px;color:var(--g500);margin-top:7px;line-height:1.5;}
 .plan-result-actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px;}
 .plan-tip{background:var(--pbp);border-radius:var(--rs);padding:9px 13px;
   font-size:11px;color:var(--pb);margin-bottom:12px;line-height:1.6;}

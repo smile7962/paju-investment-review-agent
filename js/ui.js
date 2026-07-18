@@ -87,6 +87,9 @@ function initAll(){
         /* 심사이력 단계가 열려 있으면 직전 대비 비교표를 즉시 갱신 */
         var rv=v('it-review');
         if(rv && rv.classList.contains('active') && typeof renderReviewCompare==='function') renderReviewCompare();
+        /* 기획 단계가 열려 있으면 기획 완성도 갱신 */
+        var pl=v('rt-plan');
+        if(pl && pl.classList.contains('active') && typeof renderPlanCompleteness==='function') renderPlanCompleteness();
       });
     });
   }
@@ -282,10 +285,10 @@ function renderBudgetSummary(cost, f){
   var match=cost>0 && Math.abs(diff)<0.5;
   function pct(x){ return f.total>0 ? (x/f.total*100) : 0; }
   var segs=[
-    {n:'국비', v:f.nat,  c:'#2f6bff'},
+    {n:'국비', v:f.nat,  c:'#2563eb'},
     {n:'도비', v:f.prov, c:'#14b8a6'},
     {n:'시비', v:f.city, c:'#10b981'},
-    {n:'지방채',v:f.bond, c:'#f7941d'},
+    {n:'지방채',v:f.bond, c:'#ea580c'},
     {n:'민자', v:f.priv, c:'#8b5cf6'}
   ];
   var h='<div class="rc-cards">'
@@ -342,7 +345,7 @@ function renderOutputStatus(){
   var pct=Math.round(parts.reduce(function(a,b){return a+b;},0)/parts.length*100);
   var deg=Math.round(pct*3.6);
   var ready=pct>=100;
-  var ringColor=pct>=100?'#10b981':(pct>=60?'#2f6bff':'#f7941d');
+  var ringColor=pct>=100?'#10b981':(pct>=60?'#2563eb':'#ea580c');
 
   function card(label,val,state){ /* state: ok | warn | err | idle */
     var icon={ok:'&#10003;',warn:'!',err:'&#10007;',idle:'&#8226;'}[state]||'&#8226;';
@@ -450,6 +453,7 @@ function goToStep(n, skipScroll) {
   if (stage) stage.classList.toggle('stage-wide', target.key === 'plan');
   if (target.key === 'output' && typeof renderOutputStatus === 'function') renderOutputStatus();
   if (target.key === 'review' && typeof renderReviewCompare === 'function') renderReviewCompare();
+  if (target.key === 'plan' && typeof renderPlanCompleteness === 'function') renderPlanCompleteness();
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
   if (target.key === 'calc') {
     var cb=v('calc-box'), emCb=v('empty-calc');
