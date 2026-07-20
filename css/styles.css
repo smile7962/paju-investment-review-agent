@@ -157,8 +157,18 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
   background:var(--pb);color:#fff;border:none;font-size:24px;cursor:pointer;z-index:150;
   box-shadow:0 6px 20px rgba(37,99,235,.35);display:flex;align-items:center;justify-content:center;
   transition:transform .15s,box-shadow .15s;}
-.floating-chat-btn:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 26px rgba(0,60,150,.45);}
+.floating-chat-btn:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 26px rgba(37,99,235,.45);}
 .floating-chat-btn.active{background:var(--pb2);}
+/* 호버 시 왼쪽에 나타나는 말풍선(툴팁) + 오른쪽을 가리키는 꼬리 */
+.floating-chat-btn::after{content:attr(data-tip);position:absolute;right:calc(100% + 14px);top:50%;
+  transform:translateY(-50%) translateX(6px);background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;
+  white-space:nowrap;padding:8px 13px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,.22);
+  opacity:0;pointer-events:none;transition:opacity .16s ease,transform .16s ease;}
+.floating-chat-btn::before{content:"";position:absolute;right:calc(100% + 8px);top:50%;
+  transform:translateY(-50%) translateX(6px);border:6px solid transparent;border-left-color:var(--ink);
+  opacity:0;pointer-events:none;transition:opacity .16s ease,transform .16s ease;}
+.floating-chat-btn:hover::after,.floating-chat-btn:focus-visible::after,
+.floating-chat-btn:hover::before,.floating-chat-btn:focus-visible::before{opacity:1;transform:translateY(-50%) translateX(0);}
 /* 우측 고정 도킹 패널 — 오버레이로 본문을 가리지 않고, 열리면 본문이 옆으로 밀린다 */
 .floating-chat-panel{position:fixed;top:112px;right:0;bottom:0;width:min(400px,100vw);
   background:#fff;border-left:1px solid var(--g200);box-shadow:-6px 0 24px rgba(0,0,0,.10);
