@@ -448,9 +448,10 @@ function goToStep(n, skipScroll) {
   });
   var st = v('stage-title'); if (st) st.innerHTML = target.icon+' '+target.title;
   var ss = v('stage-sub'); if (ss) ss.innerHTML = target.desc;
-  /* 기획 단계는 좌·우 분할이라 스테이지를 넓게 확장 */
+  /* 모든 단계가 동일한 폭·제목 시작 위치를 갖도록 스테이지 폭을 통일한다
+     (기획 단계도 다른 단계와 같은 최대폭 사용 — 제목 정렬 일관성) */
   var stage = v('wizard-stage');
-  if (stage) stage.classList.toggle('stage-wide', target.key === 'plan');
+  if (stage) stage.classList.remove('stage-wide');
   if (target.key === 'output' && typeof renderOutputStatus === 'function') renderOutputStatus();
   if (target.key === 'review' && typeof renderReviewCompare === 'function') renderReviewCompare();
   if (target.key === 'plan' && typeof renderPlanCompleteness === 'function') renderPlanCompleteness();
