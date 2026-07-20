@@ -74,7 +74,9 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
   border:1px solid var(--g200);border-radius:var(--rs);font-size:13px;cursor:pointer;}
 /* ── v4: 풀스크린 단계형 위저드 — 좌우 분할 대신 단일 스테이지 ── */
 .main{min-height:calc(100vh - 60px);background:var(--g50);transition:margin-right .25s ease;padding-bottom:80px;}
-.wizard-stage{max-width:min(1180px,94vw);margin:0 auto;padding:24px 24px 8px;}
+/* 단계 이동 시 스크롤 목표 지점을 상단 고정 헤더(60px)+스텝퍼(55px) 아래로 내려
+   화면 제목이 네비게이터에 가려지지 않고 항상 보이도록 여백을 준다 */
+.wizard-stage{max-width:min(1180px,94vw);margin:0 auto;padding:24px 24px 8px;scroll-margin-top:127px;}
 .stage-hdr{padding:4px 0 16px;}
 .stage-hdr .panel-title{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.02em;}
 .stage-hdr .panel-sub{font-size:12.5px;color:var(--g500);margin-top:4px;}
