@@ -150,9 +150,10 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 @media(max-width:640px){ .stage-nav{padding:10px 14px;} .stage-nav-btn{padding:10px 14px;font-size:13px;} }
 
 /* ── 플로팅 AI 상담 버튼 + 오버레이 패널 ── */
-.floating-chat-btn{position:fixed;right:24px;bottom:24px;width:56px;height:56px;border-radius:50%;
+/* 하단 고정 네비게이션 바(약 66px)와 겹치지 않도록 그 위에 띄운다 */
+.floating-chat-btn{position:fixed;right:24px;bottom:84px;width:56px;height:56px;border-radius:50%;
   background:var(--pb);color:#fff;border:none;font-size:24px;cursor:pointer;z-index:150;
-  box-shadow:0 6px 20px rgba(0,60,150,.35);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px rgba(37,99,235,.35);display:flex;align-items:center;justify-content:center;
   transition:transform .15s,box-shadow .15s;}
 .floating-chat-btn:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 26px rgba(0,60,150,.45);}
 .floating-chat-btn.active{background:var(--pb2);}
