@@ -155,7 +155,15 @@ function applyQuickCheckToWizard(){
   if (typeof updateSummary === 'function') updateSummary();
 }
 function saveSettings(){
-  var typed = v('apiKeyInput').value.trim();
+  /* 붙여넣기 과정에서 섞여 들어간 공백·한글·제로폭공백 등 비-ASCII 문자를 제거한다.
+     (HTTP 헤더는 Latin-1만 허용 — 이 문자가 있으면 fetch 요청이 거부됨) */
+  var typedRaw = v('apiKeyInput').value;
+  var typed = String(typedRaw).replace(/[^\x21-\x7E]/g, '');
+  if (typedRaw && typed !== typedRaw.trim()) {
+    /* 유효하지 않은 문자가 제거되었음을 알림(키 자체는 정상 저장) */
+    var _st = v('keySavedStatus');
+    if (_st) { _st.textContent = '⚠ 키에 포함된 공백·특수문자를 자동으로 제거했습니다.'; _st.style.color = '#ea580c'; }
+  }
   var opts={'opt-gemini':'gemini','opt-claude':'claude','opt-gpt':'gpt'};
   Object.keys(opts).forEach(function(id){
     var el=document.getElementById(id);
