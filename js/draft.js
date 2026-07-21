@@ -482,6 +482,14 @@ function callAI(userMsg, callback) {
     callback(null, 'API Key가 설정되지 않았습니다. 우측 상단 AI 설정 버튼을 클릭하세요.');
     return;
   }
+  /* HTTP 헤더는 ISO-8859-1(Latin-1)만 허용하므로, 붙여넣기 과정에서 섞여 들어간
+     한글·이모지·제로폭공백 등 비-ASCII 문자를 제거한다. 제거하지 않으면 fetch가
+     "String contains non ISO-8859-1 code point" 오류로 요청 자체를 거부한다. */
+  var apiKey = String(gKey).replace(/[^\x21-\x7E]/g, '');
+  if (!apiKey) {
+    callback(null, 'API Key에 유효하지 않은 문자가 포함되어 있습니다. AI 설정에서 키를 지우고 다시 입력해 주세요.');
+    return;
+  }
   /* gChatHistory 제외한 메시지만 전송 (AI 초안 요청에는 대화 기록을 남기지 않음) */
   var url, opts;
   var sysFull = buildSystemPrompt(gResult) + buildContextPrompt(gResult);
@@ -494,7 +502,7 @@ function callAI(userMsg, callback) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': gKey,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
@@ -514,7 +522,7 @@ function callAI(userMsg, callback) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + gKey
+        'Authorization': 'Bearer ' + apiKey
       },
       body: JSON.stringify({
         model: gptModel,
@@ -537,7 +545,7 @@ function callAI(userMsg, callback) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': gKey
+        'x-goog-api-key': apiKey
       },
       body: JSON.stringify({
         system_instruction: {parts: [{text: sysPromptG}]},
