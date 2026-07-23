@@ -462,6 +462,17 @@ function goToStep(n, skipScroll) {
   if (stage) stage.classList.remove('stage-wide');
   if (target.key === 'output' && typeof renderOutputStatus === 'function') renderOutputStatus();
   if (target.key === 'review' && typeof renderReviewCompare === 'function') renderReviewCompare();
+  /* 단계별 초기화 버튼: 출력 단계는 지울 입력이 없어 숨김, 결과/의뢰서는 라벨을 맞춘다 */
+  var srb = v('stage-reset-btn');
+  if (srb){
+    if (target.key === 'output'){ srb.style.display='none'; }
+    else {
+      srb.style.display='';
+      srb.innerHTML = (target.key==='result') ? '&#8635; 판정 결과 지우기'
+        : (target.key==='draft') ? '&#8635; 초안 다시 만들기'
+        : '&#8635; 이 단계 지우기';
+    }
+  }
   if (target.key === 'plan' && typeof renderPlanCompleteness === 'function') renderPlanCompleteness();
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
   if (target.key === 'calc') {

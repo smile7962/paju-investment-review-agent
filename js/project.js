@@ -310,6 +310,90 @@ function doReset(){
   switchIT('basic');
   updateSummary();
 }
+/* 전체 초기화 — 파괴적이므로 확인 후 실행 */
+function confirmFullReset(){
+  if(confirm('입력한 모든 내용과 분석 결과가 삭제됩니다.\n전체 초기화하시겠습니까?')) doReset();
+}
+/* 컨테이너 내부 입력요소만 비운다(단계별 초기화용) */
+function _clearInputsIn(containerId){
+  var c=document.getElementById(containerId); if(!c) return;
+  var els=c.querySelectorAll('input,select,textarea');
+  for(var i=0;i<els.length;i++){
+    var el=els[i];
+    if(el.type==='checkbox'){ el.checked=(el.id==='ci_reserve_apply'||el.id==='ci_reserve_apply_d'); } /* 예비비 기본 체크 유지 */
+    else if(el.type==='radio'){ el.checked=false; }
+    else if(el.tagName==='SELECT'){ el.selectedIndex=0; }
+    else { el.value=''; }
+  }
+}
+/* 판정 결과(gResult)와 그에 의존하는 심사판단·체크리스트·의뢰서 화면을 무효화 */
+function _invalidateJudgment(){
+  gResult=null; gCheckState={};
+  ['result-box','check-box','draft-box'].forEach(function(id){ var el=v(id); if(el){ el.innerHTML=''; el.style.display='none'; } });
+  ['empty-result','empty-check','empty-draft'].forEach(function(id){ var el=v(id); if(el) el.style.display=''; });
+}
+/* 단계별 입력 초기화 — 각 단계 필드만 지우고, 그 값에 의존하는 하위 결과를 함께 무효화한다.
+   (연동 관계: 기본정보·재원·이력 변경 → 판정 무효화 / 사업비·경제성 → 각 계산결과 무효화) */
+function resetStep(key){
+  switch(key){
+    case 'plan':
+      ['plan_name','plan_idea','plan_scale'].forEach(function(id){ sv(id,''); });
+      var pf=v('plan_field'); if(pf) pf.selectedIndex=0;
+      window.gPlanGenerated=false;
+      var prp=v('plan-report'); if(prp){ prp.innerHTML=''; prp.style.display='none'; }
+      var pph=v('plan-placeholder'); if(pph) pph.style.display='';
+      if(typeof renderPlanCompleteness==='function') renderPlanCompleteness();
+      break;
+    case 'basic':
+      ['f_name','f_type','f_cost','f_stage','f_exempt'].forEach(function(id){ sv(id,''); });
+      ['f_self','f_joint','f_tang_exempt','f_reserve'].forEach(function(id){ sc(id,false); });
+      if(typeof onTypeChange==='function') onTypeChange();
+      if(typeof onReserveChg==='function') onReserveChg();
+      var pab=document.getElementById('plan-applied-banner'); if(pab) pab.remove();
+      _invalidateJudgment();
+      break;
+    case 'budget':
+      ['f_nat','f_prov','f_city','f_bond','f_priv'].forEach(function(id){ sv(id,''); });
+      sc('f_self',false);
+      _invalidateJudgment();
+      break;
+    case 'review':
+      ['f_prev_cost','f_prev_result','f_years','f_prev_auth','f_prev_bond','f_deduct','f_spent'].forEach(function(id){ sv(id,''); });
+      ['f_site','f_bond_chg','f_audit_req'].forEach(function(id){ sc(id,false); });
+      var nr=v('ri-new'); if(nr && typeof setRI==='function'){ setRI('new',nr); var ni=nr.querySelector('input'); if(ni) ni.checked=true; }
+      if(typeof renderReviewCompare==='function') renderReviewCompare();
+      _invalidateJudgment();
+      break;
+    case 'calc':
+      _clearInputsIn('rt-calc');
+      window.gCalcTotal=0; window.gGroupTotals=null; window.gReserveFee=0; window.gParsedArea=0;
+      window.gPeriodTotal=0; window.gPeriodCalculated=false;
+      if(typeof projectData!=='undefined'&&projectData){ projectData.cost={}; projectData.period={}; }
+      if(typeof recalcCost==='function' && v('ci_area')) recalcCost();
+      if(typeof renderCostComposition==='function') renderCostComposition();
+      break;
+    case 'econ':
+      _clearInputsIn('rt-econ');
+      gEconResult={bc:0,npv:0,irr:0};
+      var era=v('econ-result-area'); if(era) era.innerHTML='';
+      break;
+    case 'result':
+      _invalidateJudgment();   /* 판정 결과만 지우기(입력값은 유지) */
+      break;
+    case 'draft':
+      if(gResult && typeof renderDraft==='function') renderDraft(gResult);  /* 담당자 편집분 버리고 초안 재생성 */
+      break;
+    default: break;
+  }
+  if(typeof updateSummary==='function') updateSummary();
+  if(typeof renderWizard==='function') renderWizard();
+  if(typeof scheduleAutoSave==='function') scheduleAutoSave();
+}
+function resetCurrentStep(){
+  if(typeof STEP_META==='undefined' || typeof gCurrentStep==='undefined') return;
+  var meta=STEP_META[gCurrentStep-1];
+  if(meta) resetStep(meta.key);
+}
 function collectCurrentData() {
   var fields = ['f_name','f_type','f_exempt','f_cost','f_reserve','f_stage',
     'f_self','f_joint','f_tang_exempt','f_nat','f_prov','f_city','f_bond',
