@@ -287,6 +287,7 @@ function doReset(){
   window.gCalcTotal=0;
   window.gGroupTotals=null;
   window.gReserveFee=0;
+  window.gParsedArea=0;
   projectData={basic:{},finance:{},cost:{},period:{},review:{},economy:{},draft:{},ai:{},output:{}};
   /* DOM 초기화 — 존재하는 요소만 안전하게 */
   var safeHide=function(emptyId,boxId){
