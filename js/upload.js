@@ -119,7 +119,9 @@ function parsePlanWithAI(text, callback){
     +      '(plan=사업계획수립, basic=기본설계중, basic_done=기본설계완료, detail=실시설계중, detail_done=실시설계완료). 모르면 plan",\n'
     + '  "finance": "재원조달·재원구성 내역이 문서에 명시된 경우에만 각 재원의 금액(억원 숫자)을 채우고, '
     +      '명시되지 않았으면 모두 0. {\\"nat\\": 국비, \\"prov\\": 도비, \\"city\\": 시비, \\"bond\\": 지방채, \\"priv\\": 민간자본}",\n'
-    + '  "area": "건축 연면적(㎡ 숫자만, 문서에 있으면. 없으면 0)"\n'
+    + '  "area": "건축 연면적(㎡ 숫자만, 문서에 있으면. 없으면 0)",\n'
+    + '  "reserveIncluded": "총사업비에 예비비(10%)가 포함되어 있다고 문서에 명시된 경우 true '
+    +      '(예: 총사업비 268억원(예비비 포함)), 명시가 없으면 false"\n'
     + '}';
   callAI(prompt, function(resp, err){
     if(err){ callback(null, err); return; }
@@ -162,6 +164,14 @@ function applyParsedPlanToForm(data){
     if(!isNaN(val) && val>0){ sv(f[0], val); applied++; finSum += val; finParts.push(f[2]+' '+val+'억'); }
   });
   if(finParts.length){ filledTabs.push('재원구성(' + finParts.join('·') + ')'); }
+
+  /* ── 총사업비에 예비비 포함 여부 자동 체크 (문서에 명시된 경우) ── */
+  if(data.reserveIncluded === true){
+    sc('f_reserve', true);
+    if(typeof onReserveChg==='function') onReserveChg();   /* 경고문 갱신 */
+    applied++;
+    filledTabs.push('기본정보(예비비 포함 체크)');
+  }
 
   /* ── 사업비 단계 연면적 자동 입력 (계산기 미렌더 시점 대비 전역 보관) ── */
   var area = parseFloat(data.area);
