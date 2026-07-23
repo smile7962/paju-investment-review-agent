@@ -365,7 +365,17 @@ function buildTaskPrompt(r) {
   return t;
 }
 function buildContextPrompt(r) {
-  if (!r) return '';
+  var provisional = false;
+  if (!r) {
+    /* 분석 실행(gResult) 전이라도 현재까지 입력된 폼 값으로 임시 컨텍스트를 구성해,
+       각 단계의 AI 빠른 질문이 방금 입력한 실제 내용과 연계되도록 한다. */
+    var _name = gv('f_name'), _type = gv('f_type'), _cost = gnv('f_cost');
+    if (!_name && !_type && !(_cost > 0)) return '';   /* 입력이 전혀 없으면 컨텍스트 생략 */
+    r = { name:_name, type:_type, cost:_cost,
+          nat:gnv('f_nat'), prov:gnv('f_prov'), stage:gv('f_stage'),
+          auth:null, reTrig:[] };
+    provisional = true;
+  }
   var typeMap = {
     general:'일반투자사업', office:'청사 신축사업',
     culture:'문화·체육시설', complex:'복합시설(청사+문화체육)',
@@ -398,6 +408,7 @@ function buildContextPrompt(r) {
   c += ' / 시비 ' + city + '억원(' + cityPct + '%)\n';
   c += '타당성조사: ' + tang + '\n';
   c += '재심사여부: ' + (r.reTrig && r.reTrig.length > 0 ? '재심사 사유 발생 (' + r.reTrig.length + '건)' : '해당 없음') + '\n';
+  if (provisional) c += '※ 아직 「분석 실행」 전 단계입니다. 위 값은 현재까지 입력된 내용이며, 심사기관·재심사 판정은 미확정입니다.\n';
 
   /* 계산기 결과 자동 포함 (입력된 경우에만) */
   var area = parseFloat(document.getElementById('ci_area') ? document.getElementById('ci_area').value : 0) || 0;
