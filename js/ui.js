@@ -478,6 +478,11 @@ function goToStep(n, skipScroll) {
         el.value=window.gLastUnit;
         var hint=document.getElementById('ci_unit_hint');
         if (hint) hint.textContent='서울시 가이드라인 자동 적용: '+window.gLastUnit.toLocaleString()+'천원/㎡';
+      }
+      /* 업로드 자동입력으로 확보한 연면적을 계산기에 반영(빈 칸일 때만) */
+      var ae=document.getElementById('ci_area');
+      if (ae && window.gParsedArea>0 && !ae.value){ ae.value=window.gParsedArea; }
+      if ((el && window.gLastUnit) || (ae && ae.value)){
         if (typeof recalcCost==='function') recalcCost();
       }
       /* 이미 산출값이 있으면 구성 비율 막대 갱신(막대는 산출값 없을 때 자동 숨김) */
