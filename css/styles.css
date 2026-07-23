@@ -77,7 +77,13 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 /* 단계 이동 시 스크롤 목표 지점을 상단 고정 헤더(60px)+스텝퍼(55px) 아래로 내려
    화면 제목이 네비게이터에 가려지지 않고 항상 보이도록 여백을 준다 */
 .wizard-stage{max-width:min(1180px,94vw);margin:0 auto;padding:24px 24px 8px;scroll-margin-top:127px;}
-.stage-hdr{padding:4px 0 16px;}
+.stage-hdr{padding:4px 0 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.stage-hdr-txt{min-width:0;}
+.stage-reset{flex:none;margin-top:4px;background:#fff;border:1px solid var(--brd);color:var(--g600);
+  font-size:12.5px;font-weight:700;padding:8px 13px;border-radius:9px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:5px;transition:.15s;white-space:nowrap;}
+.stage-reset:hover{border-color:var(--pr);color:var(--pr);background:#fff6f5;}
+@media(max-width:640px){.stage-reset{font-size:11.5px;padding:7px 10px;}}
 .stage-hdr .panel-title{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.02em;}
 .stage-hdr .panel-sub{font-size:12.5px;color:var(--g500);margin-top:4px;}
 .stage-intro{background:var(--pbp);border:1px solid rgba(0,60,150,.15);border-radius:var(--r);

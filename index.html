@@ -42,6 +42,7 @@
     <button class="btn-ghost" onclick="openQuickCheck()">&#128269; 간이 진단</button>
     <button class="btn-ghost" onclick="importProjectJSON()">&#128193; 불러오기</button>
     <button class="btn-ghost" onclick="openSettings()">&#9881; AI 설정</button>
+    <button class="btn-ghost" onclick="confirmFullReset()" title="입력한 모든 내용·분석결과 초기화">&#8635; 전체 초기화</button>
     <button class="btn-primary-dark" onclick="openSaveModal()">&#11015; 저장 및 내보내기</button>
   </div>
 </header>
@@ -262,8 +263,11 @@
   </div>
 
     <div class="stage-hdr" id="stage-hdr">
-      <div class="panel-title" id="stage-title">&#128161; AI 사업 기획서 작성</div>
-      <div class="panel-sub" id="stage-sub">새 사업 아이디어를 기획서로</div>
+      <div class="stage-hdr-txt">
+        <div class="panel-title" id="stage-title">&#128161; AI 사업 기획서 작성</div>
+        <div class="panel-sub" id="stage-sub">새 사업 아이디어를 기획서로</div>
+      </div>
+      <button type="button" class="stage-reset" id="stage-reset-btn" onclick="resetCurrentStep()" title="이 단계 입력 지우기">&#8635; 이 단계 지우기</button>
     </div>
 
       <div id="rt-plan" class="tab-content res-body active">
