@@ -13,7 +13,7 @@ var VIDEO_INTRO_MODE = 'contest';
 
 /* 유튜브 영상 ID (주소 https://youtu.be/XXXXXXXXXXX 의 XXXXXXXXXXX 11자리) */
 var VIDEO_LIST = [
-  { key:'promo', id:'', title:'소개 영상', dur:'2:30', primary:true,
+  { key:'promo', id:'F__P2xcU5PQ', title:'소개 영상', dur:'2:30', primary:true,
     desc:'담당자의 막막함이 어떻게 완성된 의뢰서가 되는지<br>2분 30초 영상으로 보여드립니다.',
     grad:'linear-gradient(135deg,#0f172a,#c2410c)', accent:'#c2410c' },
   { key:'guide', id:'zJqurHe0yPo', title:'사용 안내 영상', dur:'3:55', primary:false,
