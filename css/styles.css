@@ -1448,3 +1448,6 @@ textarea:focus-visible,[tabindex]:focus-visible,[contenteditable]:focus-visible,
   .vid-foot{flex-direction:column;gap:12px;align-items:stretch;}
   .vid-start{width:100%;}
 }
+.vid-card.soon .vid-thumb{filter:grayscale(.55) brightness(.72);}
+.vid-card.soon .vid-dur{background:rgba(71,85,105,.9);}
+.vid-card.soon .vid-name{color:var(--g500);}
