@@ -16,7 +16,7 @@ var VIDEO_LIST = [
   { key:'promo', id:'', title:'소개 영상', dur:'2:30', primary:true,
     desc:'담당자의 막막함이 어떻게 완성된 의뢰서가 되는지<br>2분 30초 영상으로 보여드립니다.',
     grad:'linear-gradient(135deg,#0f172a,#c2410c)', accent:'#c2410c' },
-  { key:'guide', id:'', title:'사용 안내 영상', dur:'3:55', primary:false,
+  { key:'guide', id:'zJqurHe0yPo', title:'사용 안내 영상', dur:'3:55', primary:false,
     desc:'AI 설정부터 출력까지 9단계 사용법을<br>순서대로 안내합니다.',
     grad:'linear-gradient(135deg,#1e3a5f,#2563eb)', accent:'#2563eb' }
 ];
@@ -31,6 +31,15 @@ function hasAnyVideo(){
   return false;
 }
 
+/* 표시 순서 — 준비된 영상을 먼저(크게) 보여준다.
+   둘 다 준비되면 primary 로 지정한 영상(소개 영상)이 앞으로 온다. */
+function videoDisplayOrder(){
+  var ready = [], soon = [];
+  VIDEO_LIST.forEach(function(vd, i){ (vd.id ? ready : soon).push(i); });
+  ready.sort(function(a,b){ return (VIDEO_LIST[b].primary?1:0) - (VIDEO_LIST[a].primary?1:0); });
+  return ready.concat(soon);
+}
+
 /* ── 목록(카드) 화면 ── */
 function renderVideoList(){
   var body = v('video-modal-body');
@@ -41,12 +50,16 @@ function renderVideoList(){
     + '<div class="vid-sub">빈 화면 앞의 막막함을 <b>3분</b> 만에 확인해 보세요</div>'
     + '</div><div class="vid-cards">';
 
-  VIDEO_LIST.forEach(function(vd, i){
-    h += '<div class="vid-card' + (vd.primary ? ' primary' : '') + '" data-vid="' + i + '" role="button" tabindex="0">'
-      + (vd.primary ? '<span class="vid-tag">먼저 보기</span>' : '')
+  var order = videoDisplayOrder();
+  order.forEach(function(i, pos){
+    var vd = VIDEO_LIST[i];
+    var lead = (pos === 0 && vd.id);   /* 준비된 영상 중 첫 번째만 강조 */
+    h += '<div class="vid-card' + (lead ? ' primary' : '') + (vd.id ? '' : ' soon')
+      + '" data-vid="' + i + '" role="button" tabindex="0">'
+      + (lead ? '<span class="vid-tag">먼저 보기</span>' : '')
       + '<div class="vid-thumb" style="background:' + vd.grad + '">'
       + '<div class="vid-play" style="color:' + vd.accent + '">&#9654;</div>'
-      + '<span class="vid-dur">' + vd.dur + '</span></div>'
+      + '<span class="vid-dur">' + (vd.id ? vd.dur : '준비 중') + '</span></div>'
       + '<div class="vid-meta"><div class="vid-name">' + esc(vd.title) + '</div>'
       + '<div class="vid-desc">' + vd.desc + '</div></div></div>';
   });
