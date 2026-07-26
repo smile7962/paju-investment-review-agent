@@ -39,6 +39,7 @@
   <div class="hdr-right">
     <span id="autosave-badge" class="hdr-autosave">&#10003; 자동저장 완료</span>
     <div class="ai-badge" id="aiBadge">AI 미설정</div>
+    <button class="btn-ghost btn-video" onclick="openVideoModal()" title="소개 영상·사용 안내 영상 보기"><span class="bv-ico">&#127916;</span><span class="bv-txt">영상 안내</span></button>
     <button class="btn-ghost" onclick="openQuickCheck()">&#128269; 간이 진단</button>
     <button class="btn-ghost" onclick="importProjectJSON()">&#128193; 불러오기</button>
     <button class="btn-ghost" onclick="openSettings()">&#9881; AI 설정</button>
@@ -52,6 +53,18 @@
   <div class="wizard" id="wizard-steps"></div>
 </div>
 
+
+<!-- 영상 안내 모달 (소개 영상 / 사용 안내 영상) -->
+<div class="modal-ov" id="videoModal" onclick="if(event.target===this)closeVideoModal()"
+     role="dialog" aria-modal="true" aria-label="영상 안내">
+  <div class="modal vid-modal">
+    <div id="video-modal-body"></div>
+    <div class="vid-foot">
+      <label class="vid-skip"><input type="checkbox" id="video-skip-chk"> 다시 보지 않기</label>
+      <button class="btn-primary-dark vid-start" onclick="closeVideoModal()">건너뛰고 바로 사용하기 &#8594;</button>
+    </div>
+  </div>
+</div>
 
 <!-- 저장/불러오기 모달 -->
 <div class="modal-ov" id="saveModal" onclick="if(event.target===this)closeSaveModal()">
@@ -673,5 +686,6 @@
   <script src="js/plan.js"></script>
   <script src="js/project.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/video.js"></script>
 </body>
 </html>
