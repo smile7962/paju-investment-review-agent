@@ -473,10 +473,7 @@ function goToStep(n, skipScroll) {
         : '&#8635; 이 단계 지우기';
     }
   }
-  if (target.key === 'plan') {
-    if (typeof renderPlanCompleteness === 'function') renderPlanCompleteness();
-    if (typeof renderPlanCaseHint === 'function') renderPlanCaseHint();
-  }
+  if (target.key === 'plan' && typeof renderPlanCompleteness === 'function') renderPlanCompleteness();
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
   if (target.key === 'calc') {
     var cb=v('calc-box'), emCb=v('empty-calc');
