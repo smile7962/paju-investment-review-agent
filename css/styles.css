@@ -132,44 +132,6 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .plan-comp-bar i{display:block;height:100%;border-radius:999px;
   background:linear-gradient(90deg,var(--pb),var(--pb2));transition:width .35s ease;}
 .plan-comp-hint{font-size:11px;color:var(--g500);margin-top:7px;line-height:1.5;}
-/* ── 유사사례 검토 옵션 (① 사업 기획 단계) ── */
-.plan-opt{display:flex;align-items:flex-start;gap:9px;margin-top:14px;padding:11px 13px;
-  border:1px solid var(--g200);border-radius:var(--rs);background:var(--g50);cursor:pointer;}
-.plan-opt:hover{border-color:var(--pb);background:var(--pbp);}
-.plan-opt input{margin-top:2px;flex-shrink:0;width:15px;height:15px;cursor:pointer;}
-.plan-opt-txt{font-size:12px;color:var(--g700);line-height:1.5;}
-.plan-opt-txt b{color:var(--pb);}
-.plan-opt-sub{display:block;font-size:11px;color:var(--g500);margin-top:3px;line-height:1.55;}
-.plan-case-hint{display:none;font-size:11px;color:var(--g600);line-height:1.6;
-  margin-top:7px;padding-left:3px;}
-.plan-case-hint b{color:var(--pb);}
-.plan-case-warn{color:var(--g500);}
-
-/* ── 기획서 본문의 유사사례 절 ── */
-.plan-case-lead{font-size:11px;color:var(--pb);background:var(--pbp);border-radius:var(--rs);
-  padding:8px 11px;margin-bottom:10px;line-height:1.6;}
-.plan-case-table{border:1px solid var(--g200);border-radius:var(--rs);padding:11px 12px;
-  margin-bottom:12px;background:#fff;overflow-x:auto;}
-.plan-case-cap{font-size:12px;font-weight:700;color:var(--g700);margin-bottom:8px;}
-.plan-case-table table{width:100%;border-collapse:collapse;font-size:11px;}
-.plan-case-table th{background:var(--g50);color:var(--g600);font-weight:700;
-  border:1px solid var(--g200);padding:5px 7px;text-align:center;line-height:1.4;}
-.plan-case-table td{border:1px solid var(--g200);padding:5px 7px;color:var(--g700);line-height:1.45;}
-.plan-case-table td.num{text-align:right;font-variant-numeric:tabular-nums;}
-.plan-case-table tr.fit td{background:var(--pbp);font-weight:600;color:var(--pb);}
-.pc-badge{display:inline-block;font-size:9px;font-weight:700;color:#fff;background:var(--pb);
-  border-radius:999px;padding:1px 6px;margin-left:3px;vertical-align:1px;}
-.plan-case-src{font-size:10px;color:var(--g400);margin-top:6px;line-height:1.5;}
-.plan-case-imp{font-size:11.5px;color:var(--g700);line-height:1.75;margin-top:9px;
-  padding-top:9px;border-top:1px dashed var(--g200);}
-.plan-case-none{font-size:11.5px;color:var(--g600);line-height:1.7;}
-.plan-case-frame{white-space:pre-wrap;}
-@media(max-width:600px){
-  .plan-case-table{padding:8px;}
-  .plan-case-table table{font-size:10px;}
-  .plan-case-table th,.plan-case-table td{padding:4px 5px;}
-}
-
 .plan-result-actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px;}
 .plan-tip{background:var(--pbp);border-radius:var(--rs);padding:9px 13px;
   font-size:11px;color:var(--pb);margin-bottom:12px;line-height:1.6;}
