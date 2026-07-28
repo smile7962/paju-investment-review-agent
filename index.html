@@ -297,7 +297,7 @@
               <div class="plan-grid">
                 <div class="fg">
                   <div class="fl">사업 분야 <span class="req">필수</span></div>
-                  <select class="fs" id="plan_field" onchange="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness()">
+                  <select class="fs" id="plan_field" onchange="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness();if(typeof renderPlanCaseHint==='function')renderPlanCaseHint()">
                     <option value="welfare">복지·보건</option>
                     <option value="culture">문화·체육</option>
                     <option value="office">청사·행정시설</option>
@@ -315,12 +315,19 @@
               </div>
               <div class="fg">
                 <div class="fl">사업 배경·목적 <span class="req">필수</span></div>
-                <textarea class="fi" id="plan_idea" rows="5" oninput="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness()" placeholder="어떤 문제를 해결하려는 사업인지, 왜 필요한지 자유롭게 적어주세요. 예: 운정3동은 인구가 급증했지만 주민 체육시설이 부족해 인근 시설이 과밀 상태다. 생활체육 수요를 충족하고 주민 건강을 증진하기 위한 체육센터가 필요하다." style="resize:vertical;line-height:1.6"></textarea>
+                <textarea class="fi" id="plan_idea" rows="5" oninput="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness();if(typeof renderPlanCaseHint==='function')renderPlanCaseHint()" placeholder="어떤 문제를 해결하려는 사업인지, 왜 필요한지 자유롭게 적어주세요. 예: 운정3동은 인구가 급증했지만 주민 체육시설이 부족해 인근 시설이 과밀 상태다. 생활체육 수요를 충족하고 주민 건강을 증진하기 위한 체육센터가 필요하다." style="resize:vertical;line-height:1.6"></textarea>
               </div>
               <div class="fg">
                 <div class="fl">대상·규모 <span style="font-size:10px;color:var(--g400)">(선택)</span></div>
-                <input type="text" class="fi" id="plan_scale" placeholder="예: 운정3동 주민 약 4만명 대상 / 연면적 3,000㎡ 규모" oninput="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness()">
+                <input type="text" class="fi" id="plan_scale" placeholder="예: 운정3동 주민 약 4만명 대상 / 연면적 3,000㎡ 규모" oninput="if(typeof renderPlanCompleteness==='function')renderPlanCompleteness();if(typeof renderPlanCaseHint==='function')renderPlanCaseHint()">
               </div>
+              <!-- 유사사례 검토 옵션 — 표준단가 비교표(내장 데이터) + 조사 프레임(AI) -->
+              <label class="plan-opt" for="plan_case_study">
+                <input type="checkbox" id="plan_case_study" checked onchange="if(typeof renderPlanCaseHint==='function')renderPlanCaseHint()">
+                <span class="plan-opt-txt"><b>유사사례 검토 포함</b>
+                  <span class="plan-opt-sub">표준 공사비 단가 비교표와 사례조사 양식(확인항목·자료출처·빈 비교표)을 기획서에 추가합니다.</span></span>
+              </label>
+              <div id="plan-case-hint" class="plan-case-hint"></div>
               <button class="btn-analyze" onclick="generatePlan()">&#129302; AI 기획서 초안 생성</button>
               <!-- 기획 완성도(시안) — 입력 충실도를 참고용으로 표시 -->
               <div id="plan-completeness" class="plan-completeness"></div>
