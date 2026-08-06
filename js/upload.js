@@ -177,7 +177,9 @@ function applyParsedPlanToForm(data){
   var area = parseFloat(data.area);
   if(!isNaN(area) && area>0){
     window.gParsedArea = area;               /* goToStep('calc')에서 적용 */
-    if(v('ci_area')){ sv('ci_area', area); applied++; }  /* 이미 렌더돼 있으면 즉시 반영 */
+    /* ② 연면적 칸에도 즉시 반영 — 업로드 경로에서도 단가 추천이 동작해야 한다 */
+    if(typeof setFloorArea === 'function'){ setFloorArea(area, '', '업로드한 기획서에서 자동 입력'); applied++; }
+    else if(v('ci_area')){ sv('ci_area', area); applied++; }
     filledTabs.push('사업비·기간(연면적 ' + area.toLocaleString() + '㎡)');
   }
 

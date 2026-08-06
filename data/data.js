@@ -298,17 +298,79 @@ function parseUnitBand(range) {
   return null;
 }
 
-/* 추천 기준 연면적 — 계산기에 입력된 값이 최우선, 없으면 기획서에서 읽는다 */
+/* ── 연면적 단일 출처 ───────────────────────────────────────────
+   연면적을 담는 곳이 ② f_area / ⑤ ci_area / 업로드 gParsedArea /
+   기획 _planArea 로 흩어져 있어, 어느 경로로 들어왔는지에 따라
+   단가 추천이 되기도 하고 안 되기도 했다. 조회 순서를 한 곳으로 모은다. */
 function unitRecommendArea() {
-  var el = document.getElementById('ci_area');
-  var a = el ? (parseFloat(el.value) || 0) : 0;
-  if (a > 0) return { area: a, from: 'calc' };
-  if (window._planArea > 0) return { area: window._planArea, from: 'plan' };
+  var f = document.getElementById('f_area');
+  var a = f ? (parseFloat(f.value) || 0) : 0;
+  if (a > 0) return { area: a, from: 'input' };
+  var c = document.getElementById('ci_area');
+  a = c ? (parseFloat(c.value) || 0) : 0;
+  if (a > 0) return { area: a, from: 'input' };
+  if (window._lastArea > 0)   return { area: window._lastArea,   from: 'input' };
+  if (window.gParsedArea > 0) return { area: window.gParsedArea, from: 'file'  };
+  if (window._planArea > 0)   return { area: window._planArea,   from: 'plan'  };
   if (typeof planDetectArea === 'function') {
     var pa = planDetectArea();
     if (pa > 0) return { area: pa, from: 'plan' };
   }
   return { area: 0, from: '' };
+}
+
+/* 연면적 값의 출처 문구 — ②에 자동으로 채워 넣어도 어디서 왔는지 잃지 않게 한다 */
+function unitAreaSourceText(det) {
+  var L = window._areaSrcLabel || '';
+  if (/업로드/.test(L)) return '업로드한 기획서에서 확인된';
+  if (/기획서/.test(L))  return '기획서에서 확인된';
+  if (det && det.from === 'file') return '업로드한 기획서에서 확인된';
+  if (det && det.from === 'plan') return '기획서에서 확인된';
+  return '입력하신';
+}
+
+/* ② f_area 와 ⑤ ci_area 를 한 값으로 유지하고, 단가 추천·사업비를 갱신한다.
+   from 은 지금 사용자가 만진 칸(중복 갱신 방지). */
+function setFloorArea(val, from, srcLabel) {
+  var a = parseFloat(val) || 0;
+  window._lastArea = a;
+  /* 출처 라벨은 이후 재렌더에서도 유지한다. 담당자가 직접 고쳐 쓰면 지운다. */
+  if (srcLabel) window._areaSrcLabel = srcLabel;
+  else if (from === 'f_area' || from === 'ci_area') window._areaSrcLabel = '';
+  var f = document.getElementById('f_area');
+  var c = document.getElementById('ci_area');
+  if (f && from !== 'f_area')  f.value = a > 0 ? a : '';
+  if (c && from !== 'ci_area') c.value = a > 0 ? a : '';
+  if (typeof refreshUnitPriceBox === 'function') refreshUnitPriceBox();
+  if (typeof recalcCost === 'function' && c) recalcCost();
+  renderAreaHint(srcLabel || '');
+}
+
+/* ② 연면적 칸 아래 안내문 — 값의 출처를 알려준다 */
+function renderAreaHint(srcLabel) {
+  var hint = document.getElementById('f_area_hint');
+  if (!hint) return;
+  var det = unitRecommendArea();
+  if (!(det.area > 0)) {
+    hint.textContent = '연면적을 입력하면 규모 구간에 맞는 서울시 표준단가를 추천합니다.';
+    hint.style.color = 'var(--g400)';
+    return;
+  }
+  var lbl = srcLabel || window._areaSrcLabel
+    || (det.from === 'plan' ? '① 기획서에서 자동 입력'
+      : det.from === 'file' ? '업로드한 기획서에서 자동 입력' : '');
+  hint.textContent = lbl ? (lbl + ': ' + det.area.toLocaleString() + '㎡ (수정 가능)')
+                         : ('⑤ 사업비 계산기와 같은 값으로 연동됩니다.');
+  hint.style.color = 'var(--pb)';
+}
+
+/* ② 진입·값 변경 시 연면적 칸을 현재 값으로 채운다 */
+function syncFloorAreaField() {
+  var f = document.getElementById('f_area');
+  if (!f) return;
+  var det = unitRecommendArea();
+  if (det.area > 0 && !(parseFloat(f.value) > 0)) f.value = det.area;
+  renderAreaHint();
 }
 
 /* 담당자가 카드를 직접 고르면 true — 이후 추천이 그 선택을 덮지 않는다 */
@@ -342,7 +404,7 @@ function showUnitPriceBox(type) {
   var h = '<div class="unit-price-title">&#128200; 서울시 건축공사비 단가 (2024) — 클릭하면 자동 적용</div>';
   if (recIdx >= 0) {
     h += '<div class="upc-reco-note">&#9989; '
-      + (det.from === 'plan' ? '기획서에서 확인된' : '입력하신')
+      + unitAreaSourceText(det)
       + ' 연면적 <b>' + area.toLocaleString() + '㎡</b> 기준으로 <b>'
       + db[recIdx].name + '</b> 구간을 추천합니다.'
       + ' <span>다른 단가를 쓰려면 원하는 카드를 누르세요.</span></div>';
@@ -481,9 +543,9 @@ function onTypeChange() {
 function restoreAreaFromPlan() {
   var el = document.getElementById('ci_area');
   if (!el || (parseFloat(el.value) || 0) > 0) return;
+  var det = unitRecommendArea();
+  var a = det.area;
   var kept = window._lastArea || 0;
-  var a = kept > 0 ? kept
-        : (window._planArea || (typeof planDetectArea === 'function' ? planDetectArea() : 0));
   if (!(a > 0)) return;
   el.value = a;
   var hint = document.getElementById('ci_area_hint');
@@ -493,8 +555,12 @@ function restoreAreaFromPlan() {
     hint.style.cssText = 'font-size:10px;color:var(--pb);margin-top:3px;font-weight:600';
     if (el.parentNode) el.parentNode.appendChild(hint);
   }
-  hint.textContent = (kept > 0 ? '입력하신 연면적 유지: ' : '기획서에서 확인된 연면적 자동 적용: ')
+  var src = unitAreaSourceText(det);
+  hint.textContent = (src === '입력하신' ? '입력하신 연면적 유지: '
+                                         : src + ' 연면적 자동 적용: ')
     + a.toLocaleString() + '㎡ (수정 가능)';
+  var f = document.getElementById('f_area');
+  if (f && !(parseFloat(f.value) > 0)) f.value = a;
   if (typeof recalcCost === 'function') recalcCost();
 }
 

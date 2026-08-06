@@ -1172,7 +1172,7 @@ function renderCalc(r) {
 
   h+='<div class="calc-row">';
   h+='<div class="calc-field"><div class="calc-label">연면적 <span class="req">필수</span></div>';
-  h+='<div class="calc-input-wrap"><input type="number" class="calc-input" id="ci_area" placeholder="예: 5580" oninput="recalcCost()" onchange="recalcCost()"><span class="calc-unit">㎡</span></div></div>';
+  h+='<div class="calc-input-wrap"><input type="number" class="calc-input" id="ci_area" placeholder="예: 5580" oninput="if(typeof setFloorArea===\'function\')setFloorArea(this.value,\'ci_area\');else recalcCost()" onchange="recalcCost()"><span class="calc-unit">㎡</span></div></div>';
   h+='<div class="calc-field"><div class="calc-label">단위 공사비</div>';
   h+='<div class="calc-input-wrap"><div class="calc-input" style="background:var(--pbp);border:1px solid rgba(0,60,150,.2);padding:5px 8px;font-weight:700;color:var(--pb);min-width:80px" id="ci_unit_display">-</div><span class="calc-unit">천원/㎡</span></div>';
   h+='<div style="font-size:10px;color:var(--g400)">기본정보 탭에서 사업유형 선택 시 자동 적용</div></div>';
