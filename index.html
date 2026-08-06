@@ -445,11 +445,13 @@
           <div class="fg" id="ci_unit_wrap" style="margin-top:8px">
             <div class="fl">단위 공사비 <span style="font-size:10px;color:var(--g400)">(서울시 가이드라인 자동 적용)</span></div>
             <div style="display:flex;align-items:center;gap:6px">
-              <input type="number" class="fi" id="ci_unit" placeholder="사업유형 선택 시 자동 입력" style="flex:1" oninput="if(typeof recalcCost==='function')recalcCost()">
+              <input type="number" class="fi" id="ci_unit" placeholder="사업유형 선택 시 자동 입력" style="flex:1" oninput="if(typeof recalcCost==='function')recalcCost();if(typeof renderQuickCost==='function')renderQuickCost()">
               <span style="font-size:12px;color:var(--g500);white-space:nowrap">천원/㎡</span>
             </div>
             <div id="ci_unit_hint" style="font-size:10px;color:var(--pb);margin-top:2px;font-weight:600"></div>
           </div>
+          <!-- 약식 산출 결과: 연면적 × 단가 → 총사업비 자동 산출 -->
+          <div id="quick-cost" class="quick-cost"></div>
           <div class="fg">
             <div class="fl">총사업비 <span class="req">필수</span></div>
             <div class="aw">

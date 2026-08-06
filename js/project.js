@@ -292,6 +292,8 @@ function doReset(){
     var el=v(id); if(el) el.remove();
   });
   var ua=v('unit-applied-note'); if(ua) ua.style.display='none';
+  var qc=v('quick-cost'); if(qc){ qc.innerHTML=''; qc.className='quick-cost'; }
+  window._qcAutoApplied=false;
 
   /* AI 대화 이력 */
   var hist=v('ai-chat-history');
