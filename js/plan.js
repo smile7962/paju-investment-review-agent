@@ -250,8 +250,9 @@ function applyPlanToBasic(){
      (이미 담당자가 입력해 둔 연면적이 있으면 건드리지 않는다) */
   var area = planDetectArea();
   window._planArea = area;
-  /* ci_area 는 ⑤ 계산기가 렌더될 때 만들어지므로, 이미 있으면 지금 채우고
-     없으면 renderCalc 시점에 restoreAreaFromPlan() 이 채운다 */
+  /* ② 연면적 칸을 먼저 채워야 이어지는 onTypeChange 의 단가 추천이 이 값을 본다.
+     ⑤ 의 ci_area 는 계산기 렌더 시점에 restoreAreaFromPlan() 이 채운다. */
+  if(area > 0 && typeof setFloorArea === 'function') setFloorArea(area, '', '① 기획서에서 자동 입력');
   if(area > 0 && typeof restoreAreaFromPlan === 'function') restoreAreaFromPlan();
   if(typeof onTypeChange === 'function') onTypeChange();
   if(cost > 0) sv('f_cost', cost);

@@ -430,6 +430,17 @@
           <!-- 사업유형별 공사단가 자동 표출 -->
           <div id="unit-price-box" class="unit-price-box"></div>
           <div id="unit-applied-note" style="display:none;font-size:11px;color:var(--ok);padding:6px 10px;background:#f0fdf4;border-radius:var(--rs);margin-top:6px"></div>
+          <!-- 연면적: ⑤ 계산기의 ci_area 와 양방향 동기화되는 대표 입력칸.
+               '단가 × 연면적'이라 안내하면서 연면적 칸이 ⑤에만 있어 확인할 수 없었다. -->
+          <div class="fg" id="f_area_wrap" style="margin-top:8px">
+            <div class="fl">연면적 <span style="font-size:10px;color:var(--g400)">(규모 구간에 맞는 단가를 추천합니다)</span></div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="number" class="fi" id="f_area" placeholder="예: 5580" min="0" step="1" style="flex:1"
+                oninput="if(typeof setFloorArea==='function')setFloorArea(this.value,'f_area')">
+              <span style="font-size:12px;color:var(--g500);white-space:nowrap">㎡</span>
+            </div>
+            <div id="f_area_hint" style="font-size:10px;color:var(--pb);margin-top:2px;font-weight:600"></div>
+          </div>
           <!-- 단위공사비: 정적 DOM (사업유형 선택 시 자동 반영) -->
           <div class="fg" id="ci_unit_wrap" style="margin-top:8px">
             <div class="fl">단위 공사비 <span style="font-size:10px;color:var(--g400)">(서울시 가이드라인 자동 적용)</span></div>

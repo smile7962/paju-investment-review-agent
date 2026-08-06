@@ -333,6 +333,9 @@ function resetStep(key){
     case 'basic':
       ['f_name','f_type','f_cost','f_stage','f_exempt'].forEach(function(id){ sv(id,''); });
       ['f_self','f_joint','f_tang_exempt','f_reserve'].forEach(function(id){ sc(id,false); });
+      /* 연면적은 ②·⑤ 가 같은 값을 쓰므로 기억값도 함께 비운다 */
+      window._lastArea=0; window._areaSrcLabel='';
+      var _fah=v('f_area_hint'); if(_fah) _fah.textContent='';
       if(typeof onTypeChange==='function') onTypeChange();
       if(typeof onReserveChg==='function') onReserveChg();
       var pab=document.getElementById('plan-applied-banner'); if(pab) pab.remove();
@@ -355,7 +358,8 @@ function resetStep(key){
       window.gCalcTotal=0; window.gGroupTotals=null; window.gReserveFee=0; window.gParsedArea=0;
       window.gPeriodTotal=0; window.gPeriodCalculated=false;
       /* 이 단계를 지웠으면 기억해 둔 연면적도 함께 버린다 */
-      window._lastArea=0; window._planArea=0;
+      window._lastArea=0; window._planArea=0; window._areaSrcLabel='';
+      var _fa=v('f_area'); if(_fa) _fa.value='';
       var _ah=v('ci_area_hint'); if(_ah) _ah.remove();
       if(typeof projectData!=='undefined'&&projectData){ projectData.cost={}; projectData.period={}; }
       if(typeof recalcCost==='function' && v('ci_area')) recalcCost();
