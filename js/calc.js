@@ -519,6 +519,7 @@ function applyCostFromCalc(val) {
   var el = v('f_cost');
   if(el){ el.value = val; el.style.background='#e8f5e9'; setTimeout(function(){el.style.background='';},1000); }
   v('cost-diff-warn') && (v('cost-diff-warn').style.display='none');
+  if(typeof updateSummary==='function') updateSummary();   /* 전액 자체재원이면 시비 동기화 */
 }
 function c37Val(id){
   var qtyEl=v(id+'_qty'), unitEl=v(id+'_unit');

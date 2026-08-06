@@ -498,7 +498,7 @@
             </label>
           </div>
           <div class="ck-row" style="margin-top:8px">
-            <input type="checkbox" id="f_self">
+            <input type="checkbox" id="f_self" onchange="updateSummary();if(typeof renderWizard==='function')renderWizard()">
             <label for="f_self" style="cursor:pointer">전액 자체재원 사업 (이전재원 없음)</label>
           </div>
           <div class="ck-row">
@@ -513,6 +513,8 @@
       </div>
 
       <div id="it-budget" class="tab-content res-body">
+        <!-- 전액 자체재원 안내 — ②에서 체크 시 시비 자동 반영 상태를 알린다 -->
+        <div id="self-fin-note" class="self-fin-note" style="display:none"></div>
         <div class="sec-grp">
           <div class="sec-title">재원 구성 (억원)</div>
           <div class="fg"><div class="fl">국비</div>
