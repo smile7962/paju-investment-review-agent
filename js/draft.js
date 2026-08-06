@@ -933,31 +933,31 @@ function clearChatTarget(){
    그대로 두면 어느 단계에서 물어도 의뢰서 항목 형식으로 답한다.
    현재 단계와 그 단계의 화면 내용을 질문 앞에 붙여 단계에 맞게 답하게 한다. */
 var STEP_CHAT_GUIDE = {
-  plan:   { name:'1단계 — AI 사업 기획서 작성',
+  plan:   { name:'AI 사업 기획서 작성',
     role:'신규 사업 아이디어를 「사업 기획서(안)」으로 다듬는 단계입니다. 투자심사 의뢰서를 쓰는 단계가 아닙니다.',
     rule:'기획서 항목을 고쳐달라는 요청에는 「항목 제목」과 고쳐 쓴 본문만 제시하세요. 의뢰서 항목번호(1-1, 5-1 등)나 【5-N 항목명】 형식은 쓰지 마세요.' },
-  basic:  { name:'2단계 — 기본정보 입력',
+  basic:  { name:'기본정보 입력',
     role:'사업명·사업유형·총사업비·추진단계를 입력해 심사 대상 여부를 판단하기 직전 단계입니다.',
     rule:'심사대상 구분·사업유형 분류·면제 사유 등 입력값 판단을 도와주세요. 의뢰서 본문을 미리 작성하지 마세요.' },
-  budget: { name:'3단계 — 재원구성 입력',
+  budget: { name:'재원구성 입력',
     role:'국비·도비·시비·지방채·민자 등 재원 분담을 입력하는 단계입니다.',
     rule:'재원 합계·분담 비율·확보 근거 자료를 중심으로 답하세요. 의뢰서 본문을 미리 작성하지 마세요.' },
-  review: { name:'4단계 — 심사이력 입력',
+  review: { name:'심사이력 입력',
     role:'직전 심사 결과와 변경 내용을 입력해 재심사 대상 여부를 확인하는 단계입니다.',
     rule:'재심사 사유·조건부 이행 증빙·변경사항 비교를 중심으로 답하세요.' },
-  calc:   { name:'5단계 — 총사업비·사업기간 산정',
+  calc:   { name:'총사업비·사업기간 산정',
     role:'단위공사비·37개 비목·12단계 기간으로 사업비와 기간을 산출하는 단계입니다.',
     rule:'산출 근거와 적용 단가·기간의 적정성을 중심으로 답하세요. 화면에 없는 단가를 지어내지 마세요.' },
-  econ:   { name:'6단계 — 경제성 분석',
+  econ:   { name:'경제성 분석',
     role:'B/C·NPV·IRR을 계산하는 단계입니다.',
     rule:'계산 결과의 해석·민감도·산정 근거를 중심으로 답하세요. 화면에 계산 결과가 없으면 지어내지 말고 먼저 계산하도록 안내하세요.' },
-  result: { name:'7단계 — 심사판단 결과',
+  result: { name:'심사판단 결과',
     role:'심사기관·심사대상 여부 판정 결과를 확인하는 단계입니다.',
     rule:'판정의 법령 근거와 다음 절차를 중심으로 답하세요.' },
-  draft:  { name:'8단계 — 투자심사 의뢰서 작성',
+  draft:  { name:'투자심사 의뢰서 작성',
     role:'투자심사 의뢰서 본문을 작성·수정하는 단계입니다.',
     rule:'의뢰서 항목을 다룰 때는 시스템 지침의 항목 형식을 그대로 따르세요.' },
-  output: { name:'9단계 — 출력·저장',
+  output: { name:'출력·저장',
     role:'완성된 문서를 점검하고 내려받는 단계입니다.',
     rule:'누락 항목 점검·최종 확인 사항을 중심으로 답하세요. 본문을 새로 작성하지 마세요.' }
 };
@@ -995,8 +995,11 @@ function buildChatPrompt(msg){
   try { key = STEP_META[gCurrentStep-1].key; } catch(e){}
   var g = STEP_CHAT_GUIDE[key];
   if (!g) return msg;
+  /* 단계 번호는 STEP_META 에서 뽑는다 — 단계 순서를 바꿔도 안내가 어긋나지 않는다 */
+  var num = '';
+  try { num = STEP_META[gCurrentStep-1].num + '단계 — '; } catch(e){}
   var p = '아래 【현재 단계】 지침은 시스템 지침의 출력 형식(【5-N 항목명】 등)보다 우선합니다.\n\n'
-        + '【현재 단계】 ' + g.name + '\n'
+        + '【현재 단계】 ' + num + g.name + '\n'
         + '【이 단계의 성격】 ' + g.role + '\n';
   if (key === 'plan') p += buildPlanChatContext();
   p += '\n【답변 규칙】\n'
@@ -1038,8 +1041,10 @@ function sendSectionRevision(instruction, btn){
   if (chatTargetScope() === 'plan') {
     /* ① 기획서 항목 — 의뢰서 서식으로 새지 않도록 단계 맥락을 앞세운다 */
     var g = STEP_CHAT_GUIDE.plan;
+    var pn = 1;
+    try { for (var si=0; si<STEP_META.length; si++) if (STEP_META[si].key==='plan') pn = STEP_META[si].num; } catch(e){}
     taskPrompt = '아래 【현재 단계】 지침은 시스템 지침의 출력 형식(【5-N 항목명】 등)보다 우선합니다.\n\n'
-      + '【현재 단계】 ' + g.name + '\n'
+      + '【현재 단계】 ' + pn + '단계 — ' + g.name + '\n'
       + '【이 단계의 성격】 ' + g.role + '\n'
       + buildPlanChatContext()
       + '\n【항목 수정 요청】\n'
