@@ -279,6 +279,42 @@ var UNIT_PRICE_DB = {
   ],
 }
 
+/* ══════════════════════════════════════════════════════════
+   연면적 기반 단가 추천
+   ▸ 단가표의 range 문자열('3,500~5,000㎡ 신축')을 면적 구간으로 읽어,
+     확인된 연면적이 속하는 카드에 「추천」을 붙이고 기본 선택한다.
+   ▸ 최종 결정은 담당자 몫 — 카드를 직접 누르면 그 선택을 계속 지킨다.
+   ══════════════════════════════════════════════════════════ */
+
+/* '3,500㎡ 미만 신축' / '3,500~5,000㎡' / '10,000㎡ 초과' → {min,max} */
+function parseUnitBand(range) {
+  var s = String(range || '').replace(/,/g, '');
+  var m = s.match(/(\d+(?:\.\d+)?)\s*[~∼-]\s*(\d+(?:\.\d+)?)\s*㎡/);
+  if (m) return { min: +m[1], max: +m[2] };
+  m = s.match(/(\d+(?:\.\d+)?)\s*㎡\s*(?:미만|이하)/);
+  if (m) return { min: 0, max: +m[1] };
+  m = s.match(/(\d+(?:\.\d+)?)\s*㎡\s*(?:초과|이상)/);
+  if (m) return { min: +m[1], max: Infinity };
+  return null;
+}
+
+/* 추천 기준 연면적 — 계산기에 입력된 값이 최우선, 없으면 기획서에서 읽는다 */
+function unitRecommendArea() {
+  var el = document.getElementById('ci_area');
+  var a = el ? (parseFloat(el.value) || 0) : 0;
+  if (a > 0) return { area: a, from: 'calc' };
+  if (window._planArea > 0) return { area: window._planArea, from: 'plan' };
+  if (typeof planDetectArea === 'function') {
+    var pa = planDetectArea();
+    if (pa > 0) return { area: pa, from: 'plan' };
+  }
+  return { area: 0, from: '' };
+}
+
+/* 담당자가 카드를 직접 고르면 true — 이후 추천이 그 선택을 덮지 않는다 */
+window._unitManual = false;
+var _unitBoxRendering = false;
+
 function showUnitPriceBox(type) {
   var box = document.getElementById('unit-price-box');
   if (!box) return;
@@ -287,15 +323,52 @@ function showUnitPriceBox(type) {
     box.className = 'unit-price-box';
     return;
   }
+  var det = unitRecommendArea();
+  var area = det.area;
+
+  /* 연면적이 속하는 구간 판별 */
+  var fits = [];
+  db.forEach(function(item, i){
+    var band = parseUnitBand(item.range);
+    if (band && area > 0 && area >= band.min && area <= band.max) fits.push(i);
+  });
+  /* 추천 1건 — 여러 구간이 겹치면 대표(기본 선택) 소분류를 우선 */
+  var recIdx = -1;
+  if (fits.length) {
+    recIdx = fits[0];
+    for (var k = 0; k < fits.length; k++) { if (db[fits[k]].selected) { recIdx = fits[k]; break; } }
+  }
+
   var h = '<div class="unit-price-title">&#128200; 서울시 건축공사비 단가 (2024) — 클릭하면 자동 적용</div>';
+  if (recIdx >= 0) {
+    h += '<div class="upc-reco-note">&#9989; '
+      + (det.from === 'plan' ? '기획서에서 확인된' : '입력하신')
+      + ' 연면적 <b>' + area.toLocaleString() + '㎡</b> 기준으로 <b>'
+      + db[recIdx].name + '</b> 구간을 추천합니다.'
+      + ' <span>다른 단가를 쓰려면 원하는 카드를 누르세요.</span></div>';
+  } else if (area > 0) {
+    h += '<div class="upc-reco-note none">&#9432; 연면적 <b>' + area.toLocaleString() + '㎡</b>에 딱 맞는 규모 구간이 없어 기본 단가를 적용했습니다.'
+      + ' <span>사업 성격에 맞는 카드를 직접 선택하세요.</span></div>';
+  } else {
+    h += '<div class="upc-reco-note none">&#9432; 연면적이 확인되지 않았습니다. ① 사업 기획의 <b>대상·규모</b>나 ⑤ 사업비 계산기의 <b>연면적</b>을 입력하면 규모 구간에 맞는 단가를 추천합니다.</div>';
+  }
   h += '<div class="unit-price-grid">';
   db.forEach(function(item, i) {
-    var sel = item.selected ? ' selected' : '';
-    h += '<div class="unit-price-card' + sel + '" onclick="applyUnitPrice(' + item.price + ',this)">';
+    var isRec = (i === recIdx);
+    /* 추천이 있으면 추천 카드를, 없으면 DB 기본값을 선택 표시 */
+    var isSel = window._unitManual ? (window.gLastUnit === item.price)
+              : (recIdx >= 0 ? isRec : !!item.selected);
+    h += '<div class="unit-price-card' + (isSel ? ' selected' : '') + (isRec ? ' recommended' : '')
+      + '" onclick="applyUnitPrice(' + item.price + ',this)">';
+    if (isRec) h += '<span class="upc-reco-badge">추천</span>';
     h += '<div class="upc-sub">' + item.sub + '</div>';
     h += '<div class="upc-name">' + item.name + '</div>';
     h += '<div class="upc-price">' + item.price.toLocaleString() + '<span class="upc-unit">천원/㎡</span></div>';
     h += '<div class="upc-range">' + item.range + '</div>';
+    if (isRec && area > 0) {
+      h += '<div class="upc-est">' + area.toLocaleString() + '㎡ 적용 시 건축공사비 <b>약 '
+        + (area * item.price / 100000).toFixed(1) + '억원</b></div>';
+    }
     h += '<div style="font-size:9px;color:var(--g400);margin-top:2px">' + (item.note||'') + '</div>';
     h += '</div>';
   });
@@ -304,12 +377,35 @@ function showUnitPriceBox(type) {
   h += '<div class="unit-price-note">&#9432; 위 단가는 지상층 기준 평균값입니다. 지하주차장 포함 시 15~20% 상향, 특수시설(수영장·대형체육관 등) 포함 시 별도 검토하세요.</div>';
   box.innerHTML = h;
   box.className = 'unit-price-box show';
-  /* 기본 선택 단가 자동 적용 */
-  var defItem = db.find(function(d){ return d.selected; }) || db[0];
-  if (defItem) applyUnitPriceSilent(defItem.price);
+
+  /* 선택된 단가 적용 — 담당자가 직접 고른 값은 유지 */
+  if (!window._unitManual) {
+    var pick = (recIdx >= 0) ? db[recIdx] : (db.find(function(d){ return d.selected; }) || db[0]);
+    if (pick) {
+      _unitBoxRendering = true;
+      applyUnitPriceSilent(pick.price);
+      _unitBoxRendering = false;
+    }
+  }
+  box.dataset.area = area;
+}
+
+/* 연면적이 바뀌어 규모 구간이 달라졌을 때만 카드를 다시 그린다 */
+function refreshUnitPriceBox() {
+  if (_unitBoxRendering) return;
+  var box = document.getElementById('unit-price-box');
+  if (!box || !box.classList.contains('show')) return;
+  var el = document.getElementById('f_type');
+  var type = el ? el.value : '';
+  if (!type || !UNIT_PRICE_DB[type]) return;
+  var now = unitRecommendArea().area;
+  if (String(now) === String(box.dataset.area || '')) return;
+  showUnitPriceBox(type);
 }
 
 function applyUnitPrice(price, cardEl) {
+  /* 담당자가 직접 고른 단가 — 이후 추천이 덮어쓰지 않는다 */
+  window._unitManual = true;
   /* 카드 선택 표시 */
   var box = document.getElementById('unit-price-box');
   if (box) {
@@ -359,6 +455,8 @@ function onCalcModeChange(){
 function onTypeChange() {
   var type = document.getElementById('f_type') ?
     document.getElementById('f_type').value : '';
+  /* 사업유형이 바뀌면 카드 구성이 통째로 달라지므로 직접 선택 상태를 푼다 */
+  window._unitManual = false;
   showUnitPriceBox(type);
   if(typeof applyCalcModeVis==='function') applyCalcModeVis();
   var erw=document.getElementById('event-regular-wrap');
@@ -374,6 +472,30 @@ function onTypeChange() {
     }
   },30);
   if(typeof calcAll==='function') calcAll();
+}
+
+/* 계산기 렌더 후 연면적 복원.
+   ci_area 는 renderCalc 가 다시 그릴 때마다 빈 칸으로 재생성되므로,
+   ① 담당자가 직접 입력해 둔 값(_lastArea)  ② 기획서에서 읽은 값(_planArea)
+   순으로 되살린다. 판단 실행 후 연면적·산출액이 초기화되던 문제를 함께 해결한다. */
+function restoreAreaFromPlan() {
+  var el = document.getElementById('ci_area');
+  if (!el || (parseFloat(el.value) || 0) > 0) return;
+  var kept = window._lastArea || 0;
+  var a = kept > 0 ? kept
+        : (window._planArea || (typeof planDetectArea === 'function' ? planDetectArea() : 0));
+  if (!(a > 0)) return;
+  el.value = a;
+  var hint = document.getElementById('ci_area_hint');
+  if (!hint) {
+    hint = document.createElement('div');
+    hint.id = 'ci_area_hint';
+    hint.style.cssText = 'font-size:10px;color:var(--pb);margin-top:3px;font-weight:600';
+    if (el.parentNode) el.parentNode.appendChild(hint);
+  }
+  hint.textContent = (kept > 0 ? '입력하신 연면적 유지: ' : '기획서에서 확인된 연면적 자동 적용: ')
+    + a.toLocaleString() + '㎡ (수정 가능)';
+  if (typeof recalcCost === 'function') recalcCost();
 }
 
 /* 계산기 탭 렌더링 후 gLastUnit 복원 */

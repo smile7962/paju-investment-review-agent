@@ -104,6 +104,44 @@ function setRI(val,el){
   el.className='ri active';
   var inp=el.querySelector('input');
   if(inp) inp.checked=true;
+  if(typeof renderReviewTypeNote==='function') renderReviewTypeNote();
+  if(typeof renderWizard==='function') renderWizard();
+}
+
+/* ── ④ 심사이력: 현재 심사 구분 안내 ──────────────────────────
+   심사 구분(신규/재심사/2단계) 라디오는 ② 기본정보에 있다.
+   ④ 화면만 보면 어디서 바꾸는지 알 수 없어, 현재 값과 바로가기를 띄운다. */
+var RTYPE_LABEL = {
+  'new':  { icon:'&#127381;', name:'신규',      desc:'이전 심사 이력이 없는 사업입니다. 아래 입력 없이 <b>다음 단계로 넘어가도 됩니다.</b>' },
+  're':   { icon:'&#128260;', name:'재심사',    desc:'아래 <b>이전 심사 이력</b>을 입력하면 재심사 사유를 자동으로 판정합니다.' },
+  '2nd':  { icon:'2&#65039;&#8419;', name:'2단계 심사', desc:'1차 심사 조건부 통과 사업입니다. 아래 <b>이전 심사 이력</b>을 입력하세요.' }
+};
+function currentRType(){
+  var el = document.querySelector('input[name="rtype"]:checked');
+  return el ? el.value : 'new';
+}
+function renderReviewTypeNote(){
+  var box = document.getElementById('review-rtype-note');
+  if (!box) return;
+  var val = currentRType();
+  var m = RTYPE_LABEL[val] || RTYPE_LABEL['new'];
+  box.className = 'rtype-note' + (val === 'new' ? ' is-new' : ' is-re');
+  box.innerHTML = '<div class="rtype-cur"><span class="rtype-lbl">현재 심사 구분</span>'
+    + '<b>' + m.icon + ' ' + m.name + '</b></div>'
+    + '<div class="rtype-desc">' + m.desc + '</div>'
+    + '<button type="button" class="rtype-go" onclick="goToReviewTypeField()">'
+    + '&#9881; 심사 구분 변경 &rarr; ② 기본정보</button>';
+}
+/* ② 기본정보의 심사 구분 영역으로 이동해 잠깐 강조한다 */
+function goToReviewTypeField(){
+  if (typeof goToStepKey === 'function') goToStepKey('basic');
+  setTimeout(function(){
+    var grp = document.getElementById('rtype-grp');
+    if (!grp) return;
+    grp.scrollIntoView({behavior:'smooth', block:'center'});
+    grp.classList.add('rtype-flash');
+    setTimeout(function(){ grp.classList.remove('rtype-flash'); }, 2200);
+  }, 260);
 }
 function openSettings(){
   v('settingsModal').className='modal-ov open';
@@ -461,7 +499,10 @@ function goToStep(n, skipScroll) {
   var stage = v('wizard-stage');
   if (stage) stage.classList.remove('stage-wide');
   if (target.key === 'output' && typeof renderOutputStatus === 'function') renderOutputStatus();
-  if (target.key === 'review' && typeof renderReviewCompare === 'function') renderReviewCompare();
+  if (target.key === 'review') {
+    if (typeof renderReviewCompare === 'function') renderReviewCompare();
+    if (typeof renderReviewTypeNote === 'function') renderReviewTypeNote();
+  }
   /* 단계별 초기화 버튼: 출력 단계는 지울 입력이 없어 숨김, 결과/의뢰서는 라벨을 맞춘다 */
   var srb = v('stage-reset-btn');
   if (srb){

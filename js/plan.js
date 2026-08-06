@@ -50,6 +50,28 @@ function renderPlanCompleteness(){
     + '<div class="plan-comp-hint">' + hint + '</div>';
 }
 
+/* ── 기획 입력에서 연면적(㎡) 읽어내기 ──────────────────────────
+   ② 기본정보의 공사비 단가 추천과 ⑤ 사업비 계산기의 연면적 자동 기입에 쓴다. */
+function planParseArea(text){
+  var s = String(text || '');
+  var m = s.match(/([\d,]+(?:\.\d+)?)\s*(?:㎡|m2|m²|제곱미터)/i);
+  if (m) return parseFloat(m[1].replace(/,/g, '')) || 0;
+  /* '평균·평가' 등과 구분하기 위해 뒤에 한글이 오면 제외 */
+  m = s.match(/([\d,]+(?:\.\d+)?)\s*평(?![가-힣])/);
+  if (m) return Math.round((parseFloat(m[1].replace(/,/g, '')) || 0) * 3.3058);
+  return 0;
+}
+/* 대상·규모 → 배경·목적 → 사업명 순으로 찾는다 */
+function planDetectArea(){
+  if (typeof gv !== 'function') return 0;
+  var srcs = [gv('plan_scale'), gv('plan_idea'), gv('plan_name')];
+  for (var i = 0; i < srcs.length; i++){
+    var a = planParseArea(srcs[i]);
+    if (a > 0) return a;
+  }
+  return 0;
+}
+
 function generatePlan(){
   var idea = gv('plan_idea').trim();
   if(!idea){ _planStatus('사업 배경·목적을 입력하세요.', 'err'); v('plan_idea').focus(); return; }
@@ -174,6 +196,14 @@ function applyPlanToBasic(){
   if(name) sv('f_name', name);
   var mapped = PLAN_FIELD_TO_TYPE[field] || 'general';
   sv('f_type', mapped);
+  /* 기획서에서 연면적이 확인되면 계산기에 옮겨 담는다.
+     → onTypeChange 가 이 연면적 기준으로 규모 구간에 맞는 단가를 추천한다.
+     (이미 담당자가 입력해 둔 연면적이 있으면 건드리지 않는다) */
+  var area = planDetectArea();
+  window._planArea = area;
+  /* ci_area 는 ⑤ 계산기가 렌더될 때 만들어지므로, 이미 있으면 지금 채우고
+     없으면 renderCalc 시점에 restoreAreaFromPlan() 이 채운다 */
+  if(area > 0 && typeof restoreAreaFromPlan === 'function') restoreAreaFromPlan();
   if(typeof onTypeChange === 'function') onTypeChange();
   if(cost > 0) sv('f_cost', cost);
   if(typeof updateSummary === 'function') updateSummary();
@@ -190,6 +220,7 @@ function applyPlanToBasic(){
       intro.parentNode.insertBefore(note, intro.nextSibling);
     }
     note.innerHTML = '&#9989; 기획서에서 사업명·유형' + (cost>0 ? '·개산 총사업비(' + cost + '억원)' : '')
+      + (area>0 ? '·연면적(' + area.toLocaleString() + '㎡)' : '')
       + '을 옮겨왔습니다. 값을 확인·보완한 뒤 재원구성까지 입력하고 <b>분석 실행</b>을 눌러주세요.';
   }
 }

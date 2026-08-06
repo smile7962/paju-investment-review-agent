@@ -461,7 +461,7 @@
             </select>
           </div>
         </div>
-        <div class="sec-grp">
+        <div class="sec-grp" id="rtype-grp">
           <div class="sec-title">심사 구분</div>
           <div class="ri-grp">
             <label class="ri active" id="ri-new" onclick="setRI('new',this)">
@@ -510,6 +510,8 @@
       </div>
 
       <div id="it-review" class="tab-content res-body">
+        <!-- 현재 심사 구분 안내 — 라디오는 ② 기본정보에 있어 여기서 바로 안내한다 -->
+        <div id="review-rtype-note" class="rtype-note"></div>
         <!-- 직전 심사 대비 변동 비교표(목업) -->
         <div id="review-compare" class="review-compare"></div>
         <div class="sec-grp">
