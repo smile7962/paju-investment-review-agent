@@ -3,6 +3,9 @@
 
 function recalcCost() {
   var area=gnv('ci_area')||0;
+  /* 화면이 다시 그려져도 되살릴 수 있게 마지막 연면적을 기억한다
+     (칸이 존재할 때만 — 렌더 전 호출로 값이 0으로 덮이는 것을 막는다) */
+  if(document.getElementById('ci_area')) window._lastArea=area;
   var unit=gnv('ci_unit')||0;
   var zeb=gc('ci_zero_energy');
   var reserveApply=gc('ci_reserve_apply');
@@ -11,6 +14,8 @@ function recalcCost() {
   var fCost=gnv('f_cost')||0;
   var autoFill=!((typeof getCalcMode==='function')&&getCalcMode()==='detail');
   var ud=v('ci_unit_display'); if(ud) ud.textContent=unit>0?unit.toLocaleString():'-';
+  /* 연면적이 바뀌어 규모 구간이 달라졌으면 ②의 단가 추천을 다시 계산 */
+  if(typeof refreshUnitPriceBox==='function') refreshUnitPriceBox();
   var constBase=(area>0&&unit>0)?area*unit/100000:0;
   var zebAdj=(zeb&&area>=500)?constBase*0.05:0;
   if(autoFill&&constBase>0) setC37Auto('c37_const_arch', constBase, area.toLocaleString()+'㎡ × '+unit.toLocaleString()+'천원/㎡');

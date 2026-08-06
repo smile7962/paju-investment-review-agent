@@ -1184,6 +1184,45 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .upc-price{font-size:15px;font-weight:900;color:var(--pb)}
 .upc-unit{font-size:10px;color:var(--g500);margin-left:2px}
 .upc-range{font-size:10px;color:var(--g400);margin-top:3px}
+/* ── 연면적 기반 단가 추천 ── */
+.upc-reco-note{font-size:11px;line-height:1.65;color:var(--pb);background:#fff;
+  border:1px solid rgba(0,60,150,.18);border-radius:var(--rs);
+  padding:8px 11px;margin-bottom:10px}
+.upc-reco-note b{font-weight:800}
+.upc-reco-note span{color:var(--g500);font-weight:500}
+.upc-reco-note.none{color:var(--g600);border-color:var(--g200)}
+.unit-price-card{position:relative}
+.unit-price-card.recommended{border-color:var(--pb);box-shadow:0 0 0 2px rgba(37,99,235,.18)}
+.upc-reco-badge{position:absolute;top:-8px;right:8px;font-size:9px;font-weight:800;
+  color:#fff;background:var(--pb);border-radius:999px;padding:2px 8px;letter-spacing:.02em}
+.upc-est{font-size:10px;font-weight:700;color:var(--pb);margin-top:5px;
+  padding-top:5px;border-top:1px dashed rgba(0,60,150,.18)}
+.upc-est b{font-weight:900}
+
+/* ── ④ 심사이력: 현재 심사 구분 안내 ── */
+.rtype-note{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;
+  border:1px solid var(--g200);border-radius:var(--rs);
+  padding:11px 14px;margin-bottom:16px;background:var(--g50)}
+.rtype-note.is-re{border-color:var(--pb);background:var(--pbp)}
+.rtype-cur{display:flex;align-items:baseline;gap:7px;flex-shrink:0}
+.rtype-lbl{font-size:11px;color:var(--g500);font-weight:600}
+.rtype-cur b{font-size:14px;font-weight:800;color:var(--pb)}
+.rtype-desc{flex:1;min-width:220px;font-size:11.5px;color:var(--g600);line-height:1.6}
+.rtype-desc b{color:var(--g800)}
+.rtype-go{flex-shrink:0;font-size:11px;font-weight:700;color:var(--pb);
+  background:#fff;border:1px solid var(--pb);border-radius:999px;
+  padding:6px 13px;cursor:pointer;transition:all .15s}
+.rtype-go:hover{background:var(--pb);color:#fff}
+.rtype-flash{animation:rtypeFlash 2.2s ease}
+@keyframes rtypeFlash{
+  0%,100%{box-shadow:none}
+  15%,60%{box-shadow:0 0 0 3px rgba(37,99,235,.35);border-radius:var(--rs)}
+}
+@media(max-width:760px){
+  .rtype-note{flex-direction:column;align-items:flex-start}
+  .rtype-go{width:100%}
+}
+
 .upc-source{font-size:9px;color:var(--g400);margin-top:6px;
   padding-top:6px;border-top:1px solid var(--g100)}
 .unit-price-note{font-size:10px;color:var(--g500);margin-top:8px;

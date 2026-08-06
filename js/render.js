@@ -1287,6 +1287,7 @@ function renderCalc(r) {
   h+='</div>';
 
   boxEl.innerHTML = h;
+  if (typeof restoreAreaFromPlan === 'function') restoreAreaFromPlan();
   restoreUnitFromType();
   recalcCost();
   calcPeriod(true);  /* 초기 렌더 — 사용자 미조작이므로 요약칩에 노출하지 않음 */
