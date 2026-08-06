@@ -350,7 +350,6 @@
       <div id="it-basic" class="tab-content res-body">
         <div class="stage-intro" id="stage-intro-basic">
           <b>3단계면 끝나요.</b> ① 사업 유형·총사업비·재원 입력 → ② 분석 실행 → ③ 사업비·기간·의뢰서 초안까지 자동 생성.
-          처음이시면 <a href="#" onclick="goToStepKey('basic');loadSample();return false">운정4동 사례로 체험하기</a>를 눌러보세요.
         </div>
         <div class="upload-box" id="upload-box">
           <div class="upload-box-hd">
@@ -371,7 +370,7 @@
           <div class="sec-title">사업 기본정보</div>
           <div class="fg">
             <div class="fl">사업명 <span class="req">필수</span></div>
-            <input type="text" class="fi" id="f_name" placeholder="예: 운정4동 행정복지센터 복합건립">
+            <input type="text" class="fi" id="f_name" placeholder="예: ○○동 행정복지센터 복합건립">
           </div>
           <div class="fg">
             <div class="fl">사업 유형 <span class="req">필수</span></div>
@@ -562,7 +561,7 @@
         <div class="empty-icon">&#127963;</div>
         <div class="empty-title">사업 정보를 입력하고 분석을 실행하세요</div>
         <div class="empty-desc">심사기관·면제·재심사 판정과 사전절차 체크리스트가 자동 생성됩니다.</div>
-        <button class="sample-btn" onclick="goToStepKey('basic');loadSample()">&#128204; 운정4동 사례로 체험하기</button>
+        <button class="sample-btn" onclick="goToStepKey('basic')">&#128203; ② 기본정보 입력하러 가기</button>
       </div>
       <div id="result-box" style="display:none"></div>
       <div id="empty-check" class="empty-st" style="display:none">
@@ -589,8 +588,9 @@
       <div id="econ-empty" style="display:block">
         <div class="empty-st">
           <div class="empty-icon">&#128200;</div>
-          <div class="empty-title">투자심사 판단 후 경제성 분석을 실행하세요</div>
-          <div class="empty-desc">좌측에서 사업 정보를 입력하고 투자심사 사전판단을 실행하면<br>경제성 분석 계산기가 활성화됩니다</div>
+          <div class="empty-title">앞 단계에서 <b>분석 실행</b>을 먼저 눌러주세요</div>
+          <div class="empty-desc">투자심사 사전판단을 실행하면 총사업비·사업유형이 연계된<br>경제성 분석 계산기가 이 화면에 열립니다</div>
+          <button class="sample-btn" onclick="goToStepKey('result')">&#127963; 심사판단으로 이동</button>
         </div>
       </div>
       <div id="econ-box" style="display:none"></div>

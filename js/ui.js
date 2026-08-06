@@ -27,12 +27,15 @@ var STEP_META = [
   { num:5, key:'calc',   id:'rt-calc',   icon:'&#129518;', name:'사업비·기간', title:'사업비 계산기·사업기간',
     desc:'사업비 계산기에서 총사업비 산출내역과 12단계 사업기간을 계산하세요.',
     check:function(){ return (typeof projectData!=='undefined' && projectData && projectData.cost && projectData.cost.calculatedTotal>0) || gPeriodTotal>0; } },
-  { num:6, key:'econ',   id:'rt-econ',   icon:'&#128200;', name:'경제성',     title:'경제성 분석',
-    desc:'경제성 탭에서 편익·비용을 입력해 B/C·NPV·IRR을 산출하세요. (해당하는 경우)',
-    check:function(){ return !!(gEconResult && gEconResult.bc>0); } },
-  { num:7, key:'result', id:'rt-result', icon:'&#127963;', name:'심사판단',   title:'투자심사 사전판단 결과',
+  /* 심사판단을 경제성보다 앞에 둔다 — 경제성 계산기는 판단 실행(doAnalyze) 시점에
+     열리므로, 반대 순서면 ⑥에서 빈 화면을 보고 ⑦로 갔다가 되돌아와야 했다.
+     경제성 결과를 의뢰서 5-5항에 반영하는 흐름(경제성 → 의뢰서)도 그대로 유지된다. */
+  { num:6, key:'result', id:'rt-result', icon:'&#127963;', name:'심사판단',   title:'투자심사 사전판단 결과',
     desc:'입력을 마쳤다면 <b>분석 실행</b>을 눌러 심사기관·면제·재심사 판정을 확인하세요.',
     check:function(){ return !!gResult; } },
+  { num:7, key:'econ',   id:'rt-econ',   icon:'&#128200;', name:'경제성',     title:'경제성 분석',
+    desc:'판단 실행으로 열린 계산기에 편익·비용을 입력해 B/C·NPV·IRR을 산출하세요. (해당하는 경우)',
+    check:function(){ return !!(gEconResult && gEconResult.bc>0); } },
   { num:8, key:'draft',  id:'rt-draft',  icon:'&#128196;', name:'의뢰서',     title:'투자심사 의뢰서 초안',
     desc:'의뢰서 탭에서 자동 생성된 초안을 확인하고 서술형 항목을 보완하세요.',
     check:function(){ return !!gResult; } },

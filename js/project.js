@@ -253,25 +253,6 @@ function bindProjectDataInputs(){
     }
   }
 }
-function loadSample(){
-  sv('f_name','운정4동 행정복지센터 및 국민체육센터 복합건립');
-  sv('f_type','complex'); sv('f_cost','373'); sv('f_stage','detail');
-  sc('f_reserve',true); sc('f_self',false); sc('f_joint',false);
-  sv('f_nat','30'); sv('f_prov','0'); sv('f_city','343');
-  sv('f_bond','0'); sv('f_priv','0');
-  sv('f_prev_cost','283'); sv('f_prev_result','cond');
-  sv('f_years','2'); sv('f_prev_auth','gyeonggi');
-  sc('f_site',false); sc('f_bond_chg',false);
-  var reRi=v('ri-re');
-  if(reRi){ setRI('re',reRi); reRi.querySelector('input').checked=true; }
-  switchIT('basic');
-  /* 유형 선택 효과 재현 — 서울시 가이드라인 단위공사비(gLastUnit) 자동 세팅 */
-  if(typeof onTypeChange==='function') onTypeChange();
-  doAnalyze();
-  /* 계산기 시연을 위한 연면적 예시값 — renderCalc가 입력을 새로 그리므로 doAnalyze 이후에 주입 */
-  sv('ci_area','8000');
-  if(typeof recalcCost==='function') recalcCost();
-}
 function doReset(){
   ['f_name','f_type','f_cost','f_stage','f_nat','f_prov','f_city',
    'f_bond','f_priv','f_prev_cost','f_prev_result','f_years','f_prev_auth'].forEach(function(id){ sv(id,''); });
