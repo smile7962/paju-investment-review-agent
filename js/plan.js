@@ -113,6 +113,7 @@ function generatePlan(){
     window._planField = field;
     _planStatus('기획서 초안이 작성되었습니다. 아래에서 확인·수정하세요.', 'done');
     if(typeof renderWizard === 'function') renderWizard();
+    if(typeof renderPlanSourceCard === 'function') renderPlanSourceCard();
     if(typeof scheduleAutoSave === 'function') scheduleAutoSave();
   });
 }
@@ -186,6 +187,54 @@ function renderPlan(parsed, name, field){
   v('plan-result').style.display = 'block';
   var ph = v('plan-placeholder');
   if(ph) ph.style.display = 'none';
+}
+
+/* ── ② 기본정보의 「① 사업 기획 내용 가져오기」 카드 ──────────────
+   ①에서 넘어오는 경로가 ① 화면에만 있어, ②로 바로 온 담당자는
+   기획 내용을 가져올 방법이 화면에 없었다. 두 갈래를 ②에서 고르게 한다. */
+function renderPlanSourceCard(){
+  var box = v('src-plan-card');
+  if(!box) return;
+  var ready = !!window.gPlanGenerated;
+  box.className = 'src-card' + (ready ? ' ready' : ' src-off');
+
+  if(!ready){
+    box.innerHTML = '<div class="src-card-hd"><span class="src-ico">&#128161;</span>'
+      + '<div class="src-card-title">① 사업 기획 내용 가져오기</div></div>'
+      + '<div class="src-card-desc">아직 작성된 기획서가 없습니다. ① 사업 기획 단계에서 '
+      + 'AI 기획서 초안을 만들면 사업명·유형·총사업비·연면적을 그대로 옮겨올 수 있습니다.</div>'
+      + '<div class="src-card-foot"><button type="button" class="src-btn ghost" '
+      + 'onclick="goToStepKey(\'plan\')">&#128161; ① 사업 기획으로 이동</button></div>';
+    return;
+  }
+
+  var name = (window._planName || gv('plan_name').trim()) || '(사업명 미정)';
+  var field = window._planField || gv('plan_field');
+  var cost = window._planCost || 0;
+  /* _planArea 는 가져오기를 실행해야 채워지므로, 카드에서는 입력값에서 직접 읽는다 */
+  var area = window._planArea || planDetectArea();
+  var chips = '<span class="src-chip">' + esc(PLAN_FIELD_LABEL[field] || field) + '</span>';
+  if(cost > 0) chips += '<span class="src-chip">총사업비 ' + cost + '억원</span>';
+  if(area > 0) chips += '<span class="src-chip">연면적 ' + area.toLocaleString() + '㎡</span>';
+
+  box.innerHTML = '<div class="src-card-hd"><span class="src-ico">&#128161;</span>'
+    + '<div class="src-card-title">① 사업 기획 내용 가져오기</div>'
+    + '<span class="src-badge">작성 완료</span></div>'
+    + '<div class="src-card-name">' + esc(name) + '</div>'
+    + '<div class="src-chips">' + chips + '</div>'
+    + '<div class="src-card-foot"><button type="button" class="src-btn" '
+    + 'onclick="importFromPlan()">&#8594; 이 기획 내용으로 채우기</button></div>';
+}
+
+/* 이미 입력된 값이 있으면 확인 후 덮어쓴다 */
+function importFromPlan(){
+  if(!window.gPlanGenerated){
+    if(typeof goToStepKey === 'function') goToStepKey('plan');
+    return;
+  }
+  var filled = gv('f_name').trim() || gnv('f_cost') > 0;
+  if(filled && !confirm('② 기본정보에 입력된 내용이 ① 기획서 값으로 바뀝니다.\n계속하시겠습니까?')) return;
+  applyPlanToBasic();
 }
 
 function applyPlanToBasic(){

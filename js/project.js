@@ -328,6 +328,7 @@ function resetStep(key){
       var prp=v('plan-report'); if(prp){ prp.innerHTML=''; prp.style.display='none'; }
       var pph=v('plan-placeholder'); if(pph) pph.style.display='';
       if(typeof renderPlanCompleteness==='function') renderPlanCompleteness();
+      if(typeof renderPlanSourceCard==='function') renderPlanSourceCard();
       break;
     case 'basic':
       ['f_name','f_type','f_cost','f_stage','f_exempt'].forEach(function(id){ sv(id,''); });

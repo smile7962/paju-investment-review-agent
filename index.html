@@ -354,20 +354,28 @@
         <div class="stage-intro" id="stage-intro-basic">
           <b>3단계면 끝나요.</b> ① 사업 유형·총사업비·재원 입력 → ② 분석 실행 → ③ 사업비·기간·의뢰서 초안까지 자동 생성.
         </div>
-        <div class="upload-box" id="upload-box">
-          <div class="upload-box-hd">
-            <span class="upload-box-icon">&#128206;</span>
-            <div>
-              <div class="upload-box-title">기획서로 자동 입력 (선택)</div>
-              <div class="upload-box-desc">이미 결정된 사업계획서를 올리면 AI가 사업명·유형·총사업비 등을 읽어 아래 항목에 자동으로 채워드립니다. 자동으로 채워진 값은 반드시 확인·수정 후 사용하세요.</div>
+        <!-- 사업 정보 출처 선택 — ①단계 기획 내용 / 기존 기획서 파일 -->
+        <div class="src-pick" id="src-pick">
+          <div class="src-pick-hd">사업 정보를 어디서 가져올까요?
+            <span>선택 사항입니다 — 아래 항목에 직접 입력해도 됩니다</span></div>
+          <div class="src-pick-grid">
+            <!-- ① 기획 내용 가져오기 -->
+            <div class="src-card" id="src-plan-card"></div>
+            <!-- 기존 기획서 파일 -->
+            <div class="src-card" id="upload-box">
+              <div class="src-card-hd">
+                <span class="src-ico">&#128206;</span>
+                <div class="src-card-title">기존 기획서 파일 불러오기</div>
+              </div>
+              <div class="src-card-desc">이미 결정된 사업계획서를 올리면 AI가 사업명·유형·총사업비 등을 읽어 아래 항목에 자동으로 채워드립니다. 자동으로 채워진 값은 반드시 확인·수정 후 사용하세요.</div>
+              <div class="src-card-foot">
+                <input type="file" id="plan-file-input" accept=".pdf,.docx,.txt" style="display:none" onchange="handlePlanFileUpload(event)">
+                <button type="button" class="src-btn" onclick="document.getElementById('plan-file-input').click()">&#128206; 파일 선택 (PDF·DOCX·TXT)</button>
+                <span id="plan-upload-status" class="upload-status"></span>
+              </div>
+              <div class="src-card-note">&#9888; HWP(한글) 파일은 지원하지 않습니다 — PDF로 변환 후 업로드해주세요.</div>
             </div>
           </div>
-          <div class="upload-box-actions">
-            <input type="file" id="plan-file-input" accept=".pdf,.docx,.txt" style="display:none" onchange="handlePlanFileUpload(event)">
-            <button type="button" class="btn-sm primary" onclick="document.getElementById('plan-file-input').click()">&#128206; 파일 선택 (PDF·DOCX·TXT)</button>
-            <span id="plan-upload-status" class="upload-status"></span>
-          </div>
-          <div class="upload-box-note">&#9888; HWP(한글) 파일은 지원하지 않습니다 — PDF로 변환 후 업로드해주세요.</div>
         </div>
         <div class="sec-grp">
           <div class="sec-title">사업 기본정보</div>
