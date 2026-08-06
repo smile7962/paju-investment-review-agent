@@ -1445,6 +1445,20 @@ function copyDraft() {
     alert('의뢰서 초안이 복사됐습니다.');
   });
 }
+/* 브라우저가 인쇄 머리글에 넣는 값은 document.title 이다.
+   @page margin:0 으로 머리글·바닥글 영역을 없앴지만, 사용자가 인쇄
+   대화상자에서 머리글/바닥글을 켜 둔 경우에 대비해 제목도 비워 둔다. */
+var _printTitleBackup = '';
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeprint', function(){
+    _printTitleBackup = document.title;
+    document.title = ' ';
+  });
+  window.addEventListener('afterprint', function(){
+    if (_printTitleBackup) document.title = _printTitleBackup;
+  });
+}
+
 function printDraft() {
   /* 의뢰서 초안 탭 확인 및 전환 */
   if (!gResult) {

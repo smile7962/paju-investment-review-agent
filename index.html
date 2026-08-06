@@ -207,11 +207,14 @@
       <div class="ai-kpi-bar"><i id="ai-kpi-fill"></i></div>
     </div>
     <div class="ai-kpi-div"></div>
-    <div class="ai-kpi">
-      <div class="ai-kpi-label">확인 필요</div>
+    <button type="button" class="ai-kpi ai-kpi-btn" id="ai-need-toggle"
+      onclick="toggleNeedPanel()" title="무엇을 확인해야 하는지 펼쳐 보기">
+      <div class="ai-kpi-label">확인 필요 <span class="ai-need-caret">&#9662;</span></div>
       <div class="ai-kpi-val warn" id="ai-kpi-need">0<span>건</span></div>
-    </div>
+    </button>
   </div>
+  <!-- 확인 필요 항목 목록 — 무엇을 확인해야 하는지 펼쳐서 보여준다 -->
+  <div id="ai-need-panel" class="ai-need-panel"></div>
   <div id="dock-chat-slot">
       <div id="ai-chat-container">
         <!-- API Key 미설정 시 안내 -->

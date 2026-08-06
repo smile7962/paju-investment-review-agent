@@ -648,6 +648,80 @@ function renderWizard() {
   // 진행률 업데이트
   renderProgressSummary(completed);
 }
+/* ── '확인 필요'가 무엇인지 펼쳐 보여준다 ──────────────────────────
+   숫자만 있으면 무엇을 확인하라는 것인지 알 수 없어, 항목별로
+   "어디서 무엇을" 해야 하는지와 그 단계로 가는 버튼을 함께 제시한다. */
+var NEED_STEP_MSG = {
+  basic:  '사업명 · 사업유형 · 총사업비를 입력하세요',
+  budget: '국비 · 도비 · 시비 등 재원을 입력하세요 (전액 자체재원이면 ② 기본정보의 체크박스 선택)'
+};
+function collectNeedItems(){
+  var out = [];
+  /* 1) 필수 단계 미완료 */
+  STEP_META.forEach(function(s){
+    if (s.required && !s.check()) {
+      out.push({ icon:'&#9998;', kind:'입력',
+        title: s.num + '단계 · ' + s.name,
+        desc: NEED_STEP_MSG[s.key] || s.desc.replace(/<[^>]+>/g,''),
+        step: s.num });
+    }
+  });
+  /* 2) 재심사 사유 — 심사 전 반드시 확인해야 하는 사항 */
+  if (typeof gResult !== 'undefined' && gResult && gResult.reTrig) {
+    var rstep = 6;
+    for (var i=0;i<STEP_META.length;i++) if (STEP_META[i].key==='result') rstep = STEP_META[i].num;
+    gResult.reTrig.forEach(function(t){
+      out.push({ icon:'&#128260;', kind:'재심사',
+        title: '재심사 사유 — ' + (t.t || t),
+        desc: (t.l || '') + ' · 의뢰 전 해당 사유를 검토하세요',
+        step: rstep });
+    });
+  }
+  /* 3) 의뢰서에 남은 [담당자 입력 필요] */
+  var db = document.getElementById('draft-box');
+  if (db) {
+    var n = db.querySelectorAll('.draft-content .need').length;
+    if (n > 0) {
+      var dstep = 8;
+      for (var j=0;j<STEP_META.length;j++) if (STEP_META[j].key==='draft') dstep = STEP_META[j].num;
+      out.push({ icon:'&#128308;', kind:'의뢰서',
+        title: '의뢰서 담당자 입력 ' + n + '곳',
+        desc: '빨간색으로 표시된 [담당자 입력 필요] 부분을 채우세요',
+        step: dstep });
+    }
+  }
+  return out;
+}
+function renderNeedPanel(){
+  var box = document.getElementById('ai-need-panel');
+  if (!box) return;
+  var items = collectNeedItems();
+  var tog = document.getElementById('ai-need-toggle');
+  if (tog) tog.classList.toggle('is-clear', items.length === 0);
+  if (!box.classList.contains('open')) { box.innerHTML = ''; return; }
+  if (!items.length) {
+    box.innerHTML = '<div class="need-empty">&#9989; 지금 확인이 필요한 항목이 없습니다.</div>';
+    return;
+  }
+  var h = '<div class="need-head">확인이 필요한 항목 ' + items.length + '건</div>';
+  items.forEach(function(it){
+    h += '<button type="button" class="need-item" onclick="goToStep(' + it.step + ')">'
+      + '<span class="need-ico">' + it.icon + '</span>'
+      + '<span class="need-body"><b>' + esc(it.title) + '</b>'
+      + '<span class="need-desc">' + esc(it.desc) + '</span></span>'
+      + '<span class="need-go">' + it.step + '단계 &rarr;</span></button>';
+  });
+  box.innerHTML = h;
+}
+function toggleNeedPanel(){
+  var box = document.getElementById('ai-need-panel');
+  if (!box) return;
+  box.classList.toggle('open');
+  var tog = document.getElementById('ai-need-toggle');
+  if (tog) tog.classList.toggle('open', box.classList.contains('open'));
+  renderNeedPanel();
+}
+
 function renderProgressSummary(completed) {
   var total = STEP_META.length;
   var pct = Math.round((completed.length / total) * 100);
@@ -661,7 +735,11 @@ function renderProgressSummary(completed) {
   var akf = document.getElementById('ai-kpi-fill');
   if (akf) akf.style.width = pct + '%';
   var akn = document.getElementById('ai-kpi-need');
-  if (akn) akn.innerHTML = need + '<span>건</span>';
+  if (akn) {
+    akn.innerHTML = need + '<span>건</span>';
+    akn.className = 'ai-kpi-val' + (need > 0 ? ' warn' : ' ok');
+  }
+  renderNeedPanel();
   var desc = document.getElementById('progress-desc');
   if (desc) {
     /* 첫 미완료 단계 기준으로 '다음 할 일'을 표시(카드와 일관) */
