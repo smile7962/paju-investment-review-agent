@@ -279,7 +279,46 @@ function deleteSavedKey(){
   updBadge();
   selectAI(gAI);
 }
+/* ── 전액 자체재원 연동 ────────────────────────────────────────────
+   ②의 [전액 자체재원 사업] 체크는 판정 분기에만 쓰이고 ③ 재원구성과
+   연동되지 않아, 체크해도 시비가 비어 '금액 불일치'로 남았다.
+   체크 동안: 국비·도비·민자 = 0(입력 잠금), 시비 = 총사업비 − 지방채(자동).
+   지방채는 이전재원이 아니므로 계속 입력할 수 있다. 해제하면 잠금만 풀고
+   값은 그대로 둔다(담당자가 이어서 수정). */
+function syncSelfFinance(){
+  var on = gc('f_self');
+  ['f_nat','f_prov','f_priv'].forEach(function(id){
+    var el = v(id); if(!el) return;
+    if(on){ if(el.value !== '') el.value = ''; el.disabled = true; }
+    else el.disabled = false;
+  });
+  var cityEl = v('f_city');
+  if(cityEl){
+    if(on){
+      var cost = gnv('f_cost'), bond = gnv('f_bond');
+      var city = cost > 0 ? Math.max(0, +(cost - bond).toFixed(1)) : '';
+      if(String(cityEl.value) !== String(city)) cityEl.value = city;
+      cityEl.readOnly = true;
+    } else {
+      cityEl.readOnly = false;
+    }
+  }
+  var note = v('self-fin-note');
+  if(note){
+    note.style.display = on ? 'block' : 'none';
+    if(on){
+      var c = gnv('f_cost'), b = gnv('f_bond');
+      note.innerHTML = '&#9989; <b>전액 자체재원 사업</b> — 시비에 총사업비'
+        + (b > 0 ? '에서 지방채(' + b.toLocaleString() + '억원)를 뺀 금액' : '')
+        + (c > 0 ? ' <b>' + Math.max(0, +(c - b).toFixed(1)).toLocaleString() + '억원</b>' : '')
+        + '이 자동 반영됩니다. 국비·도비·민자는 입력할 수 없습니다.'
+        + ' <a href="#" onclick="goToReviewTypeField();return false">해제는 ② 기본정보에서 &rarr;</a>';
+    }
+  }
+}
+
 function updateSummary(){
+  if(typeof syncSelfFinance === 'function') syncSelfFinance();
   collectProjectData();
   var cost=parseFloat(gv('f_cost'))||0;
   var sc=v('sum-cost');
