@@ -1012,6 +1012,7 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
   .stage-nav, .stage-hdr, .stage-intro { display: none !important; }
 
   /* v3 신규 UI — 인쇄 시 숨김 */
+  .restore-note,
   .wizard-wrap, .project-bar, .next-card,
   #next-action-card, #progress-summary,
   .autosave-badge, .step-arrow { display: none !important; }
@@ -1292,6 +1293,22 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
   .rtype-note{flex-direction:column;align-items:flex-start}
   .rtype-go{width:100%}
 }
+
+/* ── 자동저장 복원 안내 배너 ── */
+.restore-note{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  max-width:min(1500px,97vw);margin:10px auto 0;padding:10px 16px;
+  background:#fffbeb;border:1px solid #f59e0b;border-radius:var(--rs);
+  font-size:12px;color:#78350f;line-height:1.5;}
+.rn-ico{font-size:16px;flex-shrink:0;}
+.rn-txt{flex:1;min-width:240px;}
+.rn-when{color:#a16207;font-size:11px;}
+.rn-btn{font-size:11.5px;font-weight:700;border-radius:999px;padding:6px 14px;
+  cursor:pointer;white-space:nowrap;border:1px solid #d97706;
+  color:#92400e;background:#fff;transition:all .15s;}
+.rn-btn:hover{background:#fef3c7;}
+.rn-btn.primary{background:#d97706;border-color:#d97706;color:#fff;}
+.rn-btn.primary:hover{filter:brightness(1.08);}
+@media(max-width:760px){ .restore-note{flex-direction:column;align-items:flex-start;} }
 
 /* ── ③ 전액 자체재원 안내 ── */
 .self-fin-note{font-size:11.5px;color:#166534;background:#f0fdf4;

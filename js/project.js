@@ -429,7 +429,7 @@ function collectCurrentData() {
   return data;
 }
 function restoreData(data) {
-  if (!data) return;
+  if (!data) return false;
   var fields = Object.keys(data).filter(function(k){ return k.startsWith('f_') || k.startsWith('ci_'); });
   fields.forEach(function(id) {
     var el = document.getElementById(id);
@@ -441,6 +441,42 @@ function restoreData(data) {
   if (data.gResult) { gResult = data.gResult; renderResult(gResult); }
   updateProgress(data.completedSteps || []);
   updateSummary();
+  /* 실제 내용이 복원됐는지 — 복원 안내 배너 노출 판단용 */
+  return _pjHasContent(data);
+}
+function _pjHasContent(d){
+  return !!(d && (d.f_name || parseFloat(d.f_cost) > 0
+    || parseFloat(d.f_nat) > 0 || parseFloat(d.f_prov) > 0
+    || parseFloat(d.f_city) > 0 || parseFloat(d.f_bond) > 0
+    || parseFloat(d.f_priv) > 0 || d.gResult));
+}
+
+/* ── 자동저장 복원 안내 ──────────────────────────────────────────
+   접속 시 이전 작업이 아무 안내 없이 복원돼, 국비·도비·시비 등이
+   '저절로 채워진' 것처럼 보였다. 복원 사실을 알리고, 이어서 쓸지
+   비우고 새로 시작할지 고르게 한다. */
+function showRestoreNote(pj){
+  var box = document.getElementById('restore-note');
+  if (!box) return;
+  var when = '';
+  try { when = new Date(pj.savedAt).toLocaleString('ko-KR'); } catch(e){}
+  box.innerHTML = '<span class="rn-ico">&#128190;</span>'
+    + '<span class="rn-txt"><b>이전 작업 내용을 자동으로 불러왔습니다</b>'
+    + (pj.name ? ' — ' + esc(pj.name) : '')
+    + (when ? ' <span class="rn-when">(마지막 저장: ' + when + ')</span>' : '')
+    + '</span>'
+    + '<button type="button" class="rn-btn primary" onclick="dismissRestoreNote()">이어서 작성</button>'
+    + '<button type="button" class="rn-btn" onclick="restartFromRestore()">새로 시작</button>';
+  box.style.display = 'flex';
+}
+function dismissRestoreNote(){
+  var box = document.getElementById('restore-note');
+  if (box) box.style.display = 'none';
+}
+function restartFromRestore(){
+  if (!confirm('불러온 내용을 모두 지우고 새로 시작하시겠습니까?')) return;
+  doReset();               /* resetStep 이 scheduleAutoSave 를 호출해 빈 상태가 저장된다 */
+  dismissRestoreNote();
 }
 function scheduleAutoSave() {
   clearTimeout(gAutoSaveTimer);
@@ -567,14 +603,19 @@ function initProject() {
   var lastId = localStorage.getItem(CURRENT_PJ_KEY);
   if (lastId && projects[lastId]) {
     gCurrentProjectId = lastId;
-    restoreData(projects[lastId]);
+    var restored = restoreData(projects[lastId]);
     renderProjectBar();
+    if (restored) showRestoreNote(projects[lastId]);
   } else if (Object.keys(projects).length > 0) {
-    switchProject(Object.keys(projects)[0]);
+    /* CURRENT_PJ_KEY 가 없던 구버전 저장분 — 이 경로도 복원이므로 배너를 띄운다 */
+    var fid = Object.keys(projects)[0];
+    switchProject(fid);
+    if (_pjHasContent(projects[fid])) showRestoreNote(projects[fid]);
   } else {
     // 최초 실행: 기본 사업 생성
     var id = 'pj_default';
     gCurrentProjectId = id;
+    localStorage.setItem(CURRENT_PJ_KEY, id);   /* 다음 접속이 복원 분기로 가도록 */
     projects[id] = { id:id, name:'새 사업', savedAt:new Date().toISOString(), completedSteps:[] };
     localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
     renderProjectBar();
