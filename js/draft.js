@@ -890,23 +890,36 @@ function clearChat() {
 var gChatTargetSection = null; /* {num, title} */
 var _chatRevisionStore = {};
 
-function setChatTargetSection(secNum, secTitle){
-  if(!gResult){ alert('먼저 투자심사 판단을 실행하세요.'); return; }
+/* 항목 수정 대상은 두 곳에서 지정된다.
+   'draft' = ⑧ 의뢰서 항목(#draft-box) / 'plan' = ① 기획서 항목(#plan-doc)
+   scope 이름은 STEP_META 의 단계 key 와 같게 두어, 해당 단계를 벗어나면 자동 해제된다. */
+var CHAT_TARGET_HOST  = { draft:'#draft-box', plan:'#plan-doc' };
+var CHAT_TARGET_LABEL = { draft:'의뢰서', plan:'기획서' };
+function chatTargetScope(){ return (gChatTargetSection && gChatTargetSection.scope) || 'draft'; }
+
+function setChatTargetSection(secNum, secTitle, scope){
+  scope = (scope === 'plan') ? 'plan' : 'draft';
+  if(scope === 'plan'){
+    if(!window.gPlanGenerated){ alert('먼저 기획서 초안을 생성하세요.'); return; }
+  } else {
+    if(!gResult){ alert('먼저 투자심사 판단을 실행하세요.'); return; }
+  }
   if(!gKey){ alert('AI 설정에서 API Key를 입력하세요.'); openSettings(); return; }
-  gChatTargetSection = { num: secNum, title: secTitle };
+  gChatTargetSection = { num: secNum, title: secTitle, scope: scope };
   var chip = v('chat-target-chip');
   var label = v('chat-target-label');
-  if (label) label.textContent = '현재 편집 중: ' + secNum + ' ' + secTitle;
+  if (label) label.textContent = '현재 편집 중: ' + CHAT_TARGET_LABEL[scope] + ' ' + secNum + ' ' + secTitle;
   if (chip) chip.style.display = 'flex';
   var input = v('ai-chat-input');
   if (input) input.placeholder = secNum + ' 항목을 어떻게 고칠지 지시해주세요. (예: 더 formal하게, 최신 통계로 반영, 3문장으로 줄여줘)';
   if (typeof toggleFloatingChat === 'function') toggleFloatingChat(true);
 }
-/* 항목별 채팅수정 대상은 ⑧ 의뢰서 화면(#draft-box)의 항목일 때만 유효하다 */
+/* 대상 항목이 해당 화면(의뢰서/기획서)에 실제로 존재할 때만 유효하다 */
 function isChatTargetAlive(){
   if (!gChatTargetSection) return false;
+  var host = CHAT_TARGET_HOST[chatTargetScope()];
   var el = (typeof getSecEl === 'function') ? getSecEl(gChatTargetSection.num) : null;
-  return !!(el && el.closest && el.closest('#draft-box'));
+  return !!(el && el.closest && el.closest(host));
 }
 function clearChatTarget(){
   gChatTargetSection = null;
@@ -1021,16 +1034,35 @@ function sendChat() {
 function sendSectionRevision(instruction, btn){
   var target = gChatTargetSection;
   var curText = (typeof getSecText === 'function') ? getSecText(target.num) : '';
-  var sysFull = buildSystemPrompt(gResult) + buildContextPrompt(gResult);
-  var taskPrompt = sysFull
-    + '\n\n【항목 수정 요청】\n'
-    + '의뢰서 ' + target.num + ' ' + target.title + ' 항목의 현재 내용:\n'
-    + '"""\n' + (curText || '(아직 작성되지 않음)') + '\n"""\n\n'
-    + '사용자 지시: ' + instruction + '\n\n'
-    + '위 지시에 따라 이 항목만 다시 작성해주세요.\n'
-    + '- 마크다운 없이 텍스트만 작성\n'
-    + '- 정보가 없는 부분은 [담당자 입력 필요: 내용] 형태로 표시\n'
-    + '- 항목 제목은 포함하지 말고 본문 내용만 작성하세요.';
+  var taskPrompt;
+  if (chatTargetScope() === 'plan') {
+    /* ① 기획서 항목 — 의뢰서 서식으로 새지 않도록 단계 맥락을 앞세운다 */
+    var g = STEP_CHAT_GUIDE.plan;
+    taskPrompt = '아래 【현재 단계】 지침은 시스템 지침의 출력 형식(【5-N 항목명】 등)보다 우선합니다.\n\n'
+      + '【현재 단계】 ' + g.name + '\n'
+      + '【이 단계의 성격】 ' + g.role + '\n'
+      + buildPlanChatContext()
+      + '\n【항목 수정 요청】\n'
+      + '사업 기획서(안) 「' + target.title + '」 항목의 현재 내용:\n'
+      + '"""\n' + (curText || '(아직 작성되지 않음)') + '\n"""\n\n'
+      + '사용자 지시: ' + instruction + '\n\n'
+      + '위 지시에 따라 이 항목만 다시 작성해주세요.\n'
+      + '- 마크다운 없이 텍스트만, 공문서체(◦ 개조식)로 작성\n'
+      + '- 의뢰서 항목번호(1-1, 5-1 등)나 【5-N 항목명】 형식은 쓰지 마세요\n'
+      + '- 화면에 없는 수치는 [담당자 확인 필요: 항목] 형태로 표시\n'
+      + '- 항목 제목은 포함하지 말고 본문 내용만 작성하세요.';
+  } else {
+    var sysFull = buildSystemPrompt(gResult) + buildContextPrompt(gResult);
+    taskPrompt = sysFull
+      + '\n\n【항목 수정 요청】\n'
+      + '의뢰서 ' + target.num + ' ' + target.title + ' 항목의 현재 내용:\n'
+      + '"""\n' + (curText || '(아직 작성되지 않음)') + '\n"""\n\n'
+      + '사용자 지시: ' + instruction + '\n\n'
+      + '위 지시에 따라 이 항목만 다시 작성해주세요.\n'
+      + '- 마크다운 없이 텍스트만 작성\n'
+      + '- 정보가 없는 부분은 [담당자 입력 필요: 내용] 형태로 표시\n'
+      + '- 항목 제목은 포함하지 말고 본문 내용만 작성하세요.';
+  }
   callAI(taskPrompt, function(resp, err) {
     hideTyping();
     if (btn) btn.disabled = false;
@@ -1043,29 +1075,34 @@ function addChatRevisionPreview(target, text){
   var hist = v('ai-chat-history');
   if (!hist) return;
   var id = 'rev-' + Date.now();
-  _chatRevisionStore[id] = { secNum: target.num, text: text };
+  var scope = (target && target.scope === 'plan') ? 'plan' : 'draft';
+  var kind  = CHAT_TARGET_LABEL[scope];
+  _chatRevisionStore[id] = { secNum: target.num, text: text, scope: scope };
   var safeHtml = esc(text).replace(/\n/g,'<br>');
   var div = document.createElement('div');
   div.className = 'ai-msg ai-msg-ai';
   div.innerHTML = '<div class="ai-msg-bubble">'
-    + '<div class="chat-revision-label">' + esc(target.num) + ' ' + esc(target.title) + ' 수정안 (미리보기)</div>'
+    + '<div class="chat-revision-label">' + kind + ' ' + esc(target.num) + ' ' + esc(target.title) + ' 수정안 (미리보기)</div>'
     + '<div class="chat-revision-text">' + safeHtml + '</div>'
     + '<div class="chat-revision-actions">'
-    + '<button type="button" class="ai-chat-btn ai-chat-btn-primary" onclick="applyChatRevision(\'' + id + '\')">&#10003; 이 항목에 적용</button>'
+    + '<button type="button" class="ai-chat-btn ai-chat-btn-primary" onclick="applyChatRevision(\'' + id + '\', this)">&#10003; 이 항목에 적용</button>'
     + '<button type="button" class="ai-chat-btn ai-chat-btn-sec" onclick="dismissChatRevision(this)">취소</button>'
     + '</div></div>'
     + '<div class="ai-msg-meta">AI 어시스턴트 · ' + now + '</div>';
   hist.appendChild(div);
   hist.scrollTop = hist.scrollHeight;
-  gChatHistory.push({ role:'assistant', content:'[' + target.num + ' ' + target.title + ' 수정안]\n' + text, time: now });
+  gChatHistory.push({ role:'assistant', content:'[' + kind + ' ' + target.num + ' ' + target.title + ' 수정안]\n' + text, time: now });
 }
-function applyChatRevision(id){
+function applyChatRevision(id, btn){
   var data = _chatRevisionStore[id];
-  if (!data) return;
+  if (!data) return;   /* 이미 적용된 수정안 */
   var el = (typeof getSecEl === 'function') ? getSecEl(data.secNum) : null;
-  /* 의뢰서 항목이 아닌 곳에 덮어쓰지 않도록 위치까지 확인 */
-  if (!el || !(el.closest && el.closest('#draft-box'))) {
-    alert('의뢰서 항목을 찾을 수 없습니다: ' + data.secNum + '\n8단계(의뢰서 작성)에서 다시 시도해주세요.');
+  /* 지정한 문서(의뢰서/기획서)가 아닌 곳에 덮어쓰지 않도록 위치까지 확인 */
+  var dScope = (data.scope === 'plan') ? 'plan' : 'draft';
+  if (!el || !(el.closest && el.closest(CHAT_TARGET_HOST[dScope]))) {
+    alert(CHAT_TARGET_LABEL[dScope] + ' 항목을 찾을 수 없습니다: ' + data.secNum
+      + (dScope === 'plan' ? '\n1단계(사업 기획)에서 다시 시도해주세요.'
+                           : '\n8단계(의뢰서 작성)에서 다시 시도해주세요.'));
     return;
   }
   var html = esc(data.text).replace(/\n/g,'<br>')
@@ -1074,14 +1111,20 @@ function applyChatRevision(id){
   el.style.borderLeft = '3px solid var(--ok)';
   setTimeout(function(){ el.style.borderLeft=''; }, 2000);
   if (typeof highlightNeeds === 'function') highlightNeeds();
+  /* 같은 수정안을 두 번 적용하거나 뒤이은 수정안과 헷갈리지 않도록 버튼을 잠근다 */
+  var acts = (btn && btn.closest) ? btn.closest('.chat-revision-actions') : null;
+  if (acts) acts.innerHTML = '<span class="chat-revision-done">&#10003; ' + kindOf(data) + ' 항목에 적용됨</span>';
   delete _chatRevisionStore[id];
+}
+function kindOf(data){
+  return CHAT_TARGET_LABEL[(data && data.scope === 'plan') ? 'plan' : 'draft'];
 }
 function dismissChatRevision(btn){
   var msg = btn.closest('.ai-msg');
   if (msg) msg.remove();
 }
-function chatEditSection(secNum, secTitle){
-  setChatTargetSection(secNum, secTitle);
+function chatEditSection(secNum, secTitle, scope){
+  setChatTargetSection(secNum, secTitle, scope);
 }
 function chatKeyDown(e) {
   if (e.key==='Enter' && !e.shiftKey) {

@@ -106,6 +106,23 @@ function parsePlanResponse(resp){
   return out;
 }
 
+/* 기획서 항목 헤더 — render.js 의 sec() 와 같은 구조에 [채팅수정]만 더한다.
+   (🤖AI·검토완료는 투자심사 판단 결과 컨텍스트가 필요해 기획 단계에선 제외) */
+function planSec(num, title, content){
+  var id = 'sec-' + num;
+  return '<div class="draft-section" id="' + id + '">'
+    + '<div class="draft-section-header">'
+    + '<span class="draft-section-num">' + esc(num) + '</span>'
+    + '<span class="draft-section-title">' + esc(title) + '</span>'
+    + '<button class="draft-edit-btn" data-edit-id="' + id + '_content" title="직접 편집">&#9998; 편집</button>'
+    + '<button class="draft-chat-edit-btn" data-plan-chat-num="' + esc(num) + '"'
+    + ' data-plan-chat-title="' + esc(title) + '"'
+    + ' title="AI 채팅으로 이 항목 대화하며 수정">&#128172; 채팅수정</button>'
+    + '</div>'
+    + '<div class="draft-content" id="' + id + '_content">' + content + '</div>'
+    + '</div>';
+}
+
 function renderPlan(parsed, name, field){
   var box = v('plan-doc');
   if(!box) return;
@@ -117,13 +134,11 @@ function renderPlan(parsed, name, field){
   html += '<div style="text-align:center;font-size:11px;color:var(--g500)">분야: '
     + esc(PLAN_FIELD_LABEL[field] || field) + ' &nbsp;|&nbsp; 작성일: ' + today + ' &nbsp;|&nbsp; 파주시</div>';
   html += '</div>';
-  /* sec()는 render.js의 전역 함수 — noAI=true로 ✏편집 버튼만 노출
-     (🤖AI/채팅수정은 투자심사 판단결과 컨텍스트가 필요하므로 기획 단계에선 제외) */
   PLAN_SECTIONS.forEach(function(s){
     var content = parsed[s[2]] || '[담당자 확인 필요: 내용]';
     /* 미처리 [담당자…] 강조 */
     content = esc(content).replace(/(\[담당자[^\]]*\])/g, '<span class="need">$1</span>');
-    if(typeof sec === 'function') html += sec(s[0], s[1], content, true);
+    html += planSec(s[0], s[1], content);
   });
   html += '<div style="margin-top:16px;padding-top:8px;border-top:1px solid var(--g200);'
     + 'font-size:10px;color:var(--g400);text-align:center">파주시 AI 혁신동아리 ACE팀 | AI 기획 초안</div>';
@@ -134,6 +149,12 @@ function renderPlan(parsed, name, field){
   if(!box.dataset.editDelegated){
     box.dataset.editDelegated = '1';
     box.addEventListener('click', function(e){
+      var chatBtn = e.target.closest('[data-plan-chat-num]');
+      if(chatBtn && typeof setChatTargetSection === 'function'){
+        setChatTargetSection(chatBtn.getAttribute('data-plan-chat-num'),
+                             chatBtn.getAttribute('data-plan-chat-title'), 'plan');
+        return;
+      }
       var editBtn = e.target.closest('[data-edit-id]');
       if(editBtn && typeof toggleEdit === 'function'){
         toggleEdit(editBtn.getAttribute('data-edit-id'));

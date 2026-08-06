@@ -473,11 +473,13 @@ function goToStep(n, skipScroll) {
         : '&#8635; 이 단계 지우기';
     }
   }
-  /* 항목별 채팅수정 대상은 ⑧ 의뢰서 전용이다. 다른 단계로 옮기면 반드시 풀어준다.
-     (풀지 않으면 ①~⑦ 단계에서 입력한 지시가 그대로 의뢰서 항목 수정으로 흘러간다) */
-  if (target.key !== 'draft' && typeof gChatTargetSection !== 'undefined' && gChatTargetSection
+  /* 항목별 채팅수정 대상은 그 문서를 보고 있는 단계에서만 유효하다.
+     (풀지 않으면 다른 단계에서 입력한 지시가 그대로 그 항목 수정으로 흘러간다)
+     대상의 scope 이름('plan'·'draft')은 단계 key 와 같게 맞춰 두었다. */
+  if (typeof gChatTargetSection !== 'undefined' && gChatTargetSection
       && typeof clearChatTarget === 'function') {
-    clearChatTarget();
+    var _tScope = gChatTargetSection.scope || 'draft';
+    if (target.key !== _tScope) clearChatTarget();
   }
   if (target.key === 'plan' && typeof renderPlanCompleteness === 'function') renderPlanCompleteness();
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */

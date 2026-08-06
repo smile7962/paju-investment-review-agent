@@ -340,6 +340,10 @@ function resetStep(key){
       ['plan_name','plan_idea','plan_scale'].forEach(function(id){ sv(id,''); });
       var pf=v('plan_field'); if(pf) pf.selectedIndex=0;
       window.gPlanGenerated=false;
+      /* 기획서를 지우면 그 항목을 겨냥한 채팅수정 대상도 함께 푼다 */
+      if(typeof gChatTargetSection!=='undefined' && gChatTargetSection
+         && gChatTargetSection.scope==='plan' && typeof clearChatTarget==='function') clearChatTarget();
+      var prd=v('plan-doc'); if(prd) prd.innerHTML='';
       var prp=v('plan-report'); if(prp){ prp.innerHTML=''; prp.style.display='none'; }
       var pph=v('plan-placeholder'); if(pph) pph.style.display='';
       if(typeof renderPlanCompleteness==='function') renderPlanCompleteness();
