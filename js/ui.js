@@ -526,6 +526,7 @@ function goToStep(n, skipScroll) {
     if (target.key !== _tScope) clearChatTarget();
   }
   if (target.key === 'plan' && typeof renderPlanCompleteness === 'function') renderPlanCompleteness();
+  if (target.key === 'basic' && typeof renderPlanSourceCard === 'function') renderPlanSourceCard();
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
   if (target.key === 'calc') {
     var cb=v('calc-box'), emCb=v('empty-calc');
