@@ -344,6 +344,7 @@ function setFloorArea(val, from, srcLabel) {
   if (typeof refreshUnitPriceBox === 'function') refreshUnitPriceBox();
   if (typeof recalcCost === 'function' && c) recalcCost();
   renderAreaHint(srcLabel || '');
+  if (typeof renderQuickCost === 'function') renderQuickCost();
 }
 
 /* ② 연면적 칸 아래 안내문 — 값의 출처를 알려준다 */
@@ -490,6 +491,7 @@ function applyUnitPrice(price, cardEl) {
 
 function applyUnitPriceSilent(price) {
   window.gLastUnit = price;
+  window._quickCostDirty = true;
   /* ci_unit은 정적 DOM — 항상 존재 */
   var el = document.getElementById('ci_unit');
   if (el) {
@@ -501,6 +503,7 @@ function applyUnitPriceSilent(price) {
   /* renderCalc 내 표시용 div도 동기화 */
   var disp = document.getElementById('ci_unit_display');
   if (disp) disp.textContent = price.toLocaleString();
+  if (typeof renderQuickCost === 'function') renderQuickCost();
 }
 function getCalcMode(){
   var r=document.querySelector('input[name="f_calc_mode"]:checked');
@@ -514,6 +517,7 @@ function applyCalcModeVis(){
 }
 function onCalcModeChange(){
   applyCalcModeVis();
+  if(typeof renderQuickCost==='function') renderQuickCost();
   if(typeof gResult!=='undefined' && gResult && typeof renderCalc==='function') renderCalc(gResult);
   else if(typeof recalcCost==='function') recalcCost();
 }

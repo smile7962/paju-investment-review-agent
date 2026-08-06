@@ -529,6 +529,7 @@ function goToStep(n, skipScroll) {
   if (target.key === 'basic') {
     if (typeof renderPlanSourceCard === 'function') renderPlanSourceCard();
     if (typeof syncFloorAreaField === 'function') syncFloorAreaField();
+    if (typeof renderQuickCost === 'function') renderQuickCost();
   }
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
   if (target.key === 'calc') {

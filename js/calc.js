@@ -443,6 +443,77 @@ function estimatePeriod(cost, type) {
     permit: steps.pp_permit
   };
 }
+/* ── ② 약식 산출 — 연면적 × 단가로 총사업비를 바로 보여준다 ──────────
+   「단가 × 연면적 (자동)」이라 안내하면서도 총사업비가 채워지지 않아,
+   ⑤ 계산기에 들어갔다 나와 [반영] 버튼을 눌러야만 값이 들어갔다.
+   계산 자체는 ⑤의 37항목 로직을 그대로 쓴다 — 두 화면의 값이 달라지면 안 된다. */
+var _quickCostBusy = false;
+
+/* ⑤ 계산기가 아직 렌더되지 않았으면 화면 뒤에서 한 번 그려 둔다 */
+function ensureCalcRendered(){
+  var box = v('calc-box');
+  if(!box) return false;
+  if(box.innerHTML.trim()) return true;
+  if(typeof renderCalc !== 'function') return false;
+  var r = (typeof gResult !== 'undefined' && gResult)
+        ? gResult : { cost: gnv('f_cost'), type: gv('f_type') || 'general' };
+  renderCalc(r);
+  var em = v('empty-calc'); if(em) em.style.display='none';
+  box.style.display = 'block';
+  return true;
+}
+
+function renderQuickCost(){
+  var box = v('quick-cost');
+  if(!box || _quickCostBusy) return;
+  /* 세부 산출 모드면 담당자가 37항목을 직접 넣으므로 개입하지 않는다 */
+  if(typeof getCalcMode === 'function' && getCalcMode() === 'detail'){
+    box.className = 'quick-cost'; box.innerHTML = ''; return;
+  }
+  var area = gnv('f_area') || gnv('ci_area') || 0;
+  var unit = gnv('ci_unit') || 0;
+  if(!(area > 0 && unit > 0)){ box.className = 'quick-cost'; box.innerHTML = ''; return; }
+
+  _quickCostBusy = true;
+  ensureCalcRendered();
+  if(typeof recalcCost === 'function') recalcCost();
+  _quickCostBusy = false;
+
+  var constCost = area * unit / 100000;                       /* 건축공사비(억원) */
+  var total = (typeof projectData !== 'undefined' && projectData && projectData.cost)
+            ? (projectData.cost.calculatedTotal || 0) : 0;
+  if(!(total > 0)) total = window.gCalcTotal || 0;
+  if(!(total > 0)){ box.className = 'quick-cost'; box.innerHTML = ''; return; }
+
+  /* 총사업비가 비어 있으면 자동 반영, 이미 값이 있으면 담당자 판단에 맡긴다 */
+  var cur = gnv('f_cost') || 0;
+  var auto = false;
+  if(!(cur > 0)){ applyCostFromCalc(total.toFixed(1)); auto = true; cur = total;
+    window._qcAutoApplied = true; }
+  var diff = Math.abs(cur - total);
+  /* 방금 자동 반영한 상태에서 재렌더돼도 자동 반영 안내를 유지한다 */
+  if(!auto && window._qcAutoApplied && diff < 0.5) auto = true;
+  if(diff >= 0.5) window._qcAutoApplied = false;
+
+  var h = '<div class="qc-hd">&#128207; 약식 산출 결과</div>'
+    + '<div class="qc-line">연면적 <b>' + area.toLocaleString() + '㎡</b> &times; '
+    + unit.toLocaleString() + '천원/㎡ &rarr; 건축공사비 <b>' + constCost.toFixed(1) + '억원</b></div>'
+    + '<div class="qc-total">설계·감리·예비비 등 포함 <b>총사업비 약 ' + total.toFixed(1) + '억원</b></div>';
+  if(auto){
+    h += '<div class="qc-note ok">&#9989; 위 금액을 총사업비에 자동 반영했습니다. 직접 수정할 수 있습니다.</div>';
+  } else if(diff >= 0.5){
+    h += '<div class="qc-foot"><span class="qc-note warn">&#9888; 입력된 총사업비('
+      + cur.toFixed(1) + '억원)와 ' + diff.toFixed(1) + '억원 차이가 있습니다.</span>'
+      + '<button type="button" class="qc-btn" onclick="applyCostFromCalc(' + total.toFixed(1) + ');renderQuickCost()">'
+      + '산출값으로 반영</button></div>';
+  } else {
+    h += '<div class="qc-note ok">&#9989; 입력된 총사업비와 일치합니다.</div>';
+  }
+  h += '<div class="qc-src">&#9432; ⑤ 사업비·기간 단계의 37항목 산출과 같은 기준입니다. 세부 조정은 그 단계에서 하세요.</div>';
+  box.innerHTML = h;
+  box.className = 'quick-cost show';
+}
+
 function applyCostFromCalc(val) {
   sv('f_cost', val);
   var el = v('f_cost');
