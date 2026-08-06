@@ -253,43 +253,60 @@ function bindProjectDataInputs(){
     }
   }
 }
+/* 전체 초기화 — 모든 단계를 비운다.
+   단계별 목록을 여기서 따로 관리하면 단계가 늘 때마다 빠뜨리게 되므로
+   (실제로 ① 사업 기획·연면적·경제성 등이 남아 있었다),
+   각 단계의 resetStep() 을 그대로 재사용하고 여기서는 공통 잔여분만 정리한다. */
 function doReset(){
-  ['f_name','f_type','f_cost','f_stage','f_nat','f_prov','f_city',
-   'f_bond','f_priv','f_prev_cost','f_prev_result','f_years','f_prev_auth'].forEach(function(id){ sv(id,''); });
-  ['f_reserve','f_self','f_joint','f_site','f_bond_chg'].forEach(function(id){ sc(id,false); });
-  var nr=v('ri-new'); if(nr){ setRI('new',nr); nr.querySelector('input').checked=true; }
-  /* 전역 상태 초기화 */
+  if(typeof STEP_META!=='undefined'){
+    STEP_META.forEach(function(s){ try{ resetStep(s.key); }catch(e){} });
+  }
+  /* 단계 초기화가 닿지 않는 전역 상태 */
   gCheckState={};
   gResult=null;
   gChatHistory=[];
   gPeriodTotal=0; window.gPeriodCalculated=false;
   gEconResult={bc:0,npv:0,irr:0};
-  window.gLastUnit=0;
-  window.gCalcTotal=0;
-  window.gGroupTotals=null;
-  window.gReserveFee=0;
-  window.gParsedArea=0;
+  window.gPlanGenerated=false;
+  window.gLastUnit=0; window.gCalcTotal=0; window.gGroupTotals=null;
+  window.gReserveFee=0; window.gParsedArea=0;
+  window._lastArea=0; window._planArea=0; window._areaSrcLabel='';
+  window._planName=''; window._planCost=0; window._planField='';
+  window._unitManual=false;
+  window._planCase=false; window._planCaseData=null;
+  if(typeof clearChatTarget==='function') clearChatTarget();
   projectData={basic:{},finance:{},cost:{},period:{},review:{},economy:{},draft:{},ai:{},output:{}};
-  /* DOM 초기화 — 존재하는 요소만 안전하게 */
-  var safeHide=function(emptyId,boxId){
-    var em=v(emptyId),bx=v(boxId);
-    if(em) em.style.display='flex';
-    if(bx) bx.style.display='none';
-  };
-  safeHide('empty-result','result-box');
-  safeHide('empty-check','check-box');
-  /* draft-box 초기화 */
-  var db=v('draft-box');
-  if(db){db.innerHTML='';db.style.display='none';}
-  var ed=v('empty-draft');
-  if(ed) ed.style.display='flex';
-  /* 요약바 초기화 */
+
+  /* 결과 화면·계산기 DOM — resetStep 은 입력만 비우므로 렌더 결과를 여기서 되돌린다 */
+  ['calc-box','econ-box','result-box','check-box','draft-box','plan-doc'].forEach(function(id){
+    var el=v(id); if(el){ el.innerHTML=''; if(id!=='plan-doc') el.style.display='none'; }
+  });
+  ['empty-calc','empty-econ','econ-empty','empty-result','empty-check','empty-draft'].forEach(function(id){
+    var el=v(id); if(el) el.style.display='';
+  });
+  var pr=v('plan-result'); if(pr) pr.style.display='none';
+  var pp=v('plan-placeholder'); if(pp) pp.style.display='';
+
+  /* 이전 실행이 남긴 안내 배너 */
+  ['plan-linked-note','plan-applied-banner','ci_area_hint','ci_unit_hint'].forEach(function(id){
+    var el=v(id); if(el) el.remove();
+  });
+  var ua=v('unit-applied-note'); if(ua) ua.style.display='none';
+
+  /* AI 대화 이력 */
+  var hist=v('ai-chat-history');
+  if(hist) hist.innerHTML='<div class="ai-msg ai-msg-ai"><div class="ai-msg-bubble">'
+    + '전체 초기화되었습니다. 새 사업 정보를 입력해 주세요.</div></div>';
+
+  /* 요약바 */
   ['sum-cost','sum-finance','sum-judge','sum-period','sum-match','sum-bc'].forEach(function(id){
     var el=v(id); if(el){el.textContent='-';el.className='sum-val';}
   });
-  onTypeChange();
-  switchIT('basic');
-  updateSummary();
+
+  if(typeof onTypeChange==='function') onTypeChange();
+  if(typeof updateSummary==='function') updateSummary();
+  if(typeof renderWizard==='function') renderWizard();
+  if(typeof goToStep==='function') goToStep(1);   /* 처음 단계로 되돌린다 */
 }
 /* 전체 초기화 — 파괴적이므로 확인 후 실행 */
 function confirmFullReset(){
@@ -325,8 +342,11 @@ function resetStep(key){
       if(typeof gChatTargetSection!=='undefined' && gChatTargetSection
          && gChatTargetSection.scope==='plan' && typeof clearChatTarget==='function') clearChatTarget();
       var prd=v('plan-doc'); if(prd) prd.innerHTML='';
-      var prp=v('plan-report'); if(prp){ prp.innerHTML=''; prp.style.display='none'; }
+      /* 결과 영역 id 는 plan-result 다. plan-report 를 숨기려 해 버튼 바가 남아 있었다 */
+      var prp=v('plan-result'); if(prp) prp.style.display='none';
       var pph=v('plan-placeholder'); if(pph) pph.style.display='';
+      window._planName=''; window._planCost=0; window._planField=''; window._planArea=0;
+      if(typeof _planStatus==='function') _planStatus('');
       if(typeof renderPlanCompleteness==='function') renderPlanCompleteness();
       if(typeof renderPlanSourceCard==='function') renderPlanSourceCard();
       break;

@@ -382,7 +382,10 @@ function showUnitPriceBox(type) {
   if (!box) return;
   var db = UNIT_PRICE_DB[type];
   if (!db || db.length === 0) {
+    /* 숨기기만 하면 이전 유형의 카드가 DOM 에 남아 초기화 후에도 잔존한다 */
+    box.innerHTML = '';
     box.className = 'unit-price-box';
+    box.dataset.area = '';
     return;
   }
   var det = unitRecommendArea();
