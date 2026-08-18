@@ -1355,6 +1355,36 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .upc-page:hover{background:var(--pb);color:#fff;border-color:var(--pb)}
 .upc-page.none{color:var(--g400);background:transparent;border-color:var(--g100);
   font-weight:500;cursor:default}
+
+/* 소분류 접기/펼치기 */
+.upc-allbtn{margin-left:auto;font-size:10px;font-weight:700;color:var(--pb);
+  background:#fff;border:1px solid rgba(0,60,150,.25);border-radius:999px;
+  padding:3px 10px;cursor:pointer;white-space:nowrap}
+.upc-allbtn:hover{background:var(--pbp)}
+.unit-price-title>.upc-doc{margin-left:0}
+.upc-groups{display:flex;flex-direction:column;gap:6px}
+.upc-group{background:#fff;border:1px solid rgba(0,60,150,.15);
+  border-radius:var(--rs);overflow:hidden}
+.upc-group.open{border-color:rgba(0,60,150,.3)}
+.upc-gh{display:flex;align-items:center;gap:8px;width:100%;
+  background:transparent;border:0;cursor:pointer;text-align:left;
+  padding:9px 12px;font-family:inherit}
+.upc-gh:hover{background:var(--pbp)}
+.upc-gh-arrow{font-size:11px;color:var(--g400);transition:transform .15s;flex:none}
+.upc-group.open .upc-gh-arrow{transform:rotate(90deg);color:var(--pb)}
+.upc-gh-name{font-size:12px;font-weight:800;color:var(--g800)}
+.upc-gh-rec{font-size:9px;font-weight:800;color:#fff;background:var(--pb);
+  border-radius:999px;padding:1px 7px;flex:none}
+.upc-gh-sel{font-size:9px;font-weight:800;color:var(--pb);background:var(--pbp);
+  border:1px solid rgba(0,60,150,.25);border-radius:999px;padding:1px 7px;flex:none}
+.upc-gh-meta{margin-left:auto;font-size:10px;color:var(--g500);
+  white-space:nowrap;flex:none}
+.upc-gb{display:none;padding:0 10px 10px}
+.upc-group.open>.upc-gb{display:block}
+.upc-group .unit-price-card{background:var(--pbp)}
+.upc-group .unit-price-card.selected,
+.upc-group .unit-price-card.recommended{background:#fff}
+@media(max-width:640px){ .upc-gh-meta{display:none} }
 .unit-price-note{font-size:10px;color:var(--g500);margin-top:8px;
   padding:6px 10px;background:rgba(255,255,255,.7);border-radius:var(--rs)}
 

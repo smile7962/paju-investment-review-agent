@@ -205,6 +205,42 @@ var UNIT_PRICE_DB = {
      name:'공공업무사무소 (5,000㎡ 초과)',
      price:4076, page:6, range:'5,000㎡ 초과 신축',
      note:'서울시 가이드라인 공공업무사무소 5,000㎡ 초과'},
+    {sub:'119안전센터·소방서',
+     name:'119안전센터 (800㎡ 미만)',
+     price:3337, page:6, range:'800㎡ 미만 신축',
+     note:'서울시 가이드라인 119안전센터 800㎡ 미만'},
+    {sub:'119안전센터·소방서',
+     name:'119안전센터 (800~900㎡)',
+     price:3301, page:6, range:'800~900㎡ 신축',
+     note:'서울시 가이드라인 119안전센터 800~900㎡'},
+    {sub:'119안전센터·소방서',
+     name:'119안전센터 (900㎡ 초과)',
+     price:3147, page:6, range:'900㎡ 초과 신축',
+     note:'서울시 가이드라인 119안전센터 900㎡ 초과'},
+    {sub:'119안전센터·소방서',
+     name:'소방서 (3,000㎡ 미만)',
+     price:3338, page:6, range:'3,000㎡ 미만 신축',
+     note:'서울시 가이드라인 소방서 3,000㎡ 미만'},
+    {sub:'119안전센터·소방서',
+     name:'소방서 (3,000~5,000㎡)',
+     price:3231, page:6, range:'3,000~5,000㎡ 신축',
+     note:'서울시 가이드라인 소방서 3,000~5,000㎡'},
+    {sub:'119안전센터·소방서',
+     name:'소방서 (5,000㎡ 초과)',
+     price:3162, page:6, range:'5,000㎡ 초과 신축',
+     note:'서울시 가이드라인 소방서 5,000㎡ 초과'},
+    {sub:'의회청사',
+     name:'의회청사 (1,500㎡ 미만)',
+     price:4577, page:8, range:'1,500㎡ 미만 신축',
+     note:'서울시 가이드라인 의회청사 1,500㎡ 미만'},
+    {sub:'의회청사',
+     name:'의회청사 (1,500~5,000㎡)',
+     price:4447, page:8, range:'1,500~5,000㎡ 신축',
+     note:'서울시 가이드라인 의회청사 1,500~5,000㎡'},
+    {sub:'의회청사',
+     name:'의회청사 (5,000㎡ 초과)',
+     price:4352, page:8, range:'5,000㎡ 초과 신축',
+     note:'서울시 가이드라인 의회청사 5,000㎡ 초과'},
   ],
 
   /* 2-6. 운동시설 + 2-2. 문화·집회 + 2-4. 도서관 + 2-5. 청소년 */
@@ -285,6 +321,18 @@ var UNIT_PRICE_DB = {
      name:'청소년·문화수련시설 (6,000㎡ 초과)',
      price:3796, page:14, range:'6,000㎡ 초과 신축',
      note:'서울시 가이드라인 청소년·문화수련시설 6,000㎡ 초과'},
+    {sub:'체육관·체육센터',
+     name:'배드민턴장 (500㎡ 미만)',
+     price:3022, page:14, range:'500㎡ 미만 신축',
+     note:'서울시 가이드라인 배드민턴장 500㎡ 미만'},
+    {sub:'체육관·체육센터',
+     name:'배드민턴장 (500~1,000㎡)',
+     price:3014, page:14, range:'500~1,000㎡ 신축',
+     note:'서울시 가이드라인 배드민턴장 500~1,000㎡'},
+    {sub:'체육관·체육센터',
+     name:'배드민턴장 (1,000㎡ 초과)',
+     price:3008, page:14, range:'1,000㎡ 초과 신축',
+     note:'서울시 가이드라인 배드민턴장 1,000㎡ 초과'},
   ],
 
   /* 복합시설: 구성 비중 가중 평균 적용 */
@@ -417,6 +465,210 @@ var UNIT_PRICE_DB = {
      name:'주민공동이용시설 (400㎡ 초과)',
      price:4365, page:13, range:'400㎡ 초과 신축',
      note:'서울시 가이드라인 주민공동이용시설'},
+    {sub:'자활작업장',
+     name:'장애인·노인 자활작업장 (2,000㎡ 미만)',
+     price:3608, page:10, range:'2,000㎡ 미만 신축',
+     note:'서울시 가이드라인 장애인·노인 자활작업장 2,000㎡ 미만'},
+    {sub:'자활작업장',
+     name:'장애인·노인 자활작업장 (2,000~5,000㎡)',
+     price:3570, page:10, range:'2,000~5,000㎡ 신축',
+     note:'서울시 가이드라인 장애인·노인 자활작업장 2,000~5,000㎡'},
+    {sub:'자활작업장',
+     name:'장애인·노인 자활작업장 (5,000~10,000㎡)',
+     price:3502, page:10, range:'5,000~10,000㎡ 신축',
+     note:'서울시 가이드라인 장애인·노인 자활작업장 5,000~10,000㎡'},
+    {sub:'자활작업장',
+     name:'장애인·노인 자활작업장 (10,000㎡ 초과)',
+     price:3436, page:10, range:'10,000㎡ 초과 신축',
+     note:'서울시 가이드라인 장애인·노인 자활작업장 10,000㎡ 초과'},
+    {sub:'보건·의료',
+     name:'병원 (10,000㎡ 미만)',
+     price:5257, page:10, range:'10,000㎡ 미만 신축',
+     note:'서울시 가이드라인 병원 10,000㎡ 미만'},
+    {sub:'보건·의료',
+     name:'병원 (10,000~30,000㎡)',
+     price:5064, page:10, range:'10,000~30,000㎡ 신축',
+     note:'서울시 가이드라인 병원 10,000~30,000㎡'},
+    {sub:'보건·의료',
+     name:'병원 (30,000~50,000㎡)',
+     price:4952, page:10, range:'30,000~50,000㎡ 신축',
+     note:'서울시 가이드라인 병원 30,000~50,000㎡'},
+    {sub:'보건·의료',
+     name:'병원 (50,000㎡ 초과)',
+     price:4917, page:10, range:'50,000㎡ 초과 신축',
+     note:'서울시 가이드라인 병원 50,000㎡ 초과'},
+    {sub:'보건·의료',
+     name:'산모건강증진센터 (1,000㎡ 미만)',
+     price:4992, page:11, range:'1,000㎡ 미만 신축',
+     note:'서울시 가이드라인 산모건강증진센터 1,000㎡ 미만'},
+    {sub:'보건·의료',
+     name:'산모건강증진센터 (1,000~3,000㎡)',
+     price:4965, page:11, range:'1,000~3,000㎡ 신축',
+     note:'서울시 가이드라인 산모건강증진센터 1,000~3,000㎡'},
+    {sub:'보건·의료',
+     name:'산모건강증진센터 (3,000~5,000㎡)',
+     price:4860, page:11, range:'3,000~5,000㎡ 신축',
+     note:'서울시 가이드라인 산모건강증진센터 3,000~5,000㎡'},
+    {sub:'보건·의료',
+     name:'산모건강증진센터 (5,000㎡ 초과)',
+     price:4725, page:11, range:'5,000㎡ 초과 신축',
+     note:'서울시 가이드라인 산모건강증진센터 5,000㎡ 초과'},
+    {sub:'교육·연구',
+     name:'대학교·교육센터 (5000㎡ 미만)',
+     price:3466, page:11, range:'5000㎡ 미만 신축',
+     note:'서울시 가이드라인 대학교·교육센터 5000㎡ 미만'},
+    {sub:'교육·연구',
+     name:'대학교·교육센터 (5000~10,000㎡)',
+     price:3381, page:11, range:'5000~10,000㎡ 신축',
+     note:'서울시 가이드라인 대학교·교육센터 5000~10,000㎡'},
+    {sub:'교육·연구',
+     name:'대학교·교육센터 (10,000~20,000㎡)',
+     price:3311, page:11, range:'10,000~20,000㎡ 신축',
+     note:'서울시 가이드라인 대학교·교육센터 10,000~20,000㎡'},
+    {sub:'교육·연구',
+     name:'대학교·교육센터 (20,000㎡ 초과)',
+     price:3296, page:11, range:'20,000㎡ 초과 신축',
+     note:'서울시 가이드라인 대학교·교육센터 20,000㎡ 초과'},
+    {sub:'교육·연구',
+     name:'연구시설 (10,000㎡ 미만)',
+     price:5390, page:12, range:'10,000㎡ 미만 신축',
+     note:'서울시 가이드라인 연구시설 10,000㎡ 미만'},
+    {sub:'교육·연구',
+     name:'연구시설 (10,000~15,000㎡)',
+     price:5223, page:12, range:'10,000~15,000㎡ 신축',
+     note:'서울시 가이드라인 연구시설 10,000~15,000㎡'},
+    {sub:'교육·연구',
+     name:'연구시설 (15,000~20,000㎡)',
+     price:5098, page:12, range:'15,000~20,000㎡ 신축',
+     note:'서울시 가이드라인 연구시설 15,000~20,000㎡'},
+    {sub:'교육·연구',
+     name:'연구시설 (20,000㎡ 초과)',
+     price:5077, page:12, range:'20,000㎡ 초과 신축',
+     note:'서울시 가이드라인 연구시설 20,000㎡ 초과'},
+    {sub:'노유자시설',
+     name:'육아·보육·키즈센터 (5,000㎡ 미만)',
+     price:4577, page:12, range:'5,000㎡ 미만 신축',
+     note:'서울시 가이드라인 육아·보육, 키즈센터 5,000㎡ 미만'},
+    {sub:'노유자시설',
+     name:'육아·보육·키즈센터 (5,000~8,000㎡)',
+     price:4503, page:12, range:'5,000~8,000㎡ 신축',
+     note:'서울시 가이드라인 육아·보육, 키즈센터 5,000~8,000㎡'},
+    {sub:'노유자시설',
+     name:'육아·보육·키즈센터 (8,000~10,000㎡)',
+     price:4397, page:12, range:'8,000~10,000㎡ 신축',
+     note:'서울시 가이드라인 육아·보육, 키즈센터 8,000~10,000㎡'},
+    {sub:'노유자시설',
+     name:'육아·보육·키즈센터 (10,000㎡ 초과)',
+     price:4334, page:12, range:'10,000㎡ 초과 신축',
+     note:'서울시 가이드라인 육아·보육, 키즈센터 10,000㎡ 초과'},
+    {sub:'노유자시설',
+     name:'경로당·노인정 (200㎡ 미만)',
+     price:3852, page:13, range:'200㎡ 미만 신축',
+     note:'서울시 가이드라인 경로당, 노인정 200㎡ 미만'},
+    {sub:'노유자시설',
+     name:'경로당·노인정 (200~400㎡)',
+     price:3742, page:13, range:'200~400㎡ 신축',
+     note:'서울시 가이드라인 경로당, 노인정 200~400㎡'},
+    {sub:'노유자시설',
+     name:'경로당·노인정 (400㎡ 초과)',
+     price:3685, page:13, range:'400㎡ 초과 신축',
+     note:'서울시 가이드라인 경로당, 노인정 400㎡ 초과'},
+    {sub:'기타 공공시설',
+     name:'공중화장실 (50㎡ 미만)',
+     price:4579, page:15, range:'50㎡ 미만 신축',
+     note:'서울시 가이드라인 공중화장실 50㎡ 미만'},
+    {sub:'기타 공공시설',
+     name:'공중화장실 (50~100㎡)',
+     price:4460, page:15, range:'50~100㎡ 신축',
+     note:'서울시 가이드라인 공중화장실 50~100㎡'},
+    {sub:'기타 공공시설',
+     name:'공중화장실 (100~200㎡)',
+     price:4365, page:15, range:'100~200㎡ 신축',
+     note:'서울시 가이드라인 공중화장실 100~200㎡'},
+    {sub:'기타 공공시설',
+     name:'공중화장실 (200㎡ 초과)',
+     price:4310, page:15, range:'200㎡ 초과 신축',
+     note:'서울시 가이드라인 공중화장실 200㎡ 초과'},
+    {sub:'기타 공공시설',
+     name:'환승센터·주차장 전용 (2,000㎡ 미만)',
+     price:3254, page:15, range:'2,000㎡ 미만 신축',
+     note:'서울시 가이드라인 환승센터, 주차장 전용 2,000㎡ 미만'},
+    {sub:'기타 공공시설',
+     name:'환승센터·주차장 전용 (2,000~5,000㎡)',
+     price:3193, page:15, range:'2,000~5,000㎡ 신축',
+     note:'서울시 가이드라인 환승센터, 주차장 전용 2,000~5,000㎡'},
+    {sub:'기타 공공시설',
+     name:'환승센터·주차장 전용 (5,000~10,000㎡)',
+     price:3114, page:15, range:'5,000~10,000㎡ 신축',
+     note:'서울시 가이드라인 환승센터, 주차장 전용 5,000~10,000㎡'},
+    {sub:'기타 공공시설',
+     name:'환승센터·주차장 전용 (10,000㎡ 초과)',
+     price:3037, page:15, range:'10,000㎡ 초과 신축',
+     note:'서울시 가이드라인 환승센터, 주차장 전용 10,000㎡ 초과'},
+    {sub:'기타 공공시설',
+     name:'자재보관창고·차량정비고 (1,000㎡ 미만)',
+     price:2227, page:15, range:'1,000㎡ 미만 신축',
+     note:'서울시 가이드라인 자재보관창고(차량정비고) 1,000㎡ 미만'},
+    {sub:'기타 공공시설',
+     name:'자재보관창고·차량정비고 (1,000~2,000㎡)',
+     price:2196, page:15, range:'1,000~2,000㎡ 신축',
+     note:'서울시 가이드라인 자재보관창고(차량정비고) 1,000~2,000㎡'},
+    {sub:'기타 공공시설',
+     name:'자재보관창고·차량정비고 (2,000~3,000㎡)',
+     price:2136, page:15, range:'2,000~3,000㎡ 신축',
+     note:'서울시 가이드라인 자재보관창고(차량정비고) 2,000~3,000㎡'},
+    {sub:'기타 공공시설',
+     name:'자재보관창고·차량정비고 (3,000㎡ 초과)',
+     price:2058, page:15, range:'3,000㎡ 초과 신축',
+     note:'서울시 가이드라인 자재보관창고(차량정비고) 3,000㎡ 초과'},
+    {sub:'기타 공공시설',
+     name:'공영주차장 (1,000㎡ 미만)',
+     price:3057, page:16, range:'1,000㎡ 미만 신축',
+     note:'서울시 가이드라인 공영주차장 1,000㎡ 미만'},
+    {sub:'기타 공공시설',
+     name:'공영주차장 (1,000~3,000㎡)',
+     price:3021, page:16, range:'1,000~3,000㎡ 신축',
+     note:'서울시 가이드라인 공영주차장 1,000~3,000㎡'},
+    {sub:'기타 공공시설',
+     name:'공영주차장 (3,000~5,000㎡)',
+     price:2966, page:16, range:'3,000~5,000㎡ 신축',
+     note:'서울시 가이드라인 공영주차장 3,000~5,000㎡'},
+    {sub:'기타 공공시설',
+     name:'공영주차장 (5,000㎡ 초과)',
+     price:2890, page:16, range:'5,000㎡ 초과 신축',
+     note:'서울시 가이드라인 공영주차장 5,000㎡ 초과'},
+    {sub:'기타 공공시설',
+     name:'폐기물 중간처리시설 (1,000㎡ 미만)',
+     price:4871, page:16, range:'1,000㎡ 미만 신축',
+     note:'서울시 가이드라인 폐기물 중간처리시설 1,000㎡ 미만'},
+    {sub:'기타 공공시설',
+     name:'폐기물 중간처리시설 (1,000~3,000㎡)',
+     price:4801, page:16, range:'1,000~3,000㎡ 신축',
+     note:'서울시 가이드라인 폐기물 중간처리시설 1,000~3,000㎡'},
+    {sub:'기타 공공시설',
+     name:'폐기물 중간처리시설 (3,000~5,000㎡)',
+     price:4718, page:16, range:'3,000~5,000㎡ 신축',
+     note:'서울시 가이드라인 폐기물 중간처리시설 3,000~5,000㎡'},
+    {sub:'기타 공공시설',
+     name:'폐기물 중간처리시설 (5,000㎡ 초과)',
+     price:4579, page:16, range:'5,000㎡ 초과 신축',
+     note:'서울시 가이드라인 폐기물 중간처리시설 5,000㎡ 초과'},
+    {sub:'친환경 건축',
+     name:'친환경 전용건축 (1,000㎡ 미만)',
+     price:8701, page:16, range:'1,000㎡ 미만 신축',
+     note:'서울시 가이드라인 친환경 전용건축(에너지 제로하우스) 1,000㎡ 미만'},
+    {sub:'친환경 건축',
+     name:'친환경 전용건축 (1,000~3,000㎡)',
+     price:8532, page:16, range:'1,000~3,000㎡ 신축',
+     note:'서울시 가이드라인 친환경 전용건축(에너지 제로하우스) 1,000~3,000㎡'},
+    {sub:'친환경 건축',
+     name:'친환경 전용건축 (3,000~5,000㎡)',
+     price:8278, page:16, range:'3,000~5,000㎡ 신축',
+     note:'서울시 가이드라인 친환경 전용건축(에너지 제로하우스) 3,000~5,000㎡'},
+    {sub:'친환경 건축',
+     name:'친환경 전용건축 (5,000㎡ 초과)',
+     price:8035, page:16, range:'5,000㎡ 초과 신축',
+     note:'서울시 가이드라인 친환경 전용건축(에너지 제로하우스) 5,000㎡ 초과'},
   ],
 
   /* 2-2. 전시·박물관 */
@@ -535,6 +787,34 @@ function syncFloorAreaField() {
 window._unitManual = false;
 var _unitBoxRendering = false;
 
+/* 카드 식별 키. 단가 값은 시설이 달라도 겹칠 수 있어(general 의 4,365·4,579)
+   값 대신 유형+위치로 고른 카드를 식별한다. */
+function unitKey(type, i) { return type + ':' + i; }
+
+/* 소분류 묶음 접기/펼치기. 담당자가 직접 조작한 상태는 유형이 바뀔 때까지 유지된다. */
+function toggleUnitGroup(btn) {
+  var g = btn.parentNode;
+  if (!g) return;
+  var open = !g.classList.contains('open');
+  g.classList.toggle('open', open);
+  window._unitOpenSubs = window._unitOpenSubs || {};
+  window._unitOpenSubs[g.dataset.sub] = open;
+}
+
+/* 모두 펼치기 / 모두 접기 */
+function toggleUnitAllGroups(btn) {
+  var box = document.getElementById('unit-price-box');
+  if (!box) return;
+  var gs = box.querySelectorAll('.upc-group');
+  var anyClosed = Array.prototype.some.call(gs, function(g){ return !g.classList.contains('open'); });
+  window._unitOpenSubs = window._unitOpenSubs || {};
+  Array.prototype.forEach.call(gs, function(g){
+    g.classList.toggle('open', anyClosed);
+    window._unitOpenSubs[g.dataset.sub] = anyClosed;
+  });
+  btn.textContent = anyClosed ? '모두 접기' : '모두 펼치기';
+}
+
 function showUnitPriceBox(type) {
   var box = document.getElementById('unit-price-box');
   if (!box) return;
@@ -563,6 +843,7 @@ function showUnitPriceBox(type) {
   }
 
   var h = '<div class="unit-price-title">&#128200; 서울시 건축공사비 단가 (2024) — 클릭하면 자동 적용'
+        + '<button type="button" class="upc-allbtn" onclick="toggleUnitAllGroups(this)">모두 펼치기</button>'
         + '<a class="upc-doc" href="' + srcHref('seoul2024') + '" target="_blank" rel="noopener">&#128196; 근거자료 원문 보기</a></div>';
   if (recIdx >= 0) {
     h += '<div class="upc-reco-note">&#9989; '
@@ -576,34 +857,65 @@ function showUnitPriceBox(type) {
   } else {
     h += '<div class="upc-reco-note none">&#9432; 연면적이 확인되지 않았습니다. ① 사업 기획의 <b>대상·규모</b>나 ⑤ 사업비 계산기의 <b>연면적</b>을 입력하면 규모 구간에 맞는 단가를 추천합니다.</div>';
   }
-  h += '<div class="unit-price-grid">';
-  db.forEach(function(item, i) {
-    var isRec = (i === recIdx);
-    /* 추천이 있으면 추천 카드를, 없으면 DB 기본값을 선택 표시 */
-    var isSel = window._unitManual ? (window.gLastUnit === item.price)
-              : (recIdx >= 0 ? isRec : !!item.selected);
-    h += '<div class="unit-price-card' + (isSel ? ' selected' : '') + (isRec ? ' recommended' : '')
-      + '" onclick="applyUnitPrice(' + item.price + ',this)">';
-    if (isRec) h += '<span class="upc-reco-badge">추천</span>';
-    h += '<div class="upc-sub">' + item.sub + '</div>';
-    h += '<div class="upc-name">' + item.name + '</div>';
-    h += '<div class="upc-price">' + item.price.toLocaleString() + '<span class="upc-unit">천원/㎡</span></div>';
-    h += '<div class="upc-range">' + item.range + '</div>';
-    if (isRec && area > 0) {
-      h += '<div class="upc-est">' + area.toLocaleString() + '㎡ 적용 시 건축공사비 <b>약 '
-        + (area * item.price / 100000).toFixed(1) + '억원</b></div>';
-    }
-    h += '<div style="font-size:9px;color:var(--g400);margin-top:2px">' + (item.note||'') + '</div>';
-    /* 근거 원문 바로가기 — 카드 클릭(단가 적용)과 겹치지 않게 전파를 막는다 */
-    if (item.page) {
-      h += '<a class="upc-page" href="' + srcHref('seoul2024', item.page) + '"'
-        + ' target="_blank" rel="noopener" onclick="event.stopPropagation()"'
-        + ' title="서울시 가이드라인 원문 ' + item.page + '쪽을 새 창에서 엽니다">'
-        + '&#128196; 원문 p.' + item.page + ' 보기</a>';
-    } else {
-      h += '<span class="upc-page none">가이드라인 단가를 조합한 산출값</span>';
-    }
-    h += '</div>';
+  /* 소분류(sub)별로 묶어 접기/펼치기 — 유형에 따라 카드가 70개를 넘어
+     한눈에 안 들어오므로, 추천이 들어 있는 묶음만 펼쳐서 보여준다 */
+  var groups = [], gmap = {};
+  db.forEach(function(item, i){
+    var g = gmap[item.sub];
+    if (!g) { g = gmap[item.sub] = {sub:item.sub, idx:[]}; groups.push(g); }
+    g.idx.push(i);
+  });
+  var openSubs = window._unitOpenSubs || {};
+  h += '<div class="upc-groups">';
+  groups.forEach(function(g){
+    var hasRec = g.idx.indexOf(recIdx) >= 0;
+    var hasSel = window._unitManual && g.idx.some(function(i){
+      return unitKey(type, i) === window._unitPickKey; });
+    /* 담당자가 직접 접거나 펼친 묶음이 우선, 없으면 추천·선택된 묶음만 펼침 */
+    var open = (openSubs[g.sub] !== undefined) ? !!openSubs[g.sub]
+             : (hasRec || hasSel || (recIdx < 0 && !window._unitManual && groups.length === 1));
+    var prices = g.idx.map(function(i){ return db[i].price; });
+    var lo = Math.min.apply(null, prices), hi = Math.max.apply(null, prices);
+    h += '<div class="upc-group' + (open ? ' open' : '') + '" data-sub="' + esc(g.sub) + '">';
+    h += '<button type="button" class="upc-gh" onclick="toggleUnitGroup(this)">'
+      +  '<span class="upc-gh-arrow">&#9656;</span>'
+      +  '<span class="upc-gh-name">' + esc(g.sub) + '</span>'
+      +  (hasRec ? '<span class="upc-gh-rec">추천</span>' : '')
+      +  (hasSel && !hasRec ? '<span class="upc-gh-sel">선택됨</span>' : '')
+      +  '<span class="upc-gh-meta">' + g.idx.length + '개 구간 · '
+      +  (lo === hi ? lo.toLocaleString() : lo.toLocaleString() + '~' + hi.toLocaleString())
+      +  '천원/㎡</span></button>';
+    h += '<div class="upc-gb"><div class="unit-price-grid">';
+    g.idx.forEach(function(i){
+      var item = db[i];
+      var key  = unitKey(type, i);
+      var isRec = (i === recIdx);
+      /* 단가 값은 시설이 달라도 겹칠 수 있으므로(예: 4,365) 위치 기반 키로 식별한다 */
+      var isSel = window._unitManual ? (window._unitPickKey === key)
+                : (recIdx >= 0 ? isRec : !!item.selected);
+      h += '<div class="unit-price-card' + (isSel ? ' selected' : '') + (isRec ? ' recommended' : '')
+        + '" onclick="applyUnitPrice(' + item.price + ',this,\'' + key + '\')">';
+      if (isRec) h += '<span class="upc-reco-badge">추천</span>';
+      h += '<div class="upc-name">' + item.name + '</div>';
+      h += '<div class="upc-price">' + item.price.toLocaleString() + '<span class="upc-unit">천원/㎡</span></div>';
+      h += '<div class="upc-range">' + item.range + '</div>';
+      if (isRec && area > 0) {
+        h += '<div class="upc-est">' + area.toLocaleString() + '㎡ 적용 시 건축공사비 <b>약 '
+          + (area * item.price / 100000).toFixed(1) + '억원</b></div>';
+      }
+      h += '<div style="font-size:9px;color:var(--g400);margin-top:2px">' + (item.note||'') + '</div>';
+      /* 근거 원문 바로가기 — 카드 클릭(단가 적용)과 겹치지 않게 전파를 막는다 */
+      if (item.page) {
+        h += '<a class="upc-page" href="' + srcHref('seoul2024', item.page) + '"'
+          + ' target="_blank" rel="noopener" onclick="event.stopPropagation()"'
+          + ' title="서울시 가이드라인 원문 ' + item.page + '쪽을 새 창에서 엽니다">'
+          + '&#128196; 원문 p.' + item.page + ' 보기</a>';
+      } else {
+        h += '<span class="upc-page none">가이드라인 단가를 조합한 산출값</span>';
+      }
+      h += '</div>';
+    });
+    h += '</div></div></div>';
   });
   h += '</div>';
   h += '<div class="upc-source">출처: <a href="' + srcHref('seoul2024') + '" target="_blank" rel="noopener">'
@@ -638,9 +950,10 @@ function refreshUnitPriceBox() {
   showUnitPriceBox(type);
 }
 
-function applyUnitPrice(price, cardEl) {
+function applyUnitPrice(price, cardEl, key) {
   /* 담당자가 직접 고른 단가 — 이후 추천이 덮어쓰지 않는다 */
   window._unitManual = true;
+  window._unitPickKey = key || '';
   /* 카드 선택 표시 */
   var box = document.getElementById('unit-price-box');
   if (box) {
@@ -695,6 +1008,8 @@ function onTypeChange() {
     document.getElementById('f_type').value : '';
   /* 사업유형이 바뀌면 카드 구성이 통째로 달라지므로 직접 선택 상태를 푼다 */
   window._unitManual = false;
+  window._unitPickKey = '';
+  window._unitOpenSubs = {};
   showUnitPriceBox(type);
   if(typeof applyCalcModeVis==='function') applyCalcModeVis();
   var erw=document.getElementById('event-regular-wrap');
