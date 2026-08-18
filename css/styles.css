@@ -1340,6 +1340,21 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 
 .upc-source{font-size:9px;color:var(--g400);margin-top:6px;
   padding-top:6px;border-top:1px solid var(--g100)}
+.upc-source a{color:var(--pb);font-weight:700;text-decoration:underline}
+.upc-source a:hover{color:var(--pbd,#1e40af)}
+
+/* 근거자료 원문 바로가기 */
+.unit-price-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.upc-doc{margin-left:auto;font-size:10px;font-weight:700;color:#fff;
+  background:var(--pb);border-radius:999px;padding:3px 10px;text-decoration:none;
+  white-space:nowrap;transition:filter .15s}
+.upc-doc:hover{filter:brightness(1.12)}
+.upc-page{display:inline-block;margin-top:6px;font-size:9px;font-weight:700;
+  color:var(--pb);background:var(--pbp);border:1px solid rgba(0,60,150,.18);
+  border-radius:var(--rs);padding:2px 7px;text-decoration:none;white-space:nowrap}
+.upc-page:hover{background:var(--pb);color:#fff;border-color:var(--pb)}
+.upc-page.none{color:var(--g400);background:transparent;border-color:var(--g100);
+  font-weight:500;cursor:default}
 .unit-price-note{font-size:10px;color:var(--g500);margin-top:8px;
   padding:6px 10px;background:rgba(255,255,255,.7);border-radius:var(--rs)}
 

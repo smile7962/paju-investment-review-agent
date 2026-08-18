@@ -117,6 +117,27 @@ var PERIOD12_ITEMS = [
   ['pp_closeout','준공·개관 준비',2,'준공검사·이전·개관','사업부서']
 ];
 
+// ── SOURCE_DOCS ──
+/* 앱이 근거로 삼는 원문 자료. 링크는 앱에 내장한 사본을 우선 사용하고,
+   발행처 원본 URL은 origin 에 둔다(내부망에서 외부 링크가 막히는 경우 대비). */
+var SOURCE_DOCS = {
+  seoul2024: {
+    title : '공공건축물 건립 공사비 책정 가이드라인',
+    issuer: '서울특별시 기술심사담당관',
+    year  : 2024,
+    pages : 32,
+    local : 'docs/seoul-cost-guideline-2024.pdf',
+    origin: ''   /* 발행처 원본 URL 확인 후 기입 */
+  }
+};
+
+/* 원문 PDF 딥링크. page 를 주면 브라우저 PDF 뷰어가 해당 쪽으로 바로 이동한다. */
+function srcHref(key, page) {
+  var d = SOURCE_DOCS[key];
+  if (!d) return '#';
+  return d.local + (page ? '#page=' + page : '');
+}
+
 // ── UNIT_PRICE_DB ──
 var UNIT_PRICE_DB = {
   /* ══════════════════════════════════════════════════════
@@ -130,35 +151,39 @@ var UNIT_PRICE_DB = {
   office: [
     {sub:'동청사·행정복지센터',
      name:'행정복지센터 소형 (1,500㎡ 이하)',
-     price:4179, range:'1,500㎡ 이하 신축',
+     price:4179, page:7, range:'1,500㎡ 이하 신축',
      note:'서울시 가이드라인 동청사(자치회관) 1,500㎡ 미만 평균', selected:true},
     {sub:'동청사·행정복지센터',
      name:'행정복지센터 중형 (1,500~2,000㎡)',
-     price:4067, range:'1,500~2,000㎡ 신축',
+     price:4067, page:7, range:'1,500~2,000㎡ 신축',
      note:'서울시 가이드라인 동청사(자치회관) 1,500~2,000㎡'},
     {sub:'동청사·행정복지센터',
      name:'행정복지센터 대형 (2,000㎡ 초과)',
-     price:3974, range:'2,000㎡ 초과 신축',
+     price:3974, page:7, range:'2,000㎡ 초과 신축',
      note:'서울시 가이드라인 동청사(자치회관) 2,000㎡ 초과'},
     {sub:'복지지원센터',
      name:'복지지원센터·주민센터 (5,000㎡ 미만)',
-     price:4417, range:'5,000㎡ 미만 신축',
+     price:4417, page:7, range:'5,000㎡ 미만 신축',
      note:'서울시 가이드라인 복지지원센터 5,000㎡ 미만'},
     {sub:'복지지원센터',
      name:'복지지원센터·주민센터 (5,000㎡ 이상)',
-     price:4243, range:'5,000~15,000㎡ 신축',
+     price:4243, page:7, range:'5,000~15,000㎡ 신축',
      note:'서울시 가이드라인 복지지원센터 5,000~15,000㎡'},
     {sub:'복합청사·대형청사',
-     name:'복합청사·대형청사 (4,000㎡ 미만)',
-     price:3883, range:'3,000~4,000㎡ 신축',
+     name:'복합청사·대형청사 (3,000㎡ 미만)',
+     price:4019, page:7, range:'3,000㎡ 미만 신축',
+     note:'서울시 가이드라인 복합청사(대형청사) 3,000㎡ 미만'},
+    {sub:'복합청사·대형청사',
+     name:'복합청사·대형청사 (3,000~4,000㎡)',
+     price:3883, page:7, range:'3,000~4,000㎡ 신축',
      note:'서울시 가이드라인 복합청사(대형청사) 3,000~4,000㎡'},
     {sub:'복합청사·대형청사',
      name:'복합청사·대형청사 (4,000~10,000㎡)',
-     price:3835, range:'4,000~10,000㎡ 신축',
+     price:3835, page:7, range:'4,000~10,000㎡ 신축',
      note:'서울시 가이드라인 복합청사(대형청사) 4,000~10,000㎡'},
     {sub:'공공업무사무소',
      name:'공공업무사무소 (1,500~5,000㎡)',
-     price:4161, range:'1,500~5,000㎡ 신축',
+     price:4161, page:6, range:'1,500~5,000㎡ 신축',
      note:'서울시 가이드라인 공공업무사무소 평균 4,175'},
   ],
 
@@ -166,43 +191,43 @@ var UNIT_PRICE_DB = {
   culture: [
     {sub:'체육관·체육센터',
      name:'국민체육센터 (3,500㎡ 미만)',
-     price:4352, range:'3,500㎡ 미만 신축',
+     price:4352, page:14, range:'3,500㎡ 미만 신축',
      note:'서울시 가이드라인 체육관(체육센터) 3,500㎡ 미만', selected:true},
     {sub:'체육관·체육센터',
      name:'국민체육센터 (3,500~5,000㎡)',
-     price:4313, range:'3,500~5,000㎡ 신축',
+     price:4313, page:14, range:'3,500~5,000㎡ 신축',
      note:'서울시 가이드라인 체육관(체육센터) 3,500~5,000㎡'},
     {sub:'체육관·체육센터',
      name:'국민체육센터 (5,000~10,000㎡)',
-     price:4222, range:'5,000~10,000㎡ 신축',
+     price:4222, page:14, range:'5,000~10,000㎡ 신축',
      note:'서울시 가이드라인 체육관(체육센터) 5,000~10,000㎡'},
     {sub:'체육관·체육센터',
      name:'국민체육센터 (10,000㎡ 초과)',
-     price:4127, range:'10,000㎡ 초과 신축',
+     price:4127, page:14, range:'10,000㎡ 초과 신축',
      note:'서울시 가이드라인 체육관(체육센터) 10,000㎡ 초과'},
     {sub:'문화·집회시설',
      name:'문화예술회관·문화집회시설 (3,000㎡ 미만)',
-     price:5084, range:'3,000㎡ 미만 신축',
+     price:5084, page:8, range:'3,000㎡ 미만 신축',
      note:'서울시 가이드라인 문화예술회관 3,000㎡ 미만'},
     {sub:'문화·집회시설',
      name:'문화예술회관·문화집회시설 (4,000~10,000㎡)',
-     price:4916, range:'4,000~10,000㎡ 신축',
+     price:4916, page:8, range:'4,000~10,000㎡ 신축',
      note:'서울시 가이드라인 문화예술회관 4,000~10,000㎡'},
     {sub:'전시·박물관',
      name:'전시·박물관 (5,000~10,000㎡)',
-     price:4643, range:'5,000~10,000㎡ 신축',
+     price:4643, page:8, range:'5,000~10,000㎡ 신축',
      note:'서울시 가이드라인 전시·박물관 5,000~10,000㎡'},
     {sub:'도서관',
      name:'공공도서관 (2,000~6,000㎡)',
-     price:4354, range:'2,000~6,000㎡ 신축',
+     price:4354, page:12, range:'2,000~6,000㎡ 신축',
      note:'서울시 가이드라인 도서관 2,000~6,000㎡'},
     {sub:'도서관',
      name:'공공도서관 (6,000㎡ 초과)',
-     price:4230, range:'6,000㎡ 초과 신축',
+     price:4230, page:12, range:'6,000㎡ 초과 신축',
      note:'서울시 가이드라인 도서관 6,000㎡ 초과'},
     {sub:'청소년시설',
      name:'청소년·문화수련시설 (2,000~6,000㎡)',
-     price:3860, range:'2,000~6,000㎡ 신축',
+     price:3860, page:14, range:'2,000~6,000㎡ 신축',
      note:'서울시 가이드라인 청소년·문화수련시설 2,000~6,000㎡'},
   ],
 
@@ -230,39 +255,39 @@ var UNIT_PRICE_DB = {
   general: [
     {sub:'사회복지관',
      name:'종합사회복지관 (1,000~3,000㎡)',
-     price:4298, range:'1,000~3,000㎡ 신축',
+     price:4298, page:9, range:'1,000~3,000㎡ 신축',
      note:'서울시 가이드라인 종합사회복지관 1,000~3,000㎡', selected:true},
     {sub:'사회복지관',
      name:'종합사회복지관 (3,000~5,000㎡)',
-     price:4188, range:'3,000~5,000㎡ 신축',
+     price:4188, page:9, range:'3,000~5,000㎡ 신축',
      note:'서울시 가이드라인 종합사회복지관 3,000~5,000㎡'},
     {sub:'사회복지관',
      name:'장애인복지관 (1,000~3,000㎡)',
-     price:3947, range:'1,000~3,000㎡ 신축',
+     price:3947, page:9, range:'1,000~3,000㎡ 신축',
      note:'서울시 가이드라인 장애인복지관 1,000~3,000㎡'},
     {sub:'노인복지시설',
      name:'노인복지센터 (1,000~3,000㎡)',
-     price:4477, range:'1,000~3,000㎡ 신축',
+     price:4477, page:9, range:'1,000~3,000㎡ 신축',
      note:'서울시 가이드라인 노인복지센터 1,000~3,000㎡'},
     {sub:'노인복지시설',
      name:'노인요양시설 (2,000~5,000㎡)',
-     price:4157, range:'2,000~5,000㎡ 신축',
+     price:4157, page:10, range:'2,000~5,000㎡ 신축',
      note:'서울시 가이드라인 노인요양 2,000~5,000㎡'},
     {sub:'보건·의료',
      name:'보건소 (2,000~3,000㎡)',
-     price:3815, range:'2,000~3,000㎡ 신축',
+     price:3815, page:11, range:'2,000~3,000㎡ 신축',
      note:'서울시 가이드라인 보건소 2,000~3,000㎡'},
     {sub:'노유자시설',
      name:'어린이집·보육시설 (500~800㎡)',
-     price:4902, range:'500~800㎡ 신축',
+     price:4902, page:13, range:'500~800㎡ 신축',
      note:'서울시 가이드라인 어린이집 500~800㎡'},
     {sub:'노유자시설',
      name:'어린이집·보육시설 (1,000㎡ 초과)',
-     price:4615, range:'1,000㎡ 초과 신축',
+     price:4615, page:13, range:'1,000㎡ 초과 신축',
      note:'서울시 가이드라인 어린이집 1,000㎡ 초과'},
     {sub:'노유자시설',
      name:'주민공동이용시설 (400㎡ 초과)',
-     price:4365, range:'400㎡ 초과 신축',
+     price:4365, page:13, range:'400㎡ 초과 신축',
      note:'서울시 가이드라인 주민공동이용시설'},
   ],
 
@@ -270,11 +295,11 @@ var UNIT_PRICE_DB = {
   promo: [
     {sub:'전시·홍보시설',
      name:'홍보관·전시관 (3,000~5,000㎡)',
-     price:4712, range:'3,000~5,000㎡ 신축',
+     price:4712, page:8, range:'3,000~5,000㎡ 신축',
      note:'서울시 가이드라인 전시·박물관 3,000~5,000㎡', selected:true},
     {sub:'전시·홍보시설',
      name:'홍보관·전시관 소형 (3,000㎡ 미만)',
-     price:4880, range:'3,000㎡ 미만 신축',
+     price:4880, page:8, range:'3,000㎡ 미만 신축',
      note:'서울시 가이드라인 전시·박물관 3,000㎡ 미만'},
   ],
 }
@@ -405,7 +430,8 @@ function showUnitPriceBox(type) {
     for (var k = 0; k < fits.length; k++) { if (db[fits[k]].selected) { recIdx = fits[k]; break; } }
   }
 
-  var h = '<div class="unit-price-title">&#128200; 서울시 건축공사비 단가 (2024) — 클릭하면 자동 적용</div>';
+  var h = '<div class="unit-price-title">&#128200; 서울시 건축공사비 단가 (2024) — 클릭하면 자동 적용'
+        + '<a class="upc-doc" href="' + srcHref('seoul2024') + '" target="_blank" rel="noopener">&#128196; 근거자료 원문 보기</a></div>';
   if (recIdx >= 0) {
     h += '<div class="upc-reco-note">&#9989; '
       + unitAreaSourceText(det)
@@ -436,10 +462,21 @@ function showUnitPriceBox(type) {
         + (area * item.price / 100000).toFixed(1) + '억원</b></div>';
     }
     h += '<div style="font-size:9px;color:var(--g400);margin-top:2px">' + (item.note||'') + '</div>';
+    /* 근거 원문 바로가기 — 카드 클릭(단가 적용)과 겹치지 않게 전파를 막는다 */
+    if (item.page) {
+      h += '<a class="upc-page" href="' + srcHref('seoul2024', item.page) + '"'
+        + ' target="_blank" rel="noopener" onclick="event.stopPropagation()"'
+        + ' title="서울시 가이드라인 원문 ' + item.page + '쪽을 새 창에서 엽니다">'
+        + '&#128196; 원문 p.' + item.page + ' 보기</a>';
+    } else {
+      h += '<span class="upc-page none">가이드라인 단가를 조합한 산출값</span>';
+    }
     h += '</div>';
   });
   h += '</div>';
-  h += '<div class="upc-source">출처: 서울시 공공건축물 건립 공사비 책정 가이드라인(2024, 기술심사담당관) | 부가세 포함·신축 기준 | 지하층 포함 시 상향 적용</div>';
+  h += '<div class="upc-source">출처: <a href="' + srcHref('seoul2024') + '" target="_blank" rel="noopener">'
+     + SOURCE_DOCS.seoul2024.issuer + ', 「' + SOURCE_DOCS.seoul2024.title + '」('
+     + SOURCE_DOCS.seoul2024.year + ')</a> | 부가세 포함·신축 기준 | 지하층 포함 시 상향 적용</div>';
   h += '<div class="unit-price-note">&#9432; 위 단가는 지상층 기준 평균값입니다. 지하주차장 포함 시 15~20% 상향, 특수시설(수영장·대형체육관 등) 포함 시 별도 검토하세요.</div>';
   box.innerHTML = h;
   box.className = 'unit-price-box show';
