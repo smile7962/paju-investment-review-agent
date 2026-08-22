@@ -783,6 +783,95 @@ function syncFloorAreaField() {
   renderAreaHint();
 }
 
+/* ── 건축 용도 인식 ──────────────────────────────────────────
+   연면적만으로는 어떤 시설인지 알 수 없다. 예를 들어 4,000㎡ 는
+   체육센터·문화예술회관·도서관·청소년수련시설 구간에 모두 걸린다.
+   사업명과 기획 내용에서 시설 종류를 읽어, 용도와 규모가 함께 맞는
+   단가를 추천한다. 인식되지 않으면 종전처럼 규모만으로 추천한다. */
+var UNIT_FACILITY_KEYWORDS = [
+  /* [키워드, name 접두어] — 긴 키워드가 먼저 걸리도록 아래에서 정렬한다 */
+  ['행정복지센터','행정복지센터'], ['동청사','행정복지센터'], ['자치회관','행정복지센터'],
+  ['주민자치센터','행정복지센터'],
+  ['복지지원센터','복지지원센터·주민센터'], ['주민센터','복지지원센터·주민센터'],
+  ['복합청사','복합청사·대형청사'], ['대형청사','복합청사·대형청사'],
+  ['공공업무사무소','공공업무사무소'], ['업무사무소','공공업무사무소'],
+  ['119안전센터','119안전센터'], ['안전센터','119안전센터'], ['119','119안전센터'],
+  ['소방서','소방서'], ['소방','소방서'],
+  ['의회청사','의회청사'], ['의회','의회청사'],
+
+  ['국민체육센터','국민체육센터'], ['생활체육관','국민체육센터'],
+  ['체육센터','국민체육센터'], ['체육관','국민체육센터'],
+  ['배드민턴','배드민턴장'],
+  ['문화예술회관','문화예술회관·문화집회시설'], ['예술회관','문화예술회관·문화집회시설'],
+  ['문화회관','문화예술회관·문화집회시설'], ['아트센터','문화예술회관·문화집회시설'],
+  ['공연장','문화예술회관·문화집회시설'],
+  ['박물관','전시·박물관'], ['미술관','전시·박물관'], ['전시관','전시·박물관'],
+  ['도서관','공공도서관'], ['작은도서관','공공도서관'],
+  ['청소년수련관','청소년·문화수련시설'], ['수련관','청소년·문화수련시설'],
+  ['청소년','청소년·문화수련시설'],
+
+  ['종합사회복지관','종합사회복지관'], ['사회복지관','종합사회복지관'],
+  ['장애인복지관','장애인복지관'],
+  ['노인복지관','노인복지센터'], ['노인복지센터','노인복지센터'],
+  ['노인요양','노인요양시설'], ['요양원','노인요양시설'], ['요양시설','노인요양시설'],
+  ['경로당','경로당·노인정'], ['노인정','경로당·노인정'],
+  ['자활작업장','장애인·노인 자활작업장'], ['자활','장애인·노인 자활작업장'],
+  ['보건지소','보건소'], ['보건소','보건소'],
+  ['산모건강증진','산모건강증진센터'], ['산후조리','산모건강증진센터'], ['산모','산모건강증진센터'],
+  ['의료원','병원'], ['병원','병원'],
+  ['교육센터','대학교·교육센터'], ['대학교','대학교·교육센터'],
+  ['연구시설','연구시설'], ['연구소','연구시설'],
+  ['어린이집','어린이집·보육시설'], ['보육시설','어린이집·보육시설'],
+  ['키즈센터','육아·보육·키즈센터'], ['육아종합','육아·보육·키즈센터'],
+  ['주민공동이용','주민공동이용시설'], ['마을회관','주민공동이용시설'],
+  ['공중화장실','공중화장실'], ['화장실','공중화장실'],
+  ['환승센터','환승센터·주차장 전용'],
+  ['자재보관창고','자재보관창고·차량정비고'], ['차량정비고','자재보관창고·차량정비고'],
+  ['공영주차장','공영주차장'], ['주차장','공영주차장'],
+  ['폐기물','폐기물 중간처리시설'],
+  ['제로에너지','친환경 전용건축'], ['에너지제로','친환경 전용건축'],
+
+  ['홍보관','홍보관·전시관']
+].sort(function(a,b){ return b[0].length - a[0].length; });
+
+/* 단가 추천에 쓸 사업 설명 텍스트 — 사업명이 우선, 없으면 기획 내용 */
+function unitFacilityText() {
+  var t = '';
+  var n = document.getElementById('f_name');
+  if (n && n.value) t += n.value + ' ';
+  var s = document.getElementById('p_scale');
+  if (s && s.value) t += s.value + ' ';
+  var g = document.getElementById('p_goal');
+  if (g && g.value) t += g.value + ' ';
+  return t;
+}
+
+/* 텍스트에서 시설 종류를 찾아 name 접두어를 돌려준다 */
+function detectFacility(text) {
+  var s = String(text || '').replace(/\s+/g, '');
+  if (!s) return null;
+  for (var i = 0; i < UNIT_FACILITY_KEYWORDS.length; i++) {
+    if (s.indexOf(UNIT_FACILITY_KEYWORDS[i][0]) >= 0) {
+      return { kw: UNIT_FACILITY_KEYWORDS[i][0], prefix: UNIT_FACILITY_KEYWORDS[i][1] };
+    }
+  }
+  return null;
+}
+
+/* 인식한 시설이 어느 사업유형에 들어 있는지 — 유형이 어긋났을 때 안내한다 */
+function facilityTypeOf(prefix) {
+  var found = '';
+  Object.keys(UNIT_PRICE_DB).forEach(function(t){
+    if (found) return;
+    if (UNIT_PRICE_DB[t].some(function(it){ return it.name.indexOf(prefix) === 0; })) found = t;
+  });
+  return found;
+}
+var UNIT_TYPE_LABEL = {
+  office:'청사 신축사업', culture:'문화·체육시설 신축사업',
+  complex:'복합시설', general:'일반투자사업', promo:'홍보관 사업'
+};
+
 /* 담당자가 카드를 직접 고르면 true — 이후 추천이 그 선택을 덮지 않는다 */
 window._unitManual = false;
 var _unitBoxRendering = false;
@@ -829,12 +918,33 @@ function showUnitPriceBox(type) {
   var det = unitRecommendArea();
   var area = det.area;
 
-  /* 연면적이 속하는 구간 판별 */
+  /* 건축 용도 인식 — 사업명·기획 내용에서 시설 종류를 읽는다 */
+  var fac = detectFacility(unitFacilityText());
+  var facIdx = [];
+  if (fac) {
+    db.forEach(function(item, i){
+      if (item.name.indexOf(fac.prefix) === 0) facIdx.push(i);
+    });
+  }
+  /* 인식한 시설이 이 사업유형에 없으면(예: 도서관인데 청사 유형) 안내만 하고
+     규모 기준 추천으로 되돌린다 */
+  var facOtherType = '';
+  if (fac && facIdx.length === 0) {
+    var t2 = facilityTypeOf(fac.prefix);
+    if (t2 && t2 !== type) facOtherType = t2;
+  }
+  var pool = facIdx.length ? facIdx : db.map(function(_, i){ return i; });
+
+  /* 용도 안에서 연면적이 속하는 구간 판별 */
   var fits = [];
-  db.forEach(function(item, i){
-    var band = parseUnitBand(item.range);
+  pool.forEach(function(i){
+    var band = parseUnitBand(db[i].range);
     if (band && area > 0 && area >= band.min && area <= band.max) fits.push(i);
   });
+  /* 용도는 맞는데 규모 구간이 없으면 그 용도의 첫 구간이라도 알려준다 */
+  var facBandMiss = false;
+  if (!fits.length && facIdx.length && area > 0) { fits = [facIdx[0]]; facBandMiss = true; }
+
   /* 추천 1건 — 여러 구간이 겹치면 대표(기본 선택) 소분류를 우선 */
   var recIdx = -1;
   if (fits.length) {
@@ -846,17 +956,35 @@ function showUnitPriceBox(type) {
         + '<button type="button" class="upc-allbtn" onclick="toggleUnitAllGroups(this)">모두 펼치기</button>'
         + '<a class="upc-doc" href="' + srcHref('seoul2024') + '" target="_blank" rel="noopener">&#128196; 근거자료 원문 보기</a></div>';
   if (recIdx >= 0) {
-    h += '<div class="upc-reco-note">&#9989; '
-      + unitAreaSourceText(det)
-      + ' 연면적 <b>' + area.toLocaleString() + '㎡</b> 기준으로 <b>'
-      + db[recIdx].name + '</b> 구간을 추천합니다.'
-      + ' <span>다른 단가를 쓰려면 원하는 카드를 누르세요.</span></div>';
+    h += '<div class="upc-reco-note">&#9989; ';
+    if (fac && facIdx.length) {
+      /* 용도 + 규모로 좁힌 경우 — 무엇을 보고 골랐는지 밝힌다 */
+      h += '사업명에서 <b>「' + esc(fac.kw) + '」</b>을(를) 확인해 '
+        + unitAreaSourceText(det) + ' 연면적 <b>' + area.toLocaleString() + '㎡</b> 기준으로 <b>'
+        + db[recIdx].name + '</b> 구간을 추천합니다.';
+      if (facBandMiss) h += ' <span>연면적에 딱 맞는 구간이 없어 해당 용도의 첫 구간을 표시했습니다.</span>';
+      else h += ' <span>다른 단가를 쓰려면 원하는 카드를 누르세요.</span>';
+    } else {
+      h += unitAreaSourceText(det)
+        + ' 연면적 <b>' + area.toLocaleString() + '㎡</b> 기준으로 <b>'
+        + db[recIdx].name + '</b> 구간을 추천합니다.'
+        + ' <span>사업명에 시설 종류를 적으면(예: ○○도서관) 용도에 맞는 단가를 추천합니다.</span>';
+    }
+    h += '</div>';
   } else if (area > 0) {
     h += '<div class="upc-reco-note none">&#9432; 연면적 <b>' + area.toLocaleString() + '㎡</b>에 딱 맞는 규모 구간이 없어 기본 단가를 적용했습니다.'
       + ' <span>사업 성격에 맞는 카드를 직접 선택하세요.</span></div>';
   } else {
     h += '<div class="upc-reco-note none">&#9432; 연면적이 확인되지 않았습니다. ① 사업 기획의 <b>대상·규모</b>나 ⑤ 사업비 계산기의 <b>연면적</b>을 입력하면 규모 구간에 맞는 단가를 추천합니다.</div>';
   }
+  /* 사업명의 시설이 다른 사업유형에 있으면 — 추천은 규모 기준으로 하되 함께 알린다 */
+  if (facOtherType) {
+    h += '<div class="upc-typemiss">&#9888; 사업명의 <b>「' + esc(fac.kw)
+      + '」</b>은(는) 현재 사업유형의 단가표에 없습니다. 사업유형을 <b>「'
+      + esc(UNIT_TYPE_LABEL[facOtherType] || facOtherType)
+      + '」</b>으로 바꾸면 해당 시설 단가를 추천합니다.</div>';
+  }
+
   /* 소분류(sub)별로 묶어 접기/펼치기 — 유형에 따라 카드가 70개를 넘어
      한눈에 안 들어오므로, 추천이 들어 있는 묶음만 펼쳐서 보여준다 */
   var groups = [], gmap = {};
@@ -935,6 +1063,17 @@ function showUnitPriceBox(type) {
     }
   }
   box.dataset.area = area;
+  box.dataset.fac = fac ? fac.prefix : '';
+}
+
+/* 사업명을 고치면 용도 인식이 달라지므로 단가 카드를 다시 판단한다.
+   담당자가 직접 고른 단가가 있으면 그 선택은 건드리지 않는다. */
+var _facTimer = null;
+function onProjectNameInput() {
+  if (_facTimer) clearTimeout(_facTimer);
+  _facTimer = setTimeout(function(){
+    if (typeof refreshUnitPriceBox === 'function') refreshUnitPriceBox();
+  }, 250);
 }
 
 /* 연면적이 바뀌어 규모 구간이 달라졌을 때만 카드를 다시 그린다 */
@@ -945,8 +1084,12 @@ function refreshUnitPriceBox() {
   var el = document.getElementById('f_type');
   var type = el ? el.value : '';
   if (!type || !UNIT_PRICE_DB[type]) return;
+  /* 연면적뿐 아니라 인식된 용도가 바뀌어도 다시 그린다 */
   var now = unitRecommendArea().area;
-  if (String(now) === String(box.dataset.area || '')) return;
+  var f = detectFacility(unitFacilityText());
+  var nowFac = f ? f.prefix : '';
+  if (String(now) === String(box.dataset.area || '')
+   && nowFac === String(box.dataset.fac || '')) return;
   showUnitPriceBox(type);
 }
 

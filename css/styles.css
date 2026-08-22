@@ -1355,6 +1355,10 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .upc-page:hover{background:var(--pb);color:#fff;border-color:var(--pb)}
 .upc-page.none{color:var(--g400);background:transparent;border-color:var(--g100);
   font-weight:500;cursor:default}
+.upc-typemiss{font-size:11px;line-height:1.6;color:#8A5A20;background:#FDF6EA;
+  border:1px solid rgba(169,118,43,.35);border-radius:var(--rs);
+  padding:7px 11px;margin-bottom:8px}
+.upc-typemiss b{font-weight:800}
 
 /* 소분류 접기/펼치기 */
 .upc-allbtn{margin-left:auto;font-size:10px;font-weight:700;color:var(--pb);
