@@ -272,7 +272,7 @@ function doReset(){
   window.gReserveFee=0; window.gParsedArea=0;
   window._lastArea=0; window._planArea=0; window._areaSrcLabel='';
   window._planName=''; window._planCost=0; window._planField='';
-  window._unitManual=false;
+  window._unitManual=false; window._unitPickKey=''; window._unitOpenSubs={};
   window._planCase=false; window._planCaseData=null;
   if(typeof clearChatTarget==='function') clearChatTarget();
   projectData={basic:{},finance:{},cost:{},period:{},review:{},economy:{},draft:{},ai:{},output:{}};
