@@ -1253,7 +1253,7 @@ function renderCalc(r) {
       h+='<div>'+it[1]+'</div>';
       h+='<input class="cost37-input" id="'+it[0]+'_basis" placeholder="'+it[2]+'" oninput="recalcCost()">';
       h+='<input type="number" class="cost37-input" id="'+it[0]+'_qty" placeholder="1" oninput="recalcCost()">';
-      h+='<input type="number" class="cost37-input" id="'+it[0]+'_unit" placeholder="억원" oninput="recalcCost()">';
+      h+='<input type="number" class="cost37-input" id="'+it[0]+'_unit" placeholder="억원" oninput="onC37UnitEdit(this)">';
       h+='<div class="cost37-amount" id="'+it[0]+'_amount">0.0억원</div>';
       h+='</div>';
     }
@@ -1287,6 +1287,8 @@ function renderCalc(r) {
   h+='</div>';
 
   boxEl.innerHTML = h;
+  /* 어느 산출 방식으로 그렸는지 남긴다 — 단계 이동 시 다시 그릴지 판단하는 근거 */
+  boxEl.dataset.calcMode = detail ? 'detail' : 'simple';
   if (typeof restoreAreaFromPlan === 'function') restoreAreaFromPlan();
   restoreUnitFromType();
   recalcCost();

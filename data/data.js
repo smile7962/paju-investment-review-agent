@@ -1139,12 +1139,116 @@ function applyCalcModeVis(){
   var uw=document.getElementById('ci_unit_wrap'); if(uw) uw.style.display=detail?'none':'';
   var ub=document.getElementById('unit-price-box'); if(ub) ub.style.display=detail?'none':'';
   if(detail){ var un=document.getElementById('unit-applied-note'); if(un) un.style.display='none'; }
+  renderDetailModeNote();
+}
+/* 세부 산출을 고르면 ② 에서 단가 카드·단위 공사비·약식 산출 결과가 한꺼번에 사라진다.
+   빈자리에 '어디서 입력하는지'와 진행 현황을 남겨, 입력할 곳이 없는 것처럼 보이지 않게 한다.
+   현황을 함께 보여주면 ⑤ 로 건너가지 않아도 37항목 합계와 총사업비의 차이를 알 수 있다. */
+function renderDetailModeNote(){
+  var box=document.getElementById('detail-mode-note');
+  if(!box) return;
+  if(getCalcMode()!=='detail'){ box.className='detail-note'; box.innerHTML=''; return; }
+
+  /* 값이 있는 항목과, 그중 약식이 자동으로 채워 둔 항목을 나눠 센다.
+     세부로 바꿔도 약식이 남긴 자동값은 그대로 남아 있어, 이를 담당자가
+     입력한 값처럼 표시하면 합계의 출처를 오해하게 된다. */
+  var filled=0, auto=0;
+  if(typeof COST37_GROUPS!=='undefined' && typeof c37Val==='function'){
+    COST37_GROUPS.forEach(function(g){
+      g.items.forEach(function(it){
+        if(c37Val(it[0])<=0) return;
+        filled++;
+        var u=document.getElementById(it[0]+'_unit');
+        if(u && u.getAttribute('data-auto')==='1') auto++;
+      });
+    });
+  }
+  var sum=(typeof window.gCalcTotal==='number')?window.gCalcTotal:0;
+  var cost=(typeof gnv==='function')?(gnv('f_cost')||0):0;
+
+  var h='<div class="dn-hd">&#128203; 세부 산출 모드</div>'
+    + '<div class="dn-line">37항목 산출내역은 <b>⑤ 사업비·기간</b> 단계에서 입력합니다.'
+    + ' 서울시 단가 약식 산출과 용역비 자동 채움은 적용되지 않습니다.</div>';
+
+  if(filled>0){
+    h+='<div class="dn-stat">37항목 중 <b>'+filled+'개</b>에 값이 있음 &middot; 합계 <b>'
+      +sum.toFixed(1)+'억원</b></div>';
+    if(auto>0){
+      h+='<div class="dn-note warn">&#9888; 이 중 <b>'+auto
+        +'개</b>는 약식 산출이 남긴 자동값입니다. 설계&middot;견적 자료로 덮어쓰세요.</div>';
+    }
+    if(cost>0){
+      var diff=Math.abs(sum-cost);
+      h+=(diff>=0.5)
+        ? '<div class="dn-note warn">&#9888; 현재 총사업비 '+cost.toFixed(1)+'억원과 '
+          +diff.toFixed(1)+'억원 차이가 있습니다. 산출을 마친 뒤 ⑤ 사업비·기간에서 반영하세요.</div>'
+        : '<div class="dn-note ok">&#9989; 현재 총사업비와 일치합니다.</div>';
+    }
+  } else {
+    h+='<div class="dn-stat none">아직 입력된 항목이 없습니다.</div>';
+    if(cost>0){
+      h+='<div class="dn-note warn">&#9888; 총사업비 '+cost.toFixed(1)
+        +'억원은 약식 산출값입니다. 세부 입력 후 갱신하세요.</div>';
+    }
+  }
+  h+='<div class="dn-foot"><button type="button" class="dn-btn" onclick="goToStepKey(\'calc\')">'
+    +'⑤ 사업비·기간으로 이동 &rarr;</button></div>';
+  box.innerHTML=h;
+  box.className='detail-note show';
+}
+/* 계산기는 산출 방식이 바뀌면 화면 구성이 통째로 달라져 다시 그려야 한다.
+   그런데 renderCalc 는 연면적·단가만 복원하고 37항목·보상비 등은 빈 칸으로 새로 만든다.
+   담당자가 넣어 둔 값이 사라지지 않도록, 다시 그리기 전에 담아 두었다가 되돌린다. */
+function snapshotCalcInputs(){
+  var box=document.getElementById('calc-box');
+  if(!box) return null;
+  var snap={}, els=box.querySelectorAll('input[id],select[id],textarea[id]');
+  for(var i=0;i<els.length;i++){
+    var el=els[i];
+    snap[el.id]={
+      val:(el.type==='checkbox'||el.type==='radio')?el.checked:el.value,
+      /* 자동 채움 표식까지 같이 담는다. 이걸 빠뜨리면, 다시 그리는 동안 새로 찍힌
+         data-auto 때문에 담당자가 직접 넣은 값이 자동 산출값으로 덮인다. */
+      auto:el.getAttribute('data-auto')
+    };
+  }
+  return snap;
+}
+function restoreCalcInputs(snap){
+  if(!snap) return;
+  for(var id in snap){
+    if(!Object.prototype.hasOwnProperty.call(snap,id)) continue;
+    var el=document.getElementById(id), rec=snap[id];
+    if(!el) continue;
+    if(el.type==='checkbox'||el.type==='radio') el.checked=rec.val;
+    /* 빈 값으로 덮어쓰지 않는다 — renderCalc 가 방금 복원한 연면적·단가를 지우게 된다 */
+    else if(rec.val!=='' && rec.val!=null) el.value=rec.val;
+    if(rec.auto==null) el.removeAttribute('data-auto');
+    else el.setAttribute('data-auto',rec.auto);
+  }
+}
+/* 현재 산출 방식에 맞게 계산기를 다시 그린다.
+   판단 실행 전에는 gResult 가 없으므로 기본정보 입력값으로 대신한다.
+   (gResult 가 있을 때만 그리면 ⑤ 단계가 약식 화면에 머물러
+    세부 산출을 골라도 37항목 입력칸을 열 수 없다) */
+function rerenderCalcForMode(){
+  if(typeof renderCalc!=='function') return false;
+  var box=document.getElementById('calc-box');
+  if(!box) return false;
+  var r=(typeof gResult!=='undefined' && gResult) ? gResult : {
+    cost:(typeof gnv==='function')?gnv('f_cost'):0,
+    type:(typeof gv==='function')?(gv('f_type')||'general'):'general'
+  };
+  var snap=snapshotCalcInputs();
+  renderCalc(r);
+  restoreCalcInputs(snap);
+  if(typeof recalcCost==='function') recalcCost();
+  return true;
 }
 function onCalcModeChange(){
   applyCalcModeVis();
   if(typeof renderQuickCost==='function') renderQuickCost();
-  if(typeof gResult!=='undefined' && gResult && typeof renderCalc==='function') renderCalc(gResult);
-  else if(typeof recalcCost==='function') recalcCost();
+  if(!rerenderCalcForMode() && typeof recalcCost==='function') recalcCost();
 }
 function onTypeChange() {
   var type = document.getElementById('f_type') ?

@@ -1319,6 +1319,24 @@ body{font-family:'Pretendard GOV','Apple SD Gothic Neo','Noto Sans KR',sans-seri
 .fi[readonly]{background:var(--g50);}
 
 /* ── ② 약식 산출 결과 (연면적 × 단가 → 총사업비) ── */
+/* ② 세부 산출 안내 — 단가 카드가 사라진 자리를 채운다 */
+.detail-note{display:none;}
+.detail-note.show{display:block;margin-top:10px;padding:11px 14px;
+  background:#fff;border:1px solid var(--pb);border-radius:var(--rs);}
+.dn-hd{font-size:11px;font-weight:800;color:var(--pb);margin-bottom:6px;}
+.dn-line{font-size:11.5px;color:var(--g600);line-height:1.6;}
+.dn-line b{color:var(--g800);}
+.dn-stat{font-size:13px;font-weight:700;color:var(--g700);margin-top:6px;}
+.dn-stat b{font-size:15px;font-weight:900;color:var(--pb);}
+.dn-stat.none{font-size:11.5px;font-weight:600;color:var(--g400);}
+.dn-note{display:block;font-size:10.5px;margin-top:7px;line-height:1.55;}
+.dn-note.ok{color:var(--ok);font-weight:600;}
+.dn-note.warn{color:var(--po);font-weight:600;}
+.dn-foot{margin-top:9px;padding-top:8px;border-top:1px dashed var(--g200);}
+.dn-btn{font-size:10.5px;font-weight:700;color:#fff;background:var(--pb);
+  border:none;border-radius:4px;padding:5px 11px;cursor:pointer;}
+.dn-btn:hover{filter:brightness(1.08);}
+
 .quick-cost{display:none;}
 .quick-cost.show{display:block;margin-top:10px;padding:11px 14px;
   background:#fff;border:1px solid var(--pb);border-radius:var(--rs);}
