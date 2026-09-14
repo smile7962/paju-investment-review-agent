@@ -573,11 +573,18 @@ function goToStep(n, skipScroll) {
   /* 계산기 단계 진입 시 초기 렌더(구 switchRT의 'calc' 분기 이식) */
   if (target.key === 'calc') {
     var cb=v('calc-box'), emCb=v('empty-calc');
+    var curMode=(typeof getCalcMode==='function')?getCalcMode():'simple';
     if (cb && cb.innerHTML.trim()===''){
       if (emCb) emCb.style.display='none';
       cb.style.display='block';
       var fakeR=gResult||{cost:gnv('f_cost'), type:gv('f_type')||'general'};
       if (typeof renderCalc==='function') renderCalc(fakeR);
+    } else if (cb && cb.dataset.calcMode !== curMode){
+      /* 이미 그려져 있어도 산출 방식이 바뀌었으면 다시 그린다.
+         불러오기·자동저장 복원처럼 onCalcModeChange 를 거치지 않는 경로를 받아낸다. */
+      if (emCb) emCb.style.display='none';
+      cb.style.display='block';
+      if (typeof rerenderCalcForMode==='function') rerenderCalcForMode();
     }
     setTimeout(function(){
       var el=document.getElementById('ci_unit');

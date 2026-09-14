@@ -1140,11 +1140,59 @@ function applyCalcModeVis(){
   var ub=document.getElementById('unit-price-box'); if(ub) ub.style.display=detail?'none':'';
   if(detail){ var un=document.getElementById('unit-applied-note'); if(un) un.style.display='none'; }
 }
+/* 계산기는 산출 방식이 바뀌면 화면 구성이 통째로 달라져 다시 그려야 한다.
+   그런데 renderCalc 는 연면적·단가만 복원하고 37항목·보상비 등은 빈 칸으로 새로 만든다.
+   담당자가 넣어 둔 값이 사라지지 않도록, 다시 그리기 전에 담아 두었다가 되돌린다. */
+function snapshotCalcInputs(){
+  var box=document.getElementById('calc-box');
+  if(!box) return null;
+  var snap={}, els=box.querySelectorAll('input[id],select[id],textarea[id]');
+  for(var i=0;i<els.length;i++){
+    var el=els[i];
+    snap[el.id]={
+      val:(el.type==='checkbox'||el.type==='radio')?el.checked:el.value,
+      /* 자동 채움 표식까지 같이 담는다. 이걸 빠뜨리면, 다시 그리는 동안 새로 찍힌
+         data-auto 때문에 담당자가 직접 넣은 값이 자동 산출값으로 덮인다. */
+      auto:el.getAttribute('data-auto')
+    };
+  }
+  return snap;
+}
+function restoreCalcInputs(snap){
+  if(!snap) return;
+  for(var id in snap){
+    if(!Object.prototype.hasOwnProperty.call(snap,id)) continue;
+    var el=document.getElementById(id), rec=snap[id];
+    if(!el) continue;
+    if(el.type==='checkbox'||el.type==='radio') el.checked=rec.val;
+    /* 빈 값으로 덮어쓰지 않는다 — renderCalc 가 방금 복원한 연면적·단가를 지우게 된다 */
+    else if(rec.val!=='' && rec.val!=null) el.value=rec.val;
+    if(rec.auto==null) el.removeAttribute('data-auto');
+    else el.setAttribute('data-auto',rec.auto);
+  }
+}
+/* 현재 산출 방식에 맞게 계산기를 다시 그린다.
+   판단 실행 전에는 gResult 가 없으므로 기본정보 입력값으로 대신한다.
+   (gResult 가 있을 때만 그리면 ⑤ 단계가 약식 화면에 머물러
+    세부 산출을 골라도 37항목 입력칸을 열 수 없다) */
+function rerenderCalcForMode(){
+  if(typeof renderCalc!=='function') return false;
+  var box=document.getElementById('calc-box');
+  if(!box) return false;
+  var r=(typeof gResult!=='undefined' && gResult) ? gResult : {
+    cost:(typeof gnv==='function')?gnv('f_cost'):0,
+    type:(typeof gv==='function')?(gv('f_type')||'general'):'general'
+  };
+  var snap=snapshotCalcInputs();
+  renderCalc(r);
+  restoreCalcInputs(snap);
+  if(typeof recalcCost==='function') recalcCost();
+  return true;
+}
 function onCalcModeChange(){
   applyCalcModeVis();
   if(typeof renderQuickCost==='function') renderQuickCost();
-  if(typeof gResult!=='undefined' && gResult && typeof renderCalc==='function') renderCalc(gResult);
-  else if(typeof recalcCost==='function') recalcCost();
+  if(!rerenderCalcForMode() && typeof recalcCost==='function') recalcCost();
 }
 function onTypeChange() {
   var type = document.getElementById('f_type') ?

@@ -1287,6 +1287,8 @@ function renderCalc(r) {
   h+='</div>';
 
   boxEl.innerHTML = h;
+  /* 어느 산출 방식으로 그렸는지 남긴다 — 단계 이동 시 다시 그릴지 판단하는 근거 */
+  boxEl.dataset.calcMode = detail ? 'detail' : 'simple';
   if (typeof restoreAreaFromPlan === 'function') restoreAreaFromPlan();
   restoreUnitFromType();
   recalcCost();
