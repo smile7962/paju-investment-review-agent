@@ -1253,7 +1253,7 @@ function renderCalc(r) {
       h+='<div>'+it[1]+'</div>';
       h+='<input class="cost37-input" id="'+it[0]+'_basis" placeholder="'+it[2]+'" oninput="recalcCost()">';
       h+='<input type="number" class="cost37-input" id="'+it[0]+'_qty" placeholder="1" oninput="recalcCost()">';
-      h+='<input type="number" class="cost37-input" id="'+it[0]+'_unit" placeholder="억원" oninput="recalcCost()">';
+      h+='<input type="number" class="cost37-input" id="'+it[0]+'_unit" placeholder="억원" oninput="onC37UnitEdit(this)">';
       h+='<div class="cost37-amount" id="'+it[0]+'_amount">0.0억원</div>';
       h+='</div>';
     }

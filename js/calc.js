@@ -81,6 +81,8 @@ function recalcCost() {
   h+='</div>';
   var ra=v('calc-result-area'); if(ra) ra.innerHTML=h;
   gCalcTotal=totalCalc;
+  /* ② 기본정보의 세부 산출 안내에 진행 현황을 반영한다 */
+  if(typeof renderDetailModeNote==='function') renderDetailModeNote();
   /* 구성 비율 막대용 전역 보존 — collectProjectData()가 projectData.cost를
      슬림 객체로 덮어써 groupTotals가 사라지므로 별도 전역에 저장한다. */
   window.gGroupTotals=groupTotals;
@@ -520,6 +522,13 @@ function applyCostFromCalc(val) {
   if(el){ el.value = val; el.style.background='#e8f5e9'; setTimeout(function(){el.style.background='';},1000); }
   v('cost-diff-warn') && (v('cost-diff-warn').style.display='none');
   if(typeof updateSummary==='function') updateSummary();   /* 전액 자체재원이면 시비 동기화 */
+}
+/* 담당자가 단가를 직접 고치면 자동 채움 표식을 지운다.
+   표식이 남아 있으면 다음 recalcCost 가 자동 산출값으로 되돌려 놓아,
+   약식 모드에서는 건축공사비를 손으로 고칠 수 없었다. */
+function onC37UnitEdit(el){
+  if(el) el.removeAttribute('data-auto');
+  if(typeof recalcCost==='function') recalcCost();
 }
 function c37Val(id){
   var qtyEl=v(id+'_qty'), unitEl=v(id+'_unit');
