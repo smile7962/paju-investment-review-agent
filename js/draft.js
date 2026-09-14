@@ -364,6 +364,21 @@ function buildTaskPrompt(r) {
 
   return t;
 }
+/* ① 기획 단계 본문을 화면에서 읽는다.
+   ①의 본문은 자동저장에 담기지 않으므로 새로고침 후 복원한 경우에는 비어 있다.
+   계산기·사업기간·경제성 결과를 화면에서 읽어 쓰는 기존 방식과 같은 구조다.
+   ① 단계 패널은 다른 단계를 보는 동안 display:none 이 된다. innerText 는 렌더링
+   상태에 따라 결과가 달라지므로(숨겨져 있으면 textContent 로 폴백, 보이면 줄바꿈·
+   대소문자 변환이 적용됨), 어느 단계에서 호출하든 같은 값을 얻도록 textContent 를 쓴다. */
+function planSectionText(num, limit) {
+  var el = document.querySelector('#plan-doc #sec-' + num + '_content');
+  if (!el) return '';
+  var t = (el.textContent || '').replace(/\s+/g, ' ').trim();
+  if (!t) return '';
+  /* 아직 담당자가 채우지 않은 자리표시자만 있으면 근거로 쓰지 않는다 */
+  if (/^\[담당자/.test(t)) return '';
+  return t.length > limit ? t.slice(0, limit) + ' …(이하 생략)' : t;
+}
 function buildContextPrompt(r) {
   var provisional = false;
   if (!r) {
@@ -457,6 +472,20 @@ function buildContextPrompt(r) {
       if (nm3) c += 'NPV: ' + nm3[1] + '억원\n';
       if (im3) c += 'IRR: ' + im3[1] + '%\n';
     }
+  }
+
+  /* ① 기획 단계 본문 — 의뢰서가 기획 내용과 어긋나지 않도록 근거로 싣는다.
+     작성 요청 바로 앞에 오도록 맨 끝에 붙인다. */
+  var pBg   = planSectionText('1', 600);
+  var pGoal = planSectionText('2', 400);
+  var pEff  = planSectionText('6', 600);
+  if (pBg || pGoal || pEff) {
+    c += '\n【① 기획 단계에서 작성한 내용】\n';
+    if (pBg)   c += '추진 배경 및 필요성: ' + pBg + '\n';
+    if (pGoal) c += '사업 목표: ' + pGoal + '\n';
+    if (pEff)  c += '기대효과: ' + pEff + '\n';
+    c += '※ 위는 담당자가 확정한 기획 내용입니다. 의뢰서는 이 내용과 사실관계가'
+      + ' 어긋나서는 안 되며, 문장을 그대로 옮겨 적어서도 안 됩니다.\n';
   }
 
   return c;
@@ -778,13 +807,17 @@ function aiSection(secNum, secTitle){
 
   var ctx=buildContextPrompt(gResult);
   var sysPrompt=buildSystemPrompt(gResult);
+  /* 항목별 지침이 있으면 그것을 따르고, 없으면 지금까지의 공통 지침만 쓴다 */
+  var guide=(typeof DRAFT_ITEM_GUIDE!=='undefined' && DRAFT_ITEM_GUIDE[secNum])
+    ? DRAFT_ITEM_GUIDE[secNum] : '';
   var taskPrompt=sysPrompt+ctx
     +'\n\n【작성 요청】\n'
     +'의뢰서 '+secNum+' '+secTitle+' 항목을 작성해주세요.\n'
     +'- 마크다운 없이 텍스트만 작성\n'
     +'- 정보가 없는 항목은 [담당자 입력 필요: 내용] 형태로 표시\n'
     +'- ◦ 기호로 항목 구분, 가나다라 소제목 사용\n'
-    +'- 3~5문장 분량으로 구체적으로 작성\n'
+    +(guide?'':'- 3~5문장 분량으로 구체적으로 작성\n')
+    +(guide?'\n【'+secNum+' '+secTitle+' 작성 지침】\n'+guide+'\n\n':'')
     +'해당 항목 내용만 작성하고 섹션 제목은 포함하지 마세요.';
 
   callAI(taskPrompt, function(resp,err){
