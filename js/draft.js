@@ -807,9 +807,18 @@ function aiSection(secNum, secTitle){
 
   var ctx=buildContextPrompt(gResult);
   var sysPrompt=buildSystemPrompt(gResult);
-  /* 항목별 지침이 있으면 그것을 따르고, 없으면 지금까지의 공통 지침만 쓴다 */
-  var guide=(typeof DRAFT_ITEM_GUIDE!=='undefined' && DRAFT_ITEM_GUIDE[secNum])
-    ? DRAFT_ITEM_GUIDE[secNum] : '';
+  /* 항목별 지침이 있으면 그것을 따르고, 없으면 지금까지의 공통 지침만 쓴다.
+     심사기관·총사업비에 따라 요구가 달라지는 항목은 함수로 둔다. */
+  var _g=(typeof DRAFT_ITEM_GUIDE!=='undefined') ? DRAFT_ITEM_GUIDE[secNum] : null;
+  var guide=(typeof _g==='function') ? _g(gResult) : (_g || '');
+
+  /* 지금 화면에 있는 내용을 함께 보낸다.
+     보내지 않으면 AI 는 규칙이 산출한 법령 조문·금액도, 담당자가 직접 채워 넣은
+     내용도 보지 못한 채 매번 처음부터 다시 써서, 확정된 값이 창작으로 바뀌고
+     담당자의 입력이 사라진다. */
+  var cur=(el.textContent||'').replace(/\s+/g,' ').trim();
+  if (cur.length > 1200) cur = cur.slice(0, 1200) + ' …(이하 생략)';
+
   var taskPrompt=sysPrompt+ctx
     +'\n\n【작성 요청】\n'
     +'의뢰서 '+secNum+' '+secTitle+' 항목을 작성해주세요.\n'
@@ -817,6 +826,10 @@ function aiSection(secNum, secTitle){
     +'- 정보가 없는 항목은 [담당자 입력 필요: 내용] 형태로 표시\n'
     +'- ◦ 기호로 항목 구분, 가나다라 소제목 사용\n'
     +(guide?'':'- 3~5문장 분량으로 구체적으로 작성\n')
+    +(cur?'\n【현재 작성된 내용】\n'+cur+'\n'
+        +'※ 위는 앱이 규칙으로 산출했거나 담당자가 직접 채운 내용입니다.\n'
+        +'   이미 확정된 수치·법령 조문과 [담당자 입력 필요: …] 자리표시자는 그대로\n'
+        +'   두고, 없던 근거를 더하거나 문장을 다듬는 방식으로 고쳐 쓰세요.\n':'')
     +(guide?'\n【'+secNum+' '+secTitle+' 작성 지침】\n'+guide+'\n\n':'')
     +'해당 항목 내용만 작성하고 섹션 제목은 포함하지 마세요.';
 
